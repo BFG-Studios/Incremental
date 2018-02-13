@@ -5,11 +5,18 @@ var canvas = document.querySelector("canvas");
 canvas.width = 860;
 canvas.height = 560;
 stageHeight = 200;
+/* var rand = Math.floor(Math.random() * 100) + 1; used to check if an attack is blocked when you are hit, put in hit check*/
+
+var stats = [0,0,0];
+//holds the values for player statistics index 0 is dex, index 1 is int, index 2 is chr
+
 var renderer = canvas.getContext("2d");
-var player = {x: 430, effectiveY: 280, realY: 280, hspeed: 5, vspeed: 2.5, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
-var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
+var player = {dmg: 1 + stats[1] /* how much dmg the player does*/, blockRt: 0 + stats[2]/*chance to block*/, x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0]/* adds dex to horizontal move speed*/ , vspeed: 2.5 + stats[0]/* adds dex to vertical move speed*/, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, shoot: false};
+var bulletCount = [];
+var bulletChoice = 0;
+var bulletTimer = 0;
 var playerimg;
-var attackimg;
+var bulletimg;
 var fakeX = 0;
 var jumpInt = 0;
 startFunc();
@@ -17,19 +24,27 @@ startFunc();
 function startFunc(){
 	playerimg = new Image();
 	playerimg.src = "../img/Ship.png"
-	attackimg = new Image();
-	attackimg.src = "../img/Bullet.png"
+	bulletimg = new Image();
+	bulletimg.src = "../img/Bullet.png"
 	uInt = setInterval(update, 33.34);
-
+	for (i = 0; i < 5; i++){
+		var bullet = {};
+		bullet.x = player.x;
+		bullet.y = player.effectiveY;
+		bullet.show = false;
+		bullet.damage = 5;
+		bulletCount[i] = bullet;
+	}
 }
 function update(){
 	playerMove();
 	if (player.jump == true){
 		jump();
 	}
-	if (player.attack == true){
-		attack();
+	if (player.jump == false && player.shoot == true){
+		shoot();
 	}
+	bulletRender();
 	render();
 }
 function onKeyDown(event){
@@ -52,11 +67,8 @@ function onKeyDown(event){
 			fakeX = 0;
 			jumpInt = 0;
 			break;
-		case 74: //j attack
-			if (player.attack == false){
-				player.attack = true;
-				hitBox.real = true;
-			}
+		case 74: //j shoots
+			player.shoot = true;
 			break;
 	}
 }
@@ -73,7 +85,10 @@ function onKeyUp(event){
 			break;
 		case 83: //s moves forward
 			player.forw = false;
-			break;		
+			break;
+		case 74: //j shoots
+			player.shoot = false;
+			break;
 	}
 }
 function playerMove(){
@@ -97,23 +112,35 @@ function jump(){
 		player.jump = false;
 	}
 }
-function attack(){
-	console.log (hitBox.real);
-	hitBox.cooldown ++;
-	hitBox.x = player.x+player.width;
-	hitBox.y = player.realY+(player.height/4);
-	if (hitBox.cooldown == 10){
-		hitBox.real = false;
+function shoot(){
+	bulletTimer++;
+	if (bulletTimer > 30){
+		bulletCount[bulletChoice].x = player.x+16;
+		bulletCount[bulletChoice].y = player.effectiveY+16;
+		bulletCount[bulletChoice].show = true;
+		bulletChoice++;
+		if (bulletChoice > 4){
+			bulletChoice = 0;
+		}
+		bulletTimer = 0;
 	}
-	if (hitBox.cooldown >= 25){
-		player.attack = false;
-		hitBox.cooldown = 0;
+}
+function bulletRender(){
+	for (i = 0; i < 5; i++){
+		if (bulletCount[i].show == true){
+			bulletCount[i].x += 2;
+			if (bulletCount[i].x > canvas.width){
+				bulletCount[i].show = false;
+			}
+		}
 	}
 }
 function render(){
 	renderer.clearRect(0,0,canvas.width,canvas.height);
-	renderer.drawImage(playerimg,player.x,player.realY);
-	if (hitBox.real == true){
-		renderer.drawImage(attackimg,hitBox.x,hitBox.y);
+	for (i = 0; i < 5; i ++){
+		if (bulletCount[i].show == true){
+			renderer.drawImage(bulletimg,bulletCount[i].x, bulletCount[i].y);
+		}
 	}
+	renderer.drawImage(playerimg,player.x,player.realY);
 }
