@@ -51,7 +51,7 @@ var storePlant = 0;
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 var renderer = canvas.getContext("2d");
-var sdcPlayer = {x: 430, effectiveY: 280, realY: 280, hspeed: 5, vspeed: 2.5, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
+var sdcPlayer = {dmg: 1 + stats[1] /* how much dmg the player does*/, blockRt: 0 + stats[2]/*chance to block*/,x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0]/* adds dex to horizontal move speed*/, vspeed: 2.5 + stats[0]/* adds dex to vertical move speed*/, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
 var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
 var playerimg;
 var attackimg;
@@ -203,7 +203,7 @@ function update(){
 			movePlayer();
 			break;
 		case 3: //map
-		
+
 			break;
 	}
 	render();
@@ -265,7 +265,7 @@ function onClick(e){
 	switch (cG){
 		case 0:
 			if (xClick > 580 && xClick < 700 && yClick > 30 && yClick << 60)
-			{   
+			{
 				 cG = 3;
 			}
 			if (xClick > 10 && xClick < 266){ // checks if they clicked inside the farm space
@@ -281,6 +281,15 @@ function onClick(e){
 										seeds[selected] -= 1; // removes the selected seed type from player inventory
 									}
 									if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
+
+										if (Math.random()*100 < seedChance){
+											seeds[farmPlot[i][j].seed] += 1;
+										}/* has a chance to gain an extra seed of the type harvested*/
+
+										if (Math.random()*100 < extraChance){
+											plants[farmPlot[i][j].seed] += 1;
+										}/*chance to gain a second plant of the type harvested*/
+
 										plants[farmPlot[i][j].seed] += 1;
 										farmPlot[i][j].harvest = false;
 										farmPlot[i][j].seed = 3;
@@ -302,7 +311,7 @@ function onClick(e){
 				if (yClick > 30 && yClick < 60){
 					if (selected != 3 && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plants[selected] -= 1;
-						gold += 50;
+						gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 					}
 				}
 			}
@@ -310,7 +319,7 @@ function onClick(e){
 				if (yClick > 60 && yClick < 90){
 					if (selected != 3 && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						seeds[selected]++;
-						gold -= 25;
+						gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 					}
 				}
 			}
@@ -344,7 +353,7 @@ function onClick(e){
 				}
 			}
 			if(xClick > 825 && xClick < 855){
-				if (yClick > 5 && yClick < 35){ 
+				if (yClick > 5 && yClick < 35){
 				shop = 0;
 				stage.style.backgroundColor = "#202316";
 				}
@@ -367,10 +376,10 @@ function onClick(e){
 			}
 			break;
 		case 1:
-		
+
 			break;
 		case 2:
-			
+
 			break;
 		case 3:
 			if (xClick > 580 && xClick < 700 && yClick > 60 && yClick < 86){ //platformer transition
@@ -443,7 +452,7 @@ function movement()
 
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
-	if (pltPlayer.V_Y < pltPlayer.gav) 
+	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
 	for ( var i = 0; i < maxBlock; i++){
 		if (pltPlayer.collision(block[i]) && pltPlayer.Y + pltPlayer.H < block[i].Y + pltPlayer.V_Y){
@@ -464,7 +473,7 @@ function movePlayer()
 		pltPlayer.V_Y = -10;
 		onGround = false;
 	}
-	
+
 }
 //===========================================================================================
 //RENDER
@@ -556,5 +565,5 @@ function render(){
 		case 3:
 			renderer.drawImage(mapSelection,560,60);
 			break;
-	}	
+	}
 }
