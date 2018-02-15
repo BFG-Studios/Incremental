@@ -10,7 +10,9 @@ renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
 var cG = 0; //controls the game state 0 = incremental, 1 = sidescroller, 2 = platformer, 3 = map
-
+var seedChance = 50;
+var extraChance = 0;
+var goldBonus = 0;
 var selectBtn; //button for opening map selections
 var mapSelection; //picture for map selections
 var xImg;

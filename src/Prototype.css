@@ -2,6 +2,7 @@ body{
 	background-color: #202316;
 }
 #stage{
+	float: left;
 	margin-left: auto;
 	margin-right: auto;
 	width: 860px;
