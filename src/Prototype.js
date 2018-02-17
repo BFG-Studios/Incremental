@@ -61,6 +61,7 @@ var fakeX = 0;
 var jumpInt = 0;
 //===========================================================================================
 //PLATFORMER VARIABLES
+
 var onGround = false;
 var leftPressed = rightPressed = upPressed = false;
 var pltPlayer = new Object("../img/monster.png", 30,50,64,64);
@@ -70,8 +71,11 @@ for ( var i = 0; i < 6; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
 block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
 block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
-for ( var i = 8; i < maxBlock; i++)
+block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
+block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
+for ( var i = 10; i < maxBlock; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
+	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
 pltPlayer.V_Y = 3;
 // Set object for player and enemy
 function Object(img,x,y,w,h){
@@ -203,6 +207,7 @@ function update(){
 		case 2: //platformer
 			movement();
 			movePlayer();
+			areaTreasure();
 			break;
 		case 3: //map
 
@@ -473,9 +478,43 @@ function movePlayer()
 		pltPlayer.V_X = 0;
 	if (upPressed && onGround){
 		pltPlayer.V_Y = -10;
+		console.log(pltPlayer.X);
+		console.log(pltPlayer.Y);
 		onGround = false;
 	}
 
+}
+function areaTreasure()
+{
+
+	
+		
+	if (pltPlayer.X == 762 && pltPlayer.Y == 36)
+	{
+		leftPressed = rightPressed = upPressed = false;
+		console.log("Win");
+		window.alert("You found some Gold!");
+		gold += 50;
+		cG = 0;
+		ouch = true;
+		winCtr();
+	}
+		
+
+}
+function winCtr()
+{
+	var winCtr
+	winCtr++
+	if (winCtr = 1)
+	{
+		pltPlayer.X = 100;
+		pltPlayer.Y = 100;
+		winCtr = 0;
+		console.log("hi");
+		ouch = false;
+		
+	}
 }
 //===========================================================================================
 //RENDER
