@@ -52,10 +52,8 @@ var storePlant = 0;
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
-var renderer = canvas.getContext("2d");
-var sdcPlayer = {dmg: 1 + stats[1] /* how much dmg the player does*/, blockRt: 0 + stats[2]/*chance to block*/,x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0]/* adds dex to horizontal move speed*/, vspeed: 2.5 + stats[0]/* adds dex to vertical move speed*/, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
+var sdcPlayer = new Object("../img/Ship.png", 430, 280, 64, 64, 5, 2.5); // creating a player object for sidescroller
 var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
-var playerimg;
 var attackimg;
 var fakeX = 0;
 var jumpInt = 0;
@@ -63,12 +61,12 @@ var jumpInt = 0;
 //PLATFORMER VARIABLES
 
 var onGround = false;
-var leftPressed = rightPressed = upPressed = false;
-var pltPlayer = new Object("../img/monster.png", 30,50,64,64);
+//var leftPressed = rightPressed = upPressed = false;
+var pltPlayer = new Object("../img/monster.png", 30,50,64,64,0,0); // creating a player object for platformer
 var maxBlock = 15;
 var block = new Array();
 for ( var i = 0; i < 6; i++)
-	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
+	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64); // creating the platform 
 block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
 block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
 block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
@@ -77,18 +75,31 @@ for ( var i = 10; i < maxBlock; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
 	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
 pltPlayer.V_Y = 3;
+//============================================================================================
 // Set object for player and enemy
-function Object(img,x,y,w,h){
+function Object(img,x,y,w,h,vx,vy){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
-	this.X = x;
-	this.Y = y;
-	this.W = w;
-	this.H = h;
+	this.X = x; // object x position
+	this.Y = y; // object y position 
+	this.W = w; // object width	
+	this.H = h; // object height
+	this.V_X = vx; // object horizontal velocity 
+	this.V_Y = vy; // object vertical velocity 
+	this.leftPressed = false;  
+	this.rightPressed = false;
+	this.upPressed = false;
+	//==============================SideScroller===============================================
+	this.dmg = 1+ stats[1]; // Damages player deals
+	this.blockRt = 0 + stats[2]; // chance to block
+	this.effectiveY = 280;
+	this.back = false;
+	this.forward = false;
+	this.jump = false;
+	this.attack = false;
+	//==============================Platformer=================================================
 	this.Previous_X;
 	this.Previous_Y;
-	this.V_X = 0;
-	this.V_Y = 0;
 	this.gav = 0;
 	this.weight = 0.5;
 	this.collision = function(obj){
@@ -99,6 +110,8 @@ function Object(img,x,y,w,h){
 		onGround = true
 		return true;
 	}
+	
+	
 }
 //===========================================================================================
 
@@ -175,8 +188,8 @@ function startFunc(){
 	}
 	//=======================================================================================
 	//SIDESCROLLER
-	playerimg = new Image();
-	playerimg.src = "../img/Ship.png"
+	//playerimg = new Image();
+	//playerimg.src = "../img/Ship.png"
 	attackimg = new Image();
 	attackimg.src = "../img/Bullet.png"
 	//=======================================================================================
@@ -218,22 +231,22 @@ function update(){
 function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
-			leftPressed = true;
-			sdcPlayer.left = true;
+			pltPlayer.leftPressed = true;
+			sdcPlayer.leftPressed = true;
 			break;
 		case 68:
-			rightPressed = true;
-			sdcPlayer.right = true;
+			pltPlayer.rightPressed = true;
+			sdcPlayer.rightPressed = true;
 			break;
 		case 87:
-			upPressed = true;
+			pltPlayer.upPressed = true;
 			sdcPlayer.back = true;
 			break;
 		case 83: //s moves forward
-			sdcPlayer.forw = true;
+			sdcPlayer.forward = true;
 			break;
 		case 32: //jump
-			sdcPlayer.realY = sdcPlayer.effectiveY;
+			sdcPlayer.Y = sdcPlayer.effectiveY;
 			sdcPlayer.jump = true;
 			fakeX = 0;
 			jumpInt = 0;
@@ -250,19 +263,19 @@ function onKeyDown(e){
 function onKeyUp(e){
 	switch(e.keyCode){
 		case 65:
-			leftPressed = false;
-			sdcPlayer.left = false;
+			pltPlayer.leftPressed = false;
+			sdcPlayer.leftPressed = false;
 			break;
 		case 68:
-			rightPressed = false;
-			sdcPlayer.right = false;
+			pltPlayer.rightPressed = false;
+			sdcPlayer.rightPressed = false;
 			break;
 		case 87:
-			upPressed = false;
+			pltPlayer.upPressed = false;
 			sdcPlayer.back = false;
 			break;
 		case 83: //s moves forward
-			sdcPlayer.forw = false;
+			sdcPlayer.forward = false;
 			break;
 	}
 }
@@ -418,22 +431,24 @@ function growUp(plot){
 //===========================================================================================
 //SIDESCROLLER CODE BLOCK
 function playerMove(){
-	if (sdcPlayer.left == true && sdcPlayer.x > 0){
-		sdcPlayer.x -= sdcPlayer.hspeed;
-	}if (sdcPlayer.right == true && sdcPlayer.x + sdcPlayer.width < canvas.width){
-		sdcPlayer.x += sdcPlayer.hspeed;
-	}if (sdcPlayer.back == true && sdcPlayer.effectiveY > stageHeight){
-		sdcPlayer.effectiveY -= sdcPlayer.vspeed;
-		sdcPlayer.realY -= sdcPlayer.vspeed;
-	}if (sdcPlayer.forw == true && sdcPlayer.effectiveY + sdcPlayer.height < canvas.height){
-		sdcPlayer.effectiveY += sdcPlayer.vspeed;
-		sdcPlayer.realY += sdcPlayer.vspeed;
+	if (sdcPlayer.leftPressed && sdcPlayer.X > 0){
+		sdcPlayer.X -= sdcPlayer.V_X;
+		console.log(sdcPlayer.X);
+	}if (sdcPlayer.rightPressed && sdcPlayer.X + sdcPlayer.W < canvas.width){
+		console.log("456");
+		sdcPlayer.X += sdcPlayer.V_X;
+	}if (sdcPlayer.back && sdcPlayer.effectiveY > stageHeight){
+		sdcPlayer.effectiveY -= sdcPlayer.V_Y;
+		sdcPlayer.Y -= sdcPlayer.V_Y;
+	}if (sdcPlayer.forward && sdcPlayer.effectiveY + sdcPlayer.H < canvas.height){
+		sdcPlayer.effectiveY += sdcPlayer.V_Y;
+		sdcPlayer.Y += sdcPlayer.V_Y;
 	}
 }
 function jump(){
 	jumpInt += 0.01
 	fakeX += Math.PI / 100;
-	sdcPlayer.realY -= 4*(Math.sin(fakeX));
+	sdcPlayer.Y -= 4*(Math.sin(fakeX));
 	if (jumpInt > 2){
 		sdcPlayer.jump = false;
 	}
@@ -441,8 +456,8 @@ function jump(){
 function attack(){
 	console.log (hitBox.real);
 	hitBox.cooldown ++;
-	hitBox.x = sdcPlayer.x+sdcPlayer.width;
-	hitBox.y = sdcPlayer.realY+(sdcPlayer.height/4);
+	hitBox.x = sdcPlayer.X+sdcPlayer.W;
+	hitBox.y = sdcPlayer.Y+(sdcPlayer.H/4);
 	if (hitBox.cooldown == 10){
 		hitBox.real = false;
 	}
@@ -470,13 +485,13 @@ function movement()
 }
 function movePlayer()
 {
-	if(leftPressed)
+	if(pltPlayer.leftPressed)
 		pltPlayer.V_X = -3;
-	if(rightPressed)
+	if(pltPlayer.rightPressed)
 		pltPlayer.V_X = 3;
-	if(!leftPressed && !rightPressed)
+	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
 		pltPlayer.V_X = 0;
-	if (upPressed && onGround){
+	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -10;
 		console.log(pltPlayer.X);
 		console.log(pltPlayer.Y);
@@ -593,7 +608,7 @@ function render(){
 			break;
 		case 1:
 			renderer.clearRect(0,0,canvas.width,canvas.height);
-			renderer.drawImage(playerimg,sdcPlayer.x,sdcPlayer.realY);
+			renderer.drawImage(sdcPlayer.Sprite,sdcPlayer.X,sdcPlayer.Y);
 			if (hitBox.real == true){
 				renderer.drawImage(attackimg,hitBox.x,hitBox.y);
 			}
