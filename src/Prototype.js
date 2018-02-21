@@ -13,8 +13,9 @@ var cG = 0; //controls the game state 0 = incremental, 1 = sidescroller, 2 = pla
 var seedChance = 50;
 var extraChance = 0;
 var goldBonus = 0;
-var selectBtn; //button for opening map selections
+var mapBtn; //button for opening map selections
 var mapSelection; //picture for map selections
+var backBtn; //button for back to incremental level
 var xImg;
 var baseImg;
 var shopImg;
@@ -106,6 +107,7 @@ startFunc();
 //INITIALIZATION
 function startFunc(){
 	//INCREMENTAL INITIALIZATION
+	backBtn = new Image; //picture for back button in platform & side scroll
 	mapBtn = new Image;
 	mapSelection = new Image;
 	xImg = new Image; // picture for x button
@@ -121,6 +123,7 @@ function startFunc(){
 	plusImg = new Image; //pic for plus button
 	minusImg = new Image; //pic for minus button
 	xImg.src = "../img/XButton.png";
+	backBtn.src = "../img/BackBtn.png";
 	mapBtn.src = "../img/map.png";
 	mapSelection.src = "../img/selections.png";
 	baseImg.src = "../img/Soil.png";
@@ -271,7 +274,7 @@ function onClick(e){
 	var yClick = e.clientY;
 	switch (cG){
 		case 0:
-			if (xClick > 580 && xClick < 700 && yClick > 30 && yClick << 60)
+			if (xClick > 470 && xClick < 590 && yClick > 290 && yClick << 315)
 			{
 				 cG = 3;
 			}
@@ -383,21 +386,25 @@ function onClick(e){
 			}
 			break;
 		case 1:
-
+            if (xClick > 10 && xClick < 130 && yClick > 10 && yClick < 50){//back to incremental level
+			    cG = 0;
+			}
 			break;
 		case 2:
-
+		    if (xClick > 10 && xClick < 130 && yClick > 10 && yClick < 50){//back to incremental level
+			    cG = 0;
+			}
 			break;
 		case 3:
-			if (xClick > 580 && xClick < 700 && yClick > 60 && yClick < 86){ //platformer transition
-						cG = 2;
-				}
-				if (xClick > 580 && xClick < 700 && yClick > 86 && yClick < 113){ //sidescroller transition
-						cG = 1;
-				}
-				if (xClick > 580 && xClick < 700 && yClick > 113 && yClick < 140){ // exit back to incremental
-						cG = 0;
-				}
+			if (xClick > 250 && xClick < 710 && yClick > 160 && yClick < 240){ //platformer transition
+				cG = 2;
+			}
+			if (xClick > 250 && xClick < 710 && yClick > 240 && yClick < 320){ //sidescroller transition
+				cG = 1;
+			}
+			if (xClick > 250 && xClick < 710 && yClick > 320 && yClick < 400){ // exit back to incremental
+				cG = 0;
+			}
 			break;
 	}
 }
@@ -529,8 +536,7 @@ function render(){
 			renderer.drawImage(tbImg,selPosX,selPosY[1]);
 			renderer.drawImage(cbImg,selPosX,selPosY[2]);
 			renderer.drawImage(selRender,selX,selY);
-			renderer.drawImage(mapBtn,560,30);
-			renderer.drawImage(mapSelection,560,55);
+			renderer.drawImage(mapBtn,460,290);
 			renderer.fillText("Seeds",selPosX-50,selPosY[0]-10);
 			renderer.fillText("Plants",selPosX+60,selPosY[0]-10);
 			for (i = 0; i < 3; i++){ // draws the number of seeds and number of plants on the screen as well as the player stats
@@ -594,17 +600,19 @@ function render(){
 		case 1:
 			renderer.clearRect(0,0,canvas.width,canvas.height);
 			renderer.drawImage(playerimg,sdcPlayer.x,sdcPlayer.realY);
+			renderer.drawImage(backBtn,10,10);
 			if (hitBox.real == true){
 				renderer.drawImage(attackimg,hitBox.x,hitBox.y);
 			}
 			break;
 		case 2:
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
+			renderer.drawImage(backBtn,10,10);
 				for ( var i = 0; i < maxBlock; i++)
 					renderer.drawImage(block[i].Sprite,block[i].X,block[i].Y);
 			break;
 		case 3:
-			renderer.drawImage(mapSelection,560,60);
+			renderer.drawImage(mapSelection,250,160);
 			break;
 	}
 }
