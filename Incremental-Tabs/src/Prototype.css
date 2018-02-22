@@ -1,0 +1,9 @@
+body{
+	background-color: #202316;
+}
+#stage{
+	margin: auto;
+	width: 860px;
+	height: 560px;
+	border: 2px solid #76D541;
+}
