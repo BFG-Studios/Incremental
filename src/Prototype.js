@@ -60,6 +60,25 @@ var playerimg;
 var attackimg;
 var fakeX = 0;
 var jumpInt = 0;
+archer = new Enemy ("../img/archer.png",5,4,5,50,10,true);
+soldier = new Enemy ("../img/soldier.png",10,2,2,20,70,false);
+function Enemy(img,health,attack,aDelay,aW,aH,proj){
+	this.Sprite = new Image();
+	this.Sprite.src = img; //enemy image
+	this.health = health; //enemy health
+	this.attack = attack; //enemy damage value
+	this.x = 0; //enemy's position, to be implemented upon spawning
+	this.y = 0;
+	this.speed = 1; //enemy's movement speed
+	this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
+	this.aTimer = 0; //the timer for that max value
+	this.aW = aW; //the width of the attack
+	this.aH = aH; //the height of the attack
+	this.proj = proj; //bool stating whether the enemy uses a projectile attack
+	if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
+		this.projSp = 2;
+	}
+}
 //===========================================================================================
 //PLATFORMER VARIABLES
 
