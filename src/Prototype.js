@@ -59,21 +59,22 @@ var fakeX = 0;
 var jumpInt = 0;
 //===========================================================================================
 //PLATFORMER VARIABLES
-
+var wall = new Image();
+wall.src = "../img/temple_wall.png";
 var onGround = false;
 //var leftPressed = rightPressed = upPressed = false;
-var pltPlayer = new Object("../img/monster.png", 30,50,64,64,0,0); // creating a player object for platformer
+var pltPlayer = new Object("../img/character.png", 30,50,64,64,0,0); // creating a player object for platformer
 var maxBlock = 15;
 var block = new Array();
 for ( var i = 0; i < 6; i++)
-	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64); // creating the platform 
-block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
-block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
-block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
-block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
+	block[i] = new Object ("../img/temple_ground.png",[i]*64,484,64,64); // creating the platform 
+block[6] = new Object ("../img/temple_ground.png",6*64,484-1*64,64,64);
+block[7] = new Object ("../img/temple_ground.png",7*64,484-2*64,64,64);
+block[8] = new Object ("../img/temple_ground.png",8*64,484-3*64,64,64);
+block[9] = new Object ("../img/temple_ground.png",9*64,484-4*64,64,64);
 for ( var i = 10; i < maxBlock; i++)
-	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
-	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
+	block[i] = new Object ("../img/temple_ground.png",[i]*64,484,64,64);
+	block[12] = new Object ("../img/temple_ground.png",12*64,484-6*64,64,64);
 pltPlayer.V_Y = 3;
 //============================================================================================
 // Set object for player and enemy
@@ -614,6 +615,7 @@ function render(){
 			}
 			break;
 		case 2:
+			renderer.drawImage(wall, 0, 0);
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
 				for ( var i = 0; i < maxBlock; i++)
 					renderer.drawImage(block[i].Sprite,block[i].X,block[i].Y);
