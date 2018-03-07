@@ -60,6 +60,19 @@ var playerimg;
 var attackimg;
 var fakeX = 0;
 var jumpInt = 0;
+//Enemy Spawn
+var sAcount = 0; //this variable controls which wave we're on
+var sACmax = 4; //this is the max number of waves
+var sArray = [[1,3,0,0,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+				  [2,1,3,0,0,0,0],
+				  [2,2,3,0,0,0,0],
+				  [1,1,1,3,0,0,0],
+				  [2,2,1,1,3,0,0]];
+var mArray = [];
+var spawnMax = 6;
+var waveT = 0; //time between waves
+var waveTM = 10; //max time between waves
+var waveTB = true; //bool stating when a wave is over
 archer = new Enemy ("../img/archer.png",5,4,5,50,10,true);
 soldier = new Enemy ("../img/soldier.png",10,2,2,20,70,false);
 function Enemy(img,health,attack,aDelay,aW,aH,proj){
@@ -224,6 +237,13 @@ function update(){
 			}
 			if (sdcPlayer.attack == true){
 				attack();
+			}
+			if (waveTB == true){ //waveT is the pause between waves, waveTB will be true when the last enemy is killed (not implemented yet) starting the next wave's spawn
+				waveT += 1;
+				if (waveT >= waveTM){
+					waveTB = false;
+					spawn();
+				}
 			}
 			break;
 		case 2: //platformer
@@ -443,7 +463,7 @@ function growUp(plot){
 }
 //===========================================================================================
 //SIDESCROLLER CODE BLOCK
-function playerMove(){
+function playerMove(){ //basic movement stuff, just like in the platformer
 	if (sdcPlayer.left == true && sdcPlayer.x > 0){
 		sdcPlayer.x -= sdcPlayer.hspeed;
 	}if (sdcPlayer.right == true && sdcPlayer.x + sdcPlayer.width < canvas.width){
@@ -456,7 +476,7 @@ function playerMove(){
 		sdcPlayer.realY += sdcPlayer.vspeed;
 	}
 }
-function jump(){
+function jump(){ //this is some awful jump code that makes the player spin in a fucking parabola
 	jumpInt += 0.01
 	fakeX += Math.PI / 100;
 	sdcPlayer.realY -= 4*(Math.sin(fakeX));
@@ -464,17 +484,41 @@ function jump(){
 		sdcPlayer.jump = false;
 	}
 }
-function attack(){
+function attack(){ //this spawns the player's attack
 	console.log (hitBox.real);
 	hitBox.cooldown ++;
 	hitBox.x = sdcPlayer.x+sdcPlayer.width;
 	hitBox.y = sdcPlayer.realY+(sdcPlayer.height/4);
-	if (hitBox.cooldown == 10){
+	if (hitBox.cooldown == 10){ //this stuff is timers for when the player can and can't attack
 		hitBox.real = false;
 	}
 	if (hitBox.cooldown >= 25){
 		sdcPlayer.attack = false;
 		hitBox.cooldown = 0;
+	}
+}
+function spawn(){ //spawns enemies
+	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
+		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
+			case 1:
+				mArray[i] = archer;
+				mArray[i].x = 500;
+				mArray[i].y = i*50+10;
+				console.log ("archer");
+				break;
+			case 2:
+				mArray[i] = soldier;
+				console.log ("soldier");
+				break;
+			case 3: //when the array has a 3 in it the for loop stops checking and the spawning stops
+				i = spawnMax;
+				console.log ("end");
+				break;
+		}
+	}
+	sAcount++; //this ticks up the difficulty/ spawn wave for the next wave, when it hits the max currently it just spawns the same wave over and over
+	if (sAcount >= sACmax){
+		sAcount -= 1;
 	}
 }
 //===========================================================================================
