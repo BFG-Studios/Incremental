@@ -9,6 +9,9 @@ var renderer = canvas.getContext("2d");
 renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
+var newCarrot = new Plant(300,70,2);
+var newPotate = new Plant(150,50,0);
+var newTomato = new Plant(450,90,1);
 var cG = 0; //controls the game state 0 = incremental, 1 = sidescroller, 2 = platformer, 3 = map
 var seedChance = 50;
 var extraChance = 0;
@@ -50,6 +53,12 @@ var storeT;
 var storeStrings = ["Potato Seed","Tomato Seed","Carrot Seed","Potato Plant","Tomato Plant","Carrot Plant"];
 var storeSeed = 0;
 var storePlant = 0;
+function Plant(growTime,harvestChance,plantId){
+
+	this.gT = growTime;
+	this.hC = harvestChance;
+	this.pId = plantId;
+}
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
@@ -137,7 +146,7 @@ function startFunc(){
 	plusImg.src = "../img/PlusButton.png";
 	minusImg.src = "../img/MinusButton.png";
 	plantImg = []; //the array that stores the various plant pictures, it's an array so i don't have to use a million if statements
-	plantImg[0] = []; //this makes it multidimensional much to my chagrin
+	plantImg[0] = []; //this makes it multidimensional
 	plantImg[1] = [];
 	plantImg[2] = [];
 	for (i = 0; i < 4; i++){ //this fills each line with 4 empty images
@@ -157,9 +166,9 @@ function startFunc(){
 	plantImg[0][2].src = "../img/Plant2.png";
 	plantImg[1][2].src = "../img/Plant2.png";
 	plantImg[2][2].src = "../img/Plant2.png";
-	plantImg[0][3].src = "../img/Potato.png";
-	plantImg[1][3].src = "../img/Tomato.png";
-	plantImg[2][3].src = "../img/Carrot.png";
+	plantImg[0][3].src = "../img/Potato2.png";
+	plantImg[1][3].src = "../img/Tomato2.png";
+	plantImg[2][3].src = "../img/Carrot2.png";
 	farmPlot = [];
 	for (i = 0; i < 4; i++){ //this stuff populates the farm/field player can grow shit on
 		farmPlot[i] = [];
@@ -421,7 +430,9 @@ function growUp(plot){
 			plot.growing = false;
 		}
 	}
+
 }
+
 //===========================================================================================
 //SIDESCROLLER CODE BLOCK
 function playerMove(){
