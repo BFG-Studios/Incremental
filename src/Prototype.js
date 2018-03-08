@@ -20,6 +20,8 @@ var mapBtn; //button for opening map selections
 var mapSelection; //picture for map selections
 var backBtn; //button for back to incremental level
 var xImg;
+var harvest = new Audio('../wav/Harvest.wav');
+var bonus = new Audio('../wav/Bonus.wav');
 var baseImg;
 var shopImg;
 var sellImg;
@@ -303,10 +305,12 @@ function onClick(e){
 
 										if (Math.random()*100 < seedChance){
 											seeds[farmPlot[i][j].seed] += 1;
+											bonus.play();
 										}/* has a chance to gain an extra seed of the type harvested*/
 
 										if (Math.random()*100 < extraChance){
 											plants[farmPlot[i][j].seed] += 1;
+											bonus.play();
 										}/*chance to gain a second plant of the type harvested*/
 
 										plants[farmPlot[i][j].seed] += 1;
@@ -314,6 +318,7 @@ function onClick(e){
 										farmPlot[i][j].seed = 3;
 										farmPlot[i][j].img = baseImg;
 										farmPlot[i][j].grow = 0;
+										harvest.play();
 									}
 								}
 							}
