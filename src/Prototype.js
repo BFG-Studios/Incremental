@@ -54,8 +54,9 @@ var storePlant = 0;
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 var renderer = canvas.getContext("2d");
-var sdcPlayer = {dmg: 1 + stats[1] /* how much dmg the player does*/, blockRt: 0 + stats[2]/*chance to block*/,x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0]/* adds dex to horizontal move speed*/, vspeed: 2.5 + stats[0]/* adds dex to vertical move speed*/, left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
+var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png");
 var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
+var leftMove = rightMove = backMove = forMove = false;
 var playerimg;
 var attackimg;
 var fakeX = 0;
@@ -92,6 +93,27 @@ function Enemy(img,health,attack,aDelay,aW,aH,proj){
 		this.projSp = 2;
 	}
 }
+function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg){
+	this.x = x;
+	this.y = y;
+	this.w = w;
+	this.h = h;
+	this.jump = false;
+	this.attack = false;
+	this.grav = 10;
+	this.floorY = y;
+	this.jspeed = jspeed;
+	this.jtop = false;
+	this.health = health;
+	this.dmg = dmg + stats[1]; // increases damage (int)
+	this.blockRt = 0 + stats[2]; // increases block (cha)
+	this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
+	this.vspeed = vspeed; //increasese vertical speed (dex)
+	this.sprite = new Image();
+	this.sprite.src = img;
+	this.aSprite = new Image();
+	this.aSprite. src = aImg;
+}
 //===========================================================================================
 //PLATFORMER VARIABLES
 
@@ -102,10 +124,10 @@ var maxBlock = 15;
 var block = new Array();
 for ( var i = 0; i < 6; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
-block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
-block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
-block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
-block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
+	block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
+	block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
+	block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
+	block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
 for ( var i = 10; i < maxBlock; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
 	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
@@ -210,10 +232,6 @@ function startFunc(){
 	}
 	//=======================================================================================
 	//SIDESCROLLER
-	playerimg = new Image();
-	playerimg.src = "../img/Ship.png"
-	attackimg = new Image();
-	attackimg.src = "../img/Bullet.png"
 	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
@@ -261,21 +279,21 @@ function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
 			leftPressed = true;
-			sdcPlayer.left = true;
+			leftMove = true
 			break;
 		case 68:
 			rightPressed = true;
-			sdcPlayer.right = true;
+			rightMove = true
 			break;
 		case 87:
 			upPressed = true;
-			sdcPlayer.back = true;
+			backMove = true;
 			break;
 		case 83: //s moves forward
-			sdcPlayer.forw = true;
+			forMove = true;
 			break;
 		case 32: //jump
-			sdcPlayer.realY = sdcPlayer.effectiveY;
+			sdcPlayer.floorY = sdcPlayer.y;
 			sdcPlayer.jump = true;
 			fakeX = 0;
 			jumpInt = 0;
@@ -293,18 +311,18 @@ function onKeyUp(e){
 	switch(e.keyCode){
 		case 65:
 			leftPressed = false;
-			sdcPlayer.left = false;
+			leftMove = false;
 			break;
 		case 68:
 			rightPressed = false;
-			sdcPlayer.right = false;
+			rightMove = false;
 			break;
 		case 87:
 			upPressed = false;
-			sdcPlayer.back = false;
+			backMove = false;
 			break;
 		case 83: //s moves forward
-			sdcPlayer.forw = false;
+			forMove = false;
 			break;
 	}
 }
@@ -464,31 +482,41 @@ function growUp(plot){
 //===========================================================================================
 //SIDESCROLLER CODE BLOCK
 function playerMove(){ //basic movement stuff, just like in the platformer
-	if (sdcPlayer.left == true && sdcPlayer.x > 0){
+	if (leftMove == true && sdcPlayer.x > 0){
 		sdcPlayer.x -= sdcPlayer.hspeed;
-	}if (sdcPlayer.right == true && sdcPlayer.x + sdcPlayer.width < canvas.width){
+	}if (rightMove == true && sdcPlayer.x + sdcPlayer.w < canvas.width){
 		sdcPlayer.x += sdcPlayer.hspeed;
-	}if (sdcPlayer.back == true && sdcPlayer.effectiveY > stageHeight){
-		sdcPlayer.effectiveY -= sdcPlayer.vspeed;
-		sdcPlayer.realY -= sdcPlayer.vspeed;
-	}if (sdcPlayer.forw == true && sdcPlayer.effectiveY + sdcPlayer.height < canvas.height){
-		sdcPlayer.effectiveY += sdcPlayer.vspeed;
-		sdcPlayer.realY += sdcPlayer.vspeed;
+	}if (backMove == true && sdcPlayer.y > stageHeight){
+		sdcPlayer.y -= sdcPlayer.vspeed;
+		sdcPlayer.y -= sdcPlayer.vspeed;
+	}if (forMove == true && sdcPlayer.y + sdcPlayer.h < canvas.height){
+		sdcPlayer.floorY += sdcPlayer.vspeed;
+		sdcPlayer.y += sdcPlayer.vspeed;
 	}
 }
 function jump(){ //this is some awful jump code that makes the player spin in a fucking parabola
-	jumpInt += 0.01
-	fakeX += Math.PI / 100;
-	sdcPlayer.realY -= 4*(Math.sin(fakeX));
-	if (jumpInt > 2){
-		sdcPlayer.jump = false;
-	}
+	sdcPlayer.y -= sdcPlayer.jspeed - sdcPlayer.grav;
+	switch (sdcPlayer.jtop){
+		case false:
+			sdcPlayer.jspeed = 20;
+			if (sdcPlayer.y < sdcPlayer.floorY - 100){
+				sdcPlayer.jtop = true;
+			}
+			break;
+		case true:
+			sdcPlayer.jspeed = 0;
+			if (sdcPlayer.y >= sdcPlayer.floorY){
+				sdcPlayer.jtop = false;
+				sdcPlayer.jump = false;
+			}
+			break;
+	}	
 }
 function attack(){ //this spawns the player's attack
 	console.log (hitBox.real);
 	hitBox.cooldown ++;
-	hitBox.x = sdcPlayer.x+sdcPlayer.width;
-	hitBox.y = sdcPlayer.realY+(sdcPlayer.height/4);
+	hitBox.x = sdcPlayer.x+sdcPlayer.w;
+	hitBox.y = sdcPlayer.y+(sdcPlayer.h/4);
 	if (hitBox.cooldown == 10){ //this stuff is timers for when the player can and can't attack
 		hitBox.real = false;
 	}
@@ -662,10 +690,10 @@ function render(){
 			break;
 		case 1:
 			renderer.clearRect(0,0,canvas.width,canvas.height);
-			renderer.drawImage(playerimg,sdcPlayer.x,sdcPlayer.realY);
+			renderer.drawImage(sdcPlayer.img,sdcPlayer.x,sdcPlayer.y);
 			renderer.drawImage(backBtn,10,10);
 			if (hitBox.real == true){
-				renderer.drawImage(attackimg,hitBox.x,hitBox.y);
+				renderer.drawImage(sdcPlayer.aImg,hitBox.x,hitBox.y);
 			}
 			break;
 		case 2:
