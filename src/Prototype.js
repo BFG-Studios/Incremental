@@ -54,8 +54,7 @@ var storePlant = 0;
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 var renderer = canvas.getContext("2d");
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png");
-var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
+var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
 var leftMove = rightMove = backMove = forMove = false;
 var playerimg;
 var attackimg;
@@ -93,7 +92,7 @@ function Enemy(img,health,attack,aDelay,aW,aH,proj){
 		this.projSp = 2;
 	}
 }
-function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg){
+function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
 	this.x = x;
 	this.y = y;
 	this.w = w;
@@ -111,8 +110,14 @@ function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg){
 	this.vspeed = vspeed; //increasese vertical speed (dex)
 	this.sprite = new Image();
 	this.sprite.src = img;
+	this.shadow = new Image();
+	this.shadow.src = sImg;
 	this.aSprite = new Image();
-	this.aSprite. src = aImg;
+	this.aSprite.src = aImg;
+	this.hitboxX = 0;
+	this.hitboxY = 0;
+	this.hitboxC = 0;
+	this.hitboxR = false;
 }
 //===========================================================================================
 //PLATFORMER VARIABLES
@@ -293,15 +298,15 @@ function onKeyDown(e){
 			forMove = true;
 			break;
 		case 32: //jump
-			sdcPlayer.floorY = sdcPlayer.y;
-			sdcPlayer.jump = true;
-			fakeX = 0;
-			jumpInt = 0;
+			if(sdcPlayer.jump == false){
+				sdcPlayer.floorY = sdcPlayer.y;
+				sdcPlayer.jump = true;
+			}
 			break;
 		case 74: //j attack
 			if (sdcPlayer.attack == false){
 				sdcPlayer.attack = true;
-				hitBox.real = true;
+				sdcPlayer.hitboxR = true;
 			}
 			break;
 	}
@@ -486,8 +491,8 @@ function playerMove(){ //basic movement stuff, just like in the platformer
 		sdcPlayer.x -= sdcPlayer.hspeed;
 	}if (rightMove == true && sdcPlayer.x + sdcPlayer.w < canvas.width){
 		sdcPlayer.x += sdcPlayer.hspeed;
-	}if (backMove == true && sdcPlayer.y > stageHeight){
-		sdcPlayer.y -= sdcPlayer.vspeed;
+	}if (backMove == true && sdcPlayer.floorY > stageHeight){
+		sdcPlayer.floorY -= sdcPlayer.vspeed;
 		sdcPlayer.y -= sdcPlayer.vspeed;
 	}if (forMove == true && sdcPlayer.y + sdcPlayer.h < canvas.height){
 		sdcPlayer.floorY += sdcPlayer.vspeed;
@@ -513,16 +518,16 @@ function jump(){ //this is some awful jump code that makes the player spin in a 
 	}	
 }
 function attack(){ //this spawns the player's attack
-	console.log (hitBox.real);
-	hitBox.cooldown ++;
-	hitBox.x = sdcPlayer.x+sdcPlayer.w;
-	hitBox.y = sdcPlayer.y+(sdcPlayer.h/4);
-	if (hitBox.cooldown == 10){ //this stuff is timers for when the player can and can't attack
-		hitBox.real = false;
+	console.log (sdcPlayer.hitboxR);
+	sdcPlayer.hitboxC ++;
+	sdcPlayer.hitboxX = sdcPlayer.x+sdcPlayer.w;
+	sdcPlayer.hitboxY = sdcPlayer.y+(sdcPlayer.h/4);
+	if (sdcPlayer.hitboxC == 10){ //this stuff is timers for when the player can and can't attack
+		sdcPlayer.hitboxR = false;
 	}
-	if (hitBox.cooldown >= 25){
+	if (sdcPlayer.hitboxC >= 25){
 		sdcPlayer.attack = false;
-		hitBox.cooldown = 0;
+		sdcPlayer.hitboxC = 0;
 	}
 }
 function spawn(){ //spawns enemies
@@ -690,10 +695,11 @@ function render(){
 			break;
 		case 1:
 			renderer.clearRect(0,0,canvas.width,canvas.height);
-			renderer.drawImage(sdcPlayer.img,sdcPlayer.x,sdcPlayer.y);
+			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
+			renderer.drawImage(sdcPlayer.sprite,sdcPlayer.x,sdcPlayer.y);
 			renderer.drawImage(backBtn,10,10);
-			if (hitBox.real == true){
-				renderer.drawImage(sdcPlayer.aImg,hitBox.x,hitBox.y);
+			if (sdcPlayer.hitboxR == true){
+				renderer.drawImage(sdcPlayer.aSprite,sdcPlayer.hitboxX,sdcPlayer.hitboxY);
 			}
 			break;
 		case 2:
