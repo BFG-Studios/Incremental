@@ -64,10 +64,10 @@ var jumpInt = 0;
 var sAcount = 0; //this variable controls which wave we're on
 var sACmax = 4; //this is the max number of waves
 var sArray = [[1,3,0,0,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
-				  [2,1,3,0,0,0,0],
-				  [2,2,3,0,0,0,0],
-				  [1,1,1,3,0,0,0],
-				  [2,2,1,1,3,0,0]];
+			  [2,1,3,0,0,0,0],
+			  [2,2,3,0,0,0,0],
+			  [1,1,1,3,0,0,0],
+			  [2,2,1,1,3,0,0]];
 var mArray = [];
 var spawnMax = 6;
 var waveT = 0; //time between waves
