@@ -53,9 +53,11 @@ var storePlant = 0;
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
+var shotimg;//var for projectile img
+var rAtk = [];
 var renderer = canvas.getContext("2d");
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
-var leftMove = rightMove = backMove = forMove = false;
+var sdcPlayer = {dmg: 1 + stats[1], blockRt: 0 + stats[2],x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0], vspeed: 2.5 + stats[0], left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
+var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
 var playerimg;
 var attackimg;
 var fakeX = 0;
@@ -63,21 +65,21 @@ var jumpInt = 0;
 //Enemy Spawn
 var sAcount = 0; //this variable controls which wave we're on
 var sACmax = 4; //this is the max number of waves
-var sArray = [[1,3,0,0,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
-			  [2,1,3,0,0,0,0],
-			  [2,2,3,0,0,0,0],
-			  [1,1,1,3,0,0,0],
-			  [2,2,1,1,3,0,0]];
+var sArray = [[1,1,1,3,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+				  [2,1,3,0,0,0,0],
+				  [2,2,3,0,0,0,0],
+				  [1,1,1,3,0,0,0],
+				  [2,2,1,1,3,0,0]];
 var mArray = [];
 var spawnMax = 6;
 var waveT = 0; //time between waves
 var waveTM = 10; //max time between waves
 var waveTB = true; //bool stating when a wave is over
-archer = new Enemy ("../img/archer.png",5,4,5,50,10,true);
-soldier = new Enemy ("../img/soldier.png",10,2,2,20,70,false);
-function Enemy(img,health,attack,aDelay,aW,aH,proj){
+function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
 	this.Sprite = new Image();
 	this.Sprite.src = img; //enemy image
+	this.Attack = new Image();
+	this.Attack.src = atkImg;
 	this.health = health; //enemy health
 	this.attack = attack; //enemy damage value
 	this.x = 0; //enemy's position, to be implemented upon spawning
@@ -92,33 +94,6 @@ function Enemy(img,health,attack,aDelay,aW,aH,proj){
 		this.projSp = 2;
 	}
 }
-function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
-	this.x = x;
-	this.y = y;
-	this.w = w;
-	this.h = h;
-	this.jump = false;
-	this.attack = false;
-	this.grav = 10;
-	this.floorY = y;
-	this.jspeed = jspeed;
-	this.jtop = false;
-	this.health = health;
-	this.dmg = dmg + stats[1]; // increases damage (int)
-	this.blockRt = 0 + stats[2]; // increases block (cha)
-	this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
-	this.vspeed = vspeed; //increasese vertical speed (dex)
-	this.sprite = new Image();
-	this.sprite.src = img;
-	this.shadow = new Image();
-	this.shadow.src = sImg;
-	this.aSprite = new Image();
-	this.aSprite.src = aImg;
-	this.hitboxX = 0;
-	this.hitboxY = 0;
-	this.hitboxC = 0;
-	this.hitboxR = false;
-}
 //===========================================================================================
 //PLATFORMER VARIABLES
 
@@ -129,10 +104,10 @@ var maxBlock = 15;
 var block = new Array();
 for ( var i = 0; i < 6; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
-	block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
-	block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
-	block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
-	block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
+block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
+block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
+block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
+block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
 for ( var i = 10; i < maxBlock; i++)
 	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
 	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
@@ -237,11 +212,21 @@ function startFunc(){
 	}
 	//=======================================================================================
 	//SIDESCROLLER
+	playerimg = new Image();
+	playerimg.src = "../img/Ship.png"
+	attackimg = new Image();
+	attackimg.src = "../img/Bullet.png"
+	shotimg = new Image();
+	shotimg.src = "../img/Bullet.png"
 	//=======================================================================================
 	uInt = setInterval(update, 33.34);
+	enemyT = setInterval(enemyMove, 1000);
+
+
 }
 //===========================================================================================
 //GENERAL CODE BLOCK
+
 function update(){
 	switch (cG){
 		case 0: //incremental
@@ -267,6 +252,12 @@ function update(){
 					waveTB = false;
 					spawn();
 				}
+
+			}
+			for (i = 0; i < 3; i++)
+			{
+				rAtk[i].x -= 1;
+				
 			}
 			break;
 		case 2: //platformer
@@ -284,29 +275,29 @@ function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
 			leftPressed = true;
-			leftMove = true
+			sdcPlayer.left = true;
 			break;
 		case 68:
 			rightPressed = true;
-			rightMove = true
+			sdcPlayer.right = true;
 			break;
 		case 87:
 			upPressed = true;
-			backMove = true;
+			sdcPlayer.back = true;
 			break;
 		case 83: //s moves forward
-			forMove = true;
+			sdcPlayer.forw = true;
 			break;
 		case 32: //jump
-			if(sdcPlayer.jump == false){
-				sdcPlayer.floorY = sdcPlayer.y;
-				sdcPlayer.jump = true;
-			}
+			sdcPlayer.realY = sdcPlayer.effectiveY;
+			sdcPlayer.jump = true;
+			fakeX = 0;
+			jumpInt = 0;
 			break;
 		case 74: //j attack
 			if (sdcPlayer.attack == false){
 				sdcPlayer.attack = true;
-				sdcPlayer.hitboxR = true;
+				hitBox.real = true;
 			}
 			break;
 	}
@@ -316,18 +307,18 @@ function onKeyUp(e){
 	switch(e.keyCode){
 		case 65:
 			leftPressed = false;
-			leftMove = false;
+			sdcPlayer.left = false;
 			break;
 		case 68:
 			rightPressed = false;
-			rightMove = false;
+			sdcPlayer.right = false;
 			break;
 		case 87:
 			upPressed = false;
-			backMove = false;
+			sdcPlayer.back = false;
 			break;
 		case 83: //s moves forward
-			forMove = false;
+			sdcPlayer.forw = false;
 			break;
 	}
 }
@@ -486,61 +477,58 @@ function growUp(plot){
 }
 //===========================================================================================
 //SIDESCROLLER CODE BLOCK
+
 function playerMove(){ //basic movement stuff, just like in the platformer
-	if (leftMove == true && sdcPlayer.x > 0){
+	if (sdcPlayer.left == true && sdcPlayer.x > 0){
 		sdcPlayer.x -= sdcPlayer.hspeed;
-	}if (rightMove == true && sdcPlayer.x + sdcPlayer.w < canvas.width){
+	}if (sdcPlayer.right == true && sdcPlayer.x + sdcPlayer.width < canvas.width){
 		sdcPlayer.x += sdcPlayer.hspeed;
-	}if (backMove == true && sdcPlayer.floorY > stageHeight){
-		sdcPlayer.floorY -= sdcPlayer.vspeed;
-		sdcPlayer.y -= sdcPlayer.vspeed;
-	}if (forMove == true && sdcPlayer.y + sdcPlayer.h < canvas.height){
-		sdcPlayer.floorY += sdcPlayer.vspeed;
-		sdcPlayer.y += sdcPlayer.vspeed;
+	}if (sdcPlayer.back == true && sdcPlayer.effectiveY > stageHeight){
+		sdcPlayer.effectiveY -= sdcPlayer.vspeed;
+		sdcPlayer.realY -= sdcPlayer.vspeed;
+	}if (sdcPlayer.forw == true && sdcPlayer.effectiveY + sdcPlayer.height < canvas.height){
+		sdcPlayer.effectiveY += sdcPlayer.vspeed;
+		sdcPlayer.realY += sdcPlayer.vspeed;
 	}
 }
 function jump(){ //this is some awful jump code that makes the player spin in a fucking parabola
-	sdcPlayer.y -= sdcPlayer.jspeed - sdcPlayer.grav;
-	switch (sdcPlayer.jtop){
-		case false:
-			sdcPlayer.jspeed = 20;
-			if (sdcPlayer.y < sdcPlayer.floorY - 100){
-				sdcPlayer.jtop = true;
-			}
-			break;
-		case true:
-			sdcPlayer.jspeed = 0;
-			if (sdcPlayer.y >= sdcPlayer.floorY){
-				sdcPlayer.jtop = false;
-				sdcPlayer.jump = false;
-			}
-			break;
-	}	
+	jumpInt += 0.01
+	fakeX += Math.PI / 100;
+	sdcPlayer.realY -= 4*(Math.sin(fakeX));
+	if (jumpInt > 2){
+		sdcPlayer.jump = false;
+	}
 }
 function attack(){ //this spawns the player's attack
-	console.log (sdcPlayer.hitboxR);
-	sdcPlayer.hitboxC ++;
-	sdcPlayer.hitboxX = sdcPlayer.x+sdcPlayer.w;
-	sdcPlayer.hitboxY = sdcPlayer.y+(sdcPlayer.h/4);
-	if (sdcPlayer.hitboxC == 10){ //this stuff is timers for when the player can and can't attack
-		sdcPlayer.hitboxR = false;
+	console.log (hitBox.real);
+	hitBox.cooldown ++;
+	hitBox.x = sdcPlayer.x+sdcPlayer.width;
+	hitBox.y = sdcPlayer.realY+(sdcPlayer.height/4);
+	if (hitBox.cooldown == 10){ //this stuff is timers for when the player can and can't attack
+		hitBox.real = false;
 	}
-	if (sdcPlayer.hitboxC >= 25){
+	if (hitBox.cooldown >= 25){
 		sdcPlayer.attack = false;
-		sdcPlayer.hitboxC = 0;
+		hitBox.cooldown = 0;
 	}
 }
 function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
+				archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);
 				mArray[i] = archer;
 				mArray[i].x = 500;
-				mArray[i].y = i*50+10;
+				mArray[i].y = i*70+200;
+				rAtk[i] = {x: mArray[i].x, y: mArray[i].y};
+				console.log(rAtk[i]);
 				console.log ("archer");
 				break;
 			case 2:
+				soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);
 				mArray[i] = soldier;
+				mArray[i].x = 500;
+				mArray[i].y = i*70+200;
 				console.log ("soldier");
 				break;
 			case 3: //when the array has a 3 in it the for loop stops checking and the spawning stops
@@ -553,7 +541,43 @@ function spawn(){ //spawns enemies
 	if (sAcount >= sACmax){
 		sAcount -= 1;
 	}
+
+
 }
+function atk(i,j,x,y)
+{
+	
+	var mAtk;
+		if (i == 0)
+		{
+		rAtk[1] = new Bullets(j,x,y);
+		}
+		else
+			rAtk[0] = new Bullets(j,x,y);
+		
+}
+for (i = 0; i < mArray.length; i++)
+{
+	if (mArray[i] = archer)
+	{
+
+	}
+	else if (mArray[i] = soldier)
+	{
+		walkA(mArray[i].x, mArray[i].y);
+	}
+}
+function walkA(x,y)
+{
+
+}
+function enemyMove()
+{
+
+
+
+
+}//function for enemy movement.
 //===========================================================================================
 //PLATFORMER CODE BLOCK
 function movement()
@@ -590,8 +614,8 @@ function movePlayer()
 function areaTreasure()
 {
 
-	
-		
+
+
 	if (pltPlayer.X == 762 && pltPlayer.Y == 36)
 	{
 		leftPressed = rightPressed = upPressed = false;
@@ -602,7 +626,7 @@ function areaTreasure()
 		ouch = true;
 		winCtr();
 	}
-		
+
 
 }
 function winCtr()
@@ -616,7 +640,7 @@ function winCtr()
 		winCtr = 0;
 		console.log("hi");
 		ouch = false;
-		
+
 	}
 }
 //===========================================================================================
@@ -694,12 +718,21 @@ function render(){
 			}
 			break;
 		case 1:
+			
 			renderer.clearRect(0,0,canvas.width,canvas.height);
-			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
-			renderer.drawImage(sdcPlayer.sprite,sdcPlayer.x,sdcPlayer.y);
+			renderer.drawImage(playerimg,sdcPlayer.x,sdcPlayer.realY);
+			for (i = 0; i < mArray.length; i++)
+			{
+				renderer.drawImage(mArray[i].Sprite, mArray[i].x, mArray[i].y);
+				if(mArray[i].proj == true)
+				{
+					renderer.drawImage(mArray[i].Attack, rAtk[i].x, rAtk[i].y);
+					console.log(i);
+				}
+			}
 			renderer.drawImage(backBtn,10,10);
-			if (sdcPlayer.hitboxR == true){
-				renderer.drawImage(sdcPlayer.aSprite,sdcPlayer.hitboxX,sdcPlayer.hitboxY);
+			if (hitBox.real == true){
+				renderer.drawImage(attackimg,hitBox.x,hitBox.y);
 			}
 			break;
 		case 2:
