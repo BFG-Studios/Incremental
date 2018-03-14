@@ -9,9 +9,12 @@ var renderer = canvas.getContext("2d");
 renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
-var newCarrot = new Plant(300,70,2);
-var newPotate = new Plant(150,50,0);
-var newTomato = new Plant(450,90,1);
+//Fruit Growth Time section
+var newPotato =150;
+var newTomato =450;
+var newCarrot =300;
+//=========================
+var maxGrowthTime;
 var cG = 0; //controls the game state 0 = incremental, 1 = sidescroller, 2 = platformer, 3 = map
 var seedChance = 50;
 var extraChance = 0;
@@ -56,12 +59,7 @@ var storeT;
 var storeStrings = ["Potato Seed","Tomato Seed","Carrot Seed","Potato Plant","Tomato Plant","Carrot Plant"];
 var storeSeed = 0;
 var storePlant = 0;
-function Plant(growTime,harvestChance,plantId){
 
-	this.gT = growTime;
-	this.hC = harvestChance;
-	this.pId = plantId;
-}
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
@@ -185,6 +183,7 @@ function startFunc(){
 			square.harvest = false;
 			square.tick = 0;
 			square.grow = 0;
+			square.gT = 0;
 			farmPlot[i][j] = square;
 		}
 	}
@@ -206,6 +205,7 @@ function update(){
 				for (j = 0; j < 4; j++){
 					if (farmPlot[i][j].growing == true){
 						growUp(farmPlot[i][j]);
+							console.log(selected);
 					}
 				}
 			}
@@ -298,6 +298,17 @@ function onClick(e){
 								if (yClick > farmPlot[i][j].y && yClick < farmPlot[i][j].y+64){
 									if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != 3 && seeds[selected] > 0){ // checks if the square is empty and tells that square to grow
 										farmPlot[i][j].seed = selected;
+											switch (selected){//uses selected to switch between growth times of plants
+											case 0:
+											farmPlot[i][j].gT = newPotato;
+												break;
+											case 1:
+											farmPlot[i][j].gT = newTomato;
+												break;
+											case 2:
+											farmPlot[i][j].gT = newCarrot;
+												break;
+										}
 										farmPlot[i][j].growing = true;
 										farmPlot[i][j].img = plantImg[selected][0];
 										seeds[selected] -= 1; // removes the selected seed type from player inventory
@@ -321,6 +332,7 @@ function onClick(e){
 										farmPlot[i][j].img = baseImg;
 										farmPlot[i][j].grow = 0;
 										harvest.play();
+										
 									}
 								}
 							}
@@ -426,15 +438,17 @@ function onClick(e){
 }
 //===========================================================================================
 //INCREMENTAL CODE BLOCK
+
 function growUp(plot){
 	plot.tick++;
-	if (plot.tick == 120){
+	if (plot.tick == plot.gT){//plot.gT is the variable link for the plant growth times. **see line 186**
 		plot.grow++;
 		plot.img = plantImg[plot.seed][plot.grow];
 		plot.tick = 0;
 		if (plot.grow == 3){
 			plot.harvest = true;
 			plot.growing = false;
+			
 		}
 	}
 
