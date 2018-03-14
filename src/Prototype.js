@@ -54,7 +54,7 @@ var storePlant = 0;
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 var shotimg;//var for projectile img
-var rAtk = [];
+var rAtk = [];// holds the values of each bullet
 var renderer = canvas.getContext("2d");
 var sdcPlayer = {dmg: 1 + stats[1], blockRt: 0 + stats[2],x: 430, effectiveY: 280, realY: 280, hspeed: 5 + stats[0], vspeed: 2.5 + stats[0], left: false, right: false, back: false, forw: false , width: 64, height: 64, jump: false, attack: false};
 var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
@@ -75,6 +75,8 @@ var spawnMax = 6;
 var waveT = 0; //time between waves
 var waveTM = 10; //max time between waves
 var waveTB = true; //bool stating when a wave is over
+archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
+soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
 function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
 	this.Sprite = new Image();
 	this.Sprite.src = img; //enemy image
@@ -254,11 +256,10 @@ function update(){
 				}
 
 			}
-			for (i = 0; i < 3; i++)
+			for (i = 0; i < rAtk.lenght; i++)
 			{
-				rAtk[i].x -= 1;
-				
-			}
+				rAtk[i].x -= 1;				
+			}//updates each bullet
 			break;
 		case 2: //platformer
 			movement();
@@ -516,17 +517,15 @@ function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
-				archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);
-				mArray[i] = archer;
+				
+				mArray[i] = new archer;
 				mArray[i].x = 500;
 				mArray[i].y = i*70+200;
-				rAtk[i] = {x: mArray[i].x, y: mArray[i].y};
-				console.log(rAtk[i]);
+				rAtk[i] = {x: mArray[i].x, y: mArray[i].y};//creates a new bullet
 				console.log ("archer");
 				break;
 			case 2:
-				soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);
-				mArray[i] = soldier;
+				mArray[i] = new soldier;
 				mArray[i].x = 500;
 				mArray[i].y = i*70+200;
 				console.log ("soldier");
@@ -544,34 +543,11 @@ function spawn(){ //spawns enemies
 
 
 }
-function atk(i,j,x,y)
-{
-	
-	var mAtk;
-		if (i == 0)
-		{
-		rAtk[1] = new Bullets(j,x,y);
-		}
-		else
-			rAtk[0] = new Bullets(j,x,y);
-		
-}
-for (i = 0; i < mArray.length; i++)
-{
-	if (mArray[i] = archer)
-	{
-
-	}
-	else if (mArray[i] = soldier)
-	{
-		walkA(mArray[i].x, mArray[i].y);
-	}
-}
-function walkA(x,y)
+function walkA(x,y)//work in progress
 {
 
 }
-function enemyMove()
+function enemyMove()//work in progress
 {
 
 
@@ -723,11 +699,10 @@ function render(){
 			renderer.drawImage(playerimg,sdcPlayer.x,sdcPlayer.realY);
 			for (i = 0; i < mArray.length; i++)
 			{
-				renderer.drawImage(mArray[i].Sprite, mArray[i].x, mArray[i].y);
+				renderer.drawImage(mArray[i].Sprite, mArray[i].x, mArray[i].y);//draws each enemy
 				if(mArray[i].proj == true)
 				{
-					renderer.drawImage(mArray[i].Attack, rAtk[i].x, rAtk[i].y);
-					console.log(i);
+					renderer.drawImage(mArray[i].Attack, rAtk[i].x, rAtk[i].y);//draws each bullet for the archers
 				}
 			}
 			renderer.drawImage(backBtn,10,10);
