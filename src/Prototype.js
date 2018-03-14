@@ -63,6 +63,9 @@ var wall = new Image();
 wall.src = "../img/temple_wall.png";
 var onGround = false;
 //var leftPressed = rightPressed = upPressed = false;
+var MoneyBg = new Object ("../img/Moneybag.png"); // Object for Moneybag
+var SeedBg = new Object ("../img/Seedbag.png"); // Object for Seedbag
+var Spike = new Object ("../img/Spike.png"); // Object for Spike
 var pltPlayer = new Object("../img/character.png", 30,50,64,64,0,0); // creating a player object for platformer
 var maxBlock = 15;
 var block = new Array();
