@@ -22,6 +22,7 @@ var backBtn; //button for back to incremental level
 var xImg;
 var harvest = new Audio('../wav/Harvest.wav');
 var bonus = new Audio('../wav/Bonus.wav');
+var planting = new Audio('../wav/Planting.wav');
 var baseImg;
 var shopImg;
 var sellImg;
@@ -137,7 +138,7 @@ function startFunc(){
 	backBtn.src = "../img/BackBtn.png";
 	mapBtn.src = "../img/map.png";
 	mapSelection.src = "../img/selections.png";
-	baseImg.src = "../img/Soil.png";
+	baseImg.src = "../img/Soil2.png";
 	sellImg.src = "../img/Sell.png";
 	buyImg.src = "../img/Buy.png";
 	eatImg.src = "../img/Eat.png";
@@ -159,15 +160,15 @@ function startFunc(){
 		plantImg[2][i] = carImg;
 		plantImg[0][i] = potImg;
 	}
-	plantImg[0][0].src = "../img/Plant0.png"; // these are the src for each plant's life cycle, 0 is potato, 1 is tomato, 2 is carrot
-	plantImg[1][0].src = "../img/Plant0.png";
-	plantImg[2][0].src = "../img/Plant0.png";
-	plantImg[0][1].src = "../img/Plant1.png";
-	plantImg[1][1].src = "../img/Plant1.png";
-	plantImg[2][1].src = "../img/Plant1.png";
-	plantImg[0][2].src = "../img/Plant2.png";
-	plantImg[1][2].src = "../img/Plant2.png";
-	plantImg[2][2].src = "../img/Plant2.png";
+	plantImg[0][0].src = "../img/Plant0_2.png"; // these are the src for each plant's life cycle, 0 is potato, 1 is tomato, 2 is carrot
+	plantImg[1][0].src = "../img/Plant0_2.png";
+	plantImg[2][0].src = "../img/Plant0_2.png";
+	plantImg[0][1].src = "../img/Plant1_2.png";
+	plantImg[1][1].src = "../img/Plant1_2.png";
+	plantImg[2][1].src = "../img/Plant1_2.png";
+	plantImg[0][2].src = "../img/Plant2_2.png";
+	plantImg[1][2].src = "../img/Plant2_2.png";
+	plantImg[2][2].src = "../img/Plant2_2.png";
 	plantImg[0][3].src = "../img/Potato2.png";
 	plantImg[1][3].src = "../img/Tomato2.png";
 	plantImg[2][3].src = "../img/Carrot2.png";
@@ -300,6 +301,7 @@ function onClick(e){
 										farmPlot[i][j].growing = true;
 										farmPlot[i][j].img = plantImg[selected][0];
 										seeds[selected] -= 1; // removes the selected seed type from player inventory
+										planting.play();
 									}
 									if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
 
