@@ -130,6 +130,8 @@ function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
 	this.hitboxY = 0;
 	this.hitboxC = 0;
 	this.hitboxR = false;
+	this.isHit = false;
+	this.hitTime = 0;
 }
 //===========================================================================================
 //PLATFORMER VARIABLES
@@ -280,7 +282,7 @@ function update(){
 					spawn();
 				}
 			}
-			bulletMove();//updates the bullets
+			enemyAttack();//updates the bullets
 			enemyMove();//moves the soldiers
 			break;
 		case 2: //platformer
@@ -574,7 +576,7 @@ function spawn(){ //spawns enemies
 				mArray[i].y = i*70+200;
 				if(i == rAtk.length)
 				{
-					rAtk[i] = {x: mArray[i].x, y: mArray[i].y,sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
+					rAtk[i] = {x: mArray[i].x, y: mArray[i].y, sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
 
 				}//if the current index of mArray is the same as the length of the rAtk array create a new bullet at that index
 				else if(i > rAtk.length)
@@ -611,7 +613,7 @@ function spawn(){ //spawns enemies
 
 
 }
-function bulletMove()
+function enemyAttack()
 {
 	for (i = 0; i < rAtk.length; i++)
 	{
@@ -622,8 +624,42 @@ function bulletMove()
 			rAtk[i].x = rAtk[i].sX;
 			rAtk[i].bullDist = 0;
 		}
+		if (sdcPlayer.isHit == false){
+			if (!(rAtk[i].y > sdcPlayer.y+64 ||
+					  rAtk[i].y+32 < sdcPlayer.y ||
+					  rAtk[i].x > sdcPlayer.x+48 ||
+					  rAtk[i].x+32 < sdcPlayer.x)){
+				if (sdcPlayer.isHit == false){
+					sdcPlayer.isHit = true;
+					sdcPlayer.health -= mArray[i].attack;
+				}
+			}
+		}
 	}//updates each bullet
-
+	if (sdcPlayer.isHit == false){
+		for (i = 0; i < mArray.length; i++){
+			if (mArray[i].proj == true){	
+			}
+			if (mArray[i].proj == false){
+					if (!(mArray[i].y > sdcPlayer.y+64 ||
+					  mArray[i].y+32 < sdcPlayer.y ||
+					  mArray[i].x > sdcPlayer.x+48 ||
+					  mArray[i].x+32 < sdcPlayer.x)){
+						if (sdcPlayer.isHit == false){
+						  sdcPlayer.isHit = true;
+						  sdcPlayer.health -= mArray[i].attack;
+						}
+					  }
+			}
+		}
+	}
+	else {
+		sdcPlayer.hitTime += 1;
+		if (sdcPlayer.hitTime > 40){
+			sdcPlayer.hitTime = 0;
+			sdcPlayer.isHit = false;
+		}
+	}
 }
 function enemyMove()
 {
@@ -665,7 +701,6 @@ function enemyMove()
 function movement()
 {
 	pltPlayer.gav = 10;
-
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
 	if (pltPlayer.V_Y < pltPlayer.gav)
@@ -829,7 +864,7 @@ function render(){
 			if (sdcPlayer.hitboxR == true){
 				renderer.drawImage(sdcPlayer.aSprite,sdcPlayer.hitboxX,sdcPlayer.hitboxY);
 			}
-			renderer.fillText(sdcPlayer.health,0,0);
+			renderer.fillText(sdcPlayer.health,840,20);
 			break;
 		case 2:
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
