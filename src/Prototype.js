@@ -101,6 +101,7 @@ function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
 	if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
 		this.projSp = 2;
 	}
+	this.isHit = false;
 
 }
 function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
@@ -535,6 +536,26 @@ function attack(){ //this spawns the player's attack
 	sdcPlayer.hitboxC ++;
 	sdcPlayer.hitboxX = sdcPlayer.x+sdcPlayer.w;
 	sdcPlayer.hitboxY = sdcPlayer.y+(sdcPlayer.h/4);
+	if (sdcPlayer.hitboxR == true){
+		for (i=0; i < mArray.length; i++){ //this is checking collision with enemies and damaging them
+			if (!(sdcPlayer.hitboxY > mArray[i].y+64 ||
+				  sdcPlayer.hitboxY+32 < mArray[i].y ||
+				  sdcPlayer.hitboxX > mArray[i].x+48 ||
+				  sdcPlayer.hitboxX+32 < mArray[i].x)){
+				if (mArray[i].isHit == false){
+					mArray[i].health -= sdcPlayer.dmg;
+					mArray[i].isHit = true; //is hit stops the enemy from taking damage on every frame of player attack, they only take damage once
+				}
+			}
+		}
+	}
+	else{ //once the player attack is done, all enemies are rendered hitable again.
+		for (i=0; i <mArray.length; i++){
+			if (mArray[i].isHit == true){
+				mArray[i].isHit = false;
+			}
+		}
+	}
 	if (sdcPlayer.hitboxC == 10){ //this stuff is timers for when the player can and can't attack
 		sdcPlayer.hitboxR = false;
 	}
@@ -802,12 +823,13 @@ function render(){
 				{
 					renderer.drawImage(mArray[i].Attack, mArray[i].x + (3.5 * mArray[i].aW), mArray[i].y);
 				}// makes a melee attack on the right side
-
+				renderer.fillText (mArray[i].health,mArray[i].x,mArray[i].y);
 			}
 			renderer.drawImage(backBtn,10,10);
 			if (sdcPlayer.hitboxR == true){
 				renderer.drawImage(sdcPlayer.aSprite,sdcPlayer.hitboxX,sdcPlayer.hitboxY);
 			}
+			renderer.fillText(sdcPlayer.health,0,0);
 			break;
 		case 2:
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
