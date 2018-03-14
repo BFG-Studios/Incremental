@@ -75,8 +75,8 @@ var spawnMax = 6;
 var waveT = 0; //time between waves
 var waveTM = 10; //max time between waves
 var waveTB = true; //bool stating when a wave is over
-archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
-soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
+
+
 function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
 	this.Sprite = new Image();
 	this.Sprite.src = img; //enemy image
@@ -256,7 +256,7 @@ function update(){
 				}
 
 			}
-			for (i = 0; i < rAtk.lenght; i++)
+			for (i = 0; i < rAtk.length; i++)
 			{
 				rAtk[i].x -= 1;				
 			}//updates each bullet
@@ -517,15 +517,16 @@ function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
-				
-				mArray[i] = new archer;
+				archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
+				mArray[i] = archer;
 				mArray[i].x = 500;
 				mArray[i].y = i*70+200;
 				rAtk[i] = {x: mArray[i].x, y: mArray[i].y};//creates a new bullet
 				console.log ("archer");
 				break;
 			case 2:
-				mArray[i] = new soldier;
+				soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
+				mArray[i] = soldier;
 				mArray[i].x = 500;
 				mArray[i].y = i*70+200;
 				console.log ("soldier");
