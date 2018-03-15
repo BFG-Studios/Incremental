@@ -63,15 +63,16 @@ var wall = new Image();
 wall.src = "../img/temple_wall.png";
 var onGround = false;
 //var leftPressed = rightPressed = upPressed = false;
-var MoneyBg = new Object ("../img/Moneybag.png"); // Object for Moneybag
-var SeedBg = new Object ("../img/Seedbag.png"); // Object for Seedbag
-var Spike = new Object ("../img/Spike.png"); // Object for Spike
-var pltPlayer = new Object("../img/character.png", 30,50,64,64,0,0); // creating a player object for platformer
+var MoneyBg = new Object ("../img/Moneybag.png", 0,0,64,64,0,0); // Object for Moneybag
+var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
+var Spike = new Object ("../img/Spike.png", 0,0,20,30,0,0); // Object for Spike
+var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
+var pltPlayer = new Object("../img/character.png", 100,100,64,64,0,0); // creating a player object for platformer
 var maxBlock = 15;
 var block = new Array();
 for ( var i = 0; i < 6; i++)
 	block[i] = new Object ("../img/temple_ground.png",[i]*64,484,64,64); // creating the platform 
-block[6] = new Object ("../img/temple_ground.png",6*64,484-1*64,64,64);
+	block[6] = new Object ("../img/temple_ground.png",6*64,484-1*64,64,64);
 block[7] = new Object ("../img/temple_ground.png",7*64,484-2*64,64,64);
 block[8] = new Object ("../img/temple_ground.png",8*64,484-3*64,64,64);
 block[9] = new Object ("../img/temple_ground.png",9*64,484-4*64,64,64);
@@ -197,6 +198,9 @@ function startFunc(){
 	attackimg = new Image();
 	attackimg.src = "../img/Bullet.png"
 	//=======================================================================================
+	//Platformer
+	
+	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
 //===========================================================================================
@@ -224,7 +228,7 @@ function update(){
 		case 2: //platformer
 			movement();
 			movePlayer();
-			areaTreasure();
+			pltResult();
 			break;
 		case 3: //map
 
@@ -496,44 +500,42 @@ function movePlayer()
 	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
 		pltPlayer.V_X = 0;
 	if (pltPlayer.upPressed && onGround){
-		pltPlayer.V_Y = -10;
+		pltPlayer.V_Y = -12	;
 		console.log(pltPlayer.X);
 		console.log(pltPlayer.Y);
 		onGround = false;
 	}
 
 }
-function areaTreasure()
-{
-
-	
-		
-	if (pltPlayer.X == 762 && pltPlayer.Y == 36)
+function pltResult()
+{	
+    if (pltPlayer.X + pltPlayer.W >= 220 && pltPlayer.Y + pltPlayer.H >= 440 && pltPlayer.X <= 220 + Spike.W && pltPlayer.Y <= 440 - Spike.H
+	|| pltPlayer.X + pltPlayer.W >= 420 && pltPlayer.Y + pltPlayer.H >= 376 && pltPlayer.X <= 420 + Spike.W && pltPlayer.Y  <= 376 - Spike.H
+	|| pltPlayer.X + pltPlayer.W >= 552 && pltPlayer.Y + pltPlayer.H >= 248 && pltPlayer.X <= 552 + Spike.W && pltPlayer.Y  <= 248 - Spike.H
+	|| pltPlayer.X + pltPlayer.W >= 654 && pltPlayer.Y + pltPlayer.H >= 440 && pltPlayer.X <= 654 + Spike.W && pltPlayer.Y  <= 440 - Spike.H
+	|| pltPlayer.X + pltPlayer.W >= 729 && pltPlayer.Y + pltPlayer.H >= 120 && pltPlayer.X <= 729 + SpikeL.W && pltPlayer.Y  <= 120 - SpikeL.H)
+	{
+	    leftPressed = rightPressed = upPressed = false;
+		console.log("Failed");
+		window.alert("You got wounded and lost some gold!")
+		gold = gold - 50;
+		cG = 0;
+		pltRespawn();
+	}
+	if (pltPlayer.X + pltPlayer.W >= 831 && pltPlayer.Y >= 420 - pltPlayer.H)
 	{
 		leftPressed = rightPressed = upPressed = false;
 		console.log("Win");
 		window.alert("You found some Gold!");
-		gold += 50;
+		gold += 100;
 		cG = 0;
-		ouch = true;
-		winCtr();
+		pltRespawn();
 	}
-		
-
 }
-function winCtr()
+function pltRespawn()
 {
-	var winCtr
-	winCtr++
-	if (winCtr = 1)
-	{
-		pltPlayer.X = 100;
-		pltPlayer.Y = 100;
-		winCtr = 0;
-		console.log("hi");
-		ouch = false;
-		
-	}
+	pltPlayer.X = 16;
+	pltPlayer.Y = 100;
 }
 //===========================================================================================
 //RENDER
@@ -619,6 +621,12 @@ function render(){
 			break;
 		case 2:
 			renderer.drawImage(wall, 0, 0);
+			renderer.drawImage(Spike.Sprite, 200, 420);
+			renderer.drawImage(Spike.Sprite, 400, 356);
+			renderer.drawImage(Spike.Sprite, 532, 228);
+			renderer.drawImage(Spike.Sprite, 634, 420);
+			renderer.drawImage(SpikeL.Sprite, 709, 100);// Spikes Positions
+			renderer.drawImage(MoneyBg.Sprite, 811, 420);
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
 				for ( var i = 0; i < maxBlock; i++)
 					renderer.drawImage(block[i].Sprite,block[i].X,block[i].Y);
