@@ -153,38 +153,51 @@ function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
 }
 //===========================================================================================
 //PLATFORMER VARIABLES
-
+var wall = new Image();
+wall.src = "../img/temple_wall.png";
 var onGround = false;
-var leftPressed = rightPressed = upPressed = false;
-var pltPlayer = new Object("../img/monster.png", 30,50,64,64);
-var maxBlock = 15;
-var block = new Array();
-for ( var i = 0; i < 6; i++)
-	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
-block[6] = new Object ("../img/rocks.png",6*64,484-1*64,64,64);
-block[7] = new Object ("../img/rocks.png",7*64,484-2*64,64,64);
-block[8] = new Object ("../img/rocks.png",8*64,484-3*64,64,64);
-block[9] = new Object ("../img/rocks.png",9*64,484-4*64,64,64);
-for ( var i = 10; i < maxBlock; i++)
-	block[i] = new Object ("../img/rocks.png",[i]*64,484,64,64);
-	block[12] = new Object ("../img/rocks.png",12*64,484-6*64,64,64);
+var pltPlayer = new PlatPlayer("../img/character.png", 16,300,64,64,0,0); // creating a player object for platformer
+var MoneyBg; // Object for Moneybag
+var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
+var Spike; // Object for Spike
+var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
+var map = [
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,2,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	
+];
+var ground = [];
+
+
+
 pltPlayer.V_Y = 3;
+
 // Set object for player and enemy
-function Object(img,x,y,w,h){
+function PlatPlayer(img,x,y,w,h,vx,vy){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
-	this.X = x;
-	this.Y = y;
-	this.W = w;
-	this.H = h;
+	this.X = x; // object x position
+	this.Y = y; // object y position 
+	this.W = w; // object width	
+	this.H = h; // object height
+	this.V_X = vx; // object horizontal velocity 
+	this.V_Y = vy; // object vertical velocity 
+	this.leftPressed = false;  
+	this.rightPressed = false;
+	this.upPressed = false;
 	this.Previous_X;
 	this.Previous_Y;
-	this.V_X = 0;
-	this.V_Y = 0;
 	this.gav = 0;
 	this.weight = 0.5;
 	this.collision = function(obj){
-		if (this.X > obj.X + obj.W) return false;
+		if (this.X + 25 > obj.X + obj.W) return false;
 		if (this.X + this.W < obj.X) return false;
 		if (this.Y > obj.Y + obj.Y) return false;
 		if (this.Y + this.H < obj.Y) return false;
@@ -192,6 +205,23 @@ function Object(img,x,y,w,h){
 		return true;
 	}
 }
+function Object(img,x,y,w,h){
+	this.Sprite = new Image();
+	this.Sprite.src = img;
+	this.X = x;
+	this.Y = y;
+	this.W = w;
+	this.H = h;
+}
+function Block(img,x,y,w,h){
+	this.Sprite = new Image();
+	this.Sprite.src = img;
+	this.X = x;
+	this.Y = y;
+	this.W = w;
+	this.H = h;
+} 
+
 //===========================================================================================
 
 startFunc();
@@ -286,6 +316,25 @@ function startFunc(){
 	//=======================================================================================
 	//SIDESCROLLER
 	//=======================================================================================
+	// Platformer
+	for ( var i = 0; i < map.length; i++){
+		ground[i] = [];
+		for (var j = 0; j < map[i].length; j++){
+			if(map[i][j] == 0){
+				ground[i][j] = null;
+			}else if (map[i][j] == 1){
+				console.log("x "+i+" y "+j);
+				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
+			}else if (map[i][j] == 2){
+				MoneyBg = new Object ("../img/Moneybag.png", j*64,i*64,64,64);
+			}else if (map[i][j] == 3){
+				
+			}else if (map[i][j] == 4){
+				Spike = new Object ("../img/Spike.png", j*64,i*64,64,64);
+			}
+		}
+	}
+	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
 //===========================================================================================
@@ -322,7 +371,6 @@ function update(){
 		case 2: //platformer
 			movement();
 			movePlayer();
-			areaTreasure();
 			break;
 		case 3: //map
 
@@ -333,15 +381,15 @@ function update(){
 function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
-			leftPressed = true;
+			pltPlayer.leftPressed = true;
 			leftMove = true
 			break;
 		case 68:
-			rightPressed = true;
+			pltPlayer.rightPressed = true;
 			rightMove = true
 			break;
 		case 87:
-			upPressed = true;
+			pltPlayer.upPressed = true;
 			backMove = true;
 			break;
 		case 83: //s moves forward
@@ -365,15 +413,15 @@ function onKeyDown(e){
 function onKeyUp(e){
 	switch(e.keyCode){
 		case 65:
-			leftPressed = false;
+			pltPlayer.leftPressed = false;
 			leftMove = false;
 			break;
 		case 68:
-			rightPressed = false;
+			pltPlayer.rightPressed = false;
 			rightMove = false;
 			break;
 		case 87:
-			upPressed = false;
+			pltPlayer.upPressed = false;
 			backMove = false;
 			break;
 		case 83: //s moves forward
@@ -833,60 +881,75 @@ function movement()
 	pltPlayer.Y += pltPlayer.V_Y;
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
-	for ( var i = 0; i < maxBlock; i++){
-		if (pltPlayer.collision(block[i]) && pltPlayer.Y + pltPlayer.H < block[i].Y + pltPlayer.V_Y){
-			pltPlayer.Y = block[i].Y - pltPlayer.H;
-			pltPlayer.V_Y = 0;
+	for ( var i = 0; i < map.length; i++){
+		for (var j = 0; j < map[i].length; j++){
+			if (map[i][j] == 1){
+				if (pltPlayer.collision(ground[i][j]) && pltPlayer.Y + pltPlayer.H < ground[i][j].Y + pltPlayer.V_Y){
+					pltPlayer.Y = ground[i][j].Y - pltPlayer.H;
+					pltPlayer.V_Y = 0;
+				}
+			}
 		}
 	}
+	//checkCollision();	
+	pltResult();
 }
+function pltResult()
+{	
+    if (pltPlayer.Y + pltPlayer.H == Spike.Y )
+	{
+		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
+		console.log("Failed");
+		window.alert("You got wounded and lost some gold!")
+		gold = gold - 50;
+		cG = 0;
+		pltRespawn();
+	}
+	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
+	{
+		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+		console.log("Win");
+		window.alert("You found some Gold!");
+		gold += 100;
+		cG = 0;
+		pltRespawn();
+	}
+}
+function pltRespawn()
+{
+	pltPlayer.X = 16;
+	pltPlayer.Y = 300;
+	pltPlayer.V_X = 0;
+}
+/*function checkCollision()
+{
+	
+	for ( var i = 0; i < map.length; i++){
+		for (var j = 0; j < map[i].length; j++){
+			if (map[i][j] == 1){
+				if(pltPlayer.X + pltPlayer.W > ground[i][j].X)  pltPlayer.X = ground[i][j].X - pltPlayer.W;
+				if(pltPlayer.X + 25 < ground[i][j].X + ground[i][j].W) pltPlayer.X = ground[i][j].X + ground[i][j].W -25;
+				//if(pltPlayer.Y > ground[i][j].Y + ground[i][j].H) pltPlayer.Y += pltPlayer.V_Y;
+			}
+		}
+	}
+}*/
 function movePlayer()
 {
-	if(leftPressed)
-		pltPlayer.V_X = -3;
-	if(rightPressed)
-		pltPlayer.V_X = 3;
-	if(!leftPressed && !rightPressed)
+	if(pltPlayer.leftPressed)
+		pltPlayer.V_X = -5;
+	if(pltPlayer.rightPressed)
+		pltPlayer.V_X = 5;
+	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
 		pltPlayer.V_X = 0;
-	if (upPressed && onGround){
-		pltPlayer.V_Y = -10;
-		console.log(pltPlayer.X);
-		console.log(pltPlayer.Y);
+	if (pltPlayer.upPressed && onGround){
+		pltPlayer.V_Y = -9;
+		//console.log(pltPlayer.X);
+		//console.log(pltPlayer.Y);
 		onGround = false;
 	}
 
-}
-function areaTreasure()
-{
-
-	
-		
-	if (pltPlayer.X == 762 && pltPlayer.Y == 36)
-	{
-		leftPressed = rightPressed = upPressed = false;
-		console.log("Win");
-		window.alert("You found some Gold!");
-		gold += 50;
-		cG = 0;
-		ouch = true;
-		winCtr();
-	}
-		
-
-}
-function winCtr()
-{
-	var winCtr
-	winCtr++
-	if (winCtr = 1)
-	{
-		pltPlayer.X = 100;
-		pltPlayer.Y = 100;
-		winCtr = 0;
-		console.log("hi");
-		ouch = false;
-		
-	}
 }
 //===========================================================================================
 //RENDER
@@ -1020,10 +1083,20 @@ function render(){
 			renderer.fillText(sdcPlayer.health,840,20);
 			break;
 		case 2:
+			renderer.drawImage(wall, 0, 0);
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
-			renderer.drawImage(backBtn,10,10);
-				for ( var i = 0; i < maxBlock; i++)
-					renderer.drawImage(block[i].Sprite,block[i].X,block[i].Y);
+			for ( var i = 0; i < map.length; i++){
+				for (var j = 0; j < map[i].length; j++){
+					if (map[i][j] == 1)
+						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
+					else if (map[i][j] == 2)
+						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
+					else if (map[i][j] == 3){}
+					else if (map[i][j] == 4)
+						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
+					
+				}
+			}
 			break;
 		case 3:
 			renderer.drawImage(mapSelection,250,160);
