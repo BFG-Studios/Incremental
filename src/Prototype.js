@@ -1,3 +1,4 @@
+
 //CANVAS VARIABLES
 window.addEventListener("click", onClick);
 window.addEventListener("keydown", onKeyDown);
@@ -52,7 +53,7 @@ var storePlant = 0;
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
-var sdcPlayer = new Object("../img/Ship.png", 430, 280, 64, 64, 5, 2.5); // creating a player object for sidescroller
+var sdcPlayer = new Player("../img/Ship.png", 430, 280, 64, 64, 5, 2.5); // creating a player object for sidescroller
 var hitBox = {x: 0, y: 0, cooldown: 0, real: false};
 var attackimg;
 var fakeX = 0;
@@ -62,27 +63,31 @@ var jumpInt = 0;
 var wall = new Image();
 wall.src = "../img/temple_wall.png";
 var onGround = false;
-//var leftPressed = rightPressed = upPressed = false;
-var MoneyBg = new Object ("../img/Moneybag.png", 0,0,64,64,0,0); // Object for Moneybag
+var pltPlayer = new Player("../img/character.png", 30,50,64,64,0,0); // creating a player object for platformer
+var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
-var Spike = new Object ("../img/Spike.png", 0,0,20,30,0,0); // Object for Spike
+var Spike; // Object for Spike
 var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
-var pltPlayer = new Object("../img/character.png", 100,100,64,64,0,0); // creating a player object for platformer
-var maxBlock = 15;
-var block = new Array();
-for ( var i = 0; i < 6; i++)
-	block[i] = new Object ("../img/temple_ground.png",[i]*64,484,64,64); // creating the platform 
-	block[6] = new Object ("../img/temple_ground.png",6*64,484-1*64,64,64);
-block[7] = new Object ("../img/temple_ground.png",7*64,484-2*64,64,64);
-block[8] = new Object ("../img/temple_ground.png",8*64,484-3*64,64,64);
-block[9] = new Object ("../img/temple_ground.png",9*64,484-4*64,64,64);
-for ( var i = 10; i < maxBlock; i++)
-	block[i] = new Object ("../img/temple_ground.png",[i]*64,484,64,64);
-	block[12] = new Object ("../img/temple_ground.png",12*64,484-6*64,64,64);
+var map = [
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,0],
+	[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,2,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	
+];
+var ground = [];
+
+
+
 pltPlayer.V_Y = 3;
 //============================================================================================
 // Set object for player and enemy
-function Object(img,x,y,w,h,vx,vy){
+function Player(img,x,y,w,h,vx,vy){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
 	this.X = x; // object x position
@@ -108,16 +113,31 @@ function Object(img,x,y,w,h,vx,vy){
 	this.gav = 0;
 	this.weight = 0.5;
 	this.collision = function(obj){
-		if (this.X > obj.X + obj.W) return false;
+		if (this.X + 25 > obj.X + obj.W) return false;
 		if (this.X + this.W < obj.X) return false;
 		if (this.Y > obj.Y + obj.Y) return false;
 		if (this.Y + this.H < obj.Y) return false;
 		onGround = true
 		return true;
 	}
-	
-	
 }
+function Object(img,x,y,w,h){
+	this.Sprite = new Image();
+	this.Sprite.src = img;
+	this.X = x;
+	this.Y = y;
+	this.W = w;
+	this.H = h;
+}
+function Block(img,x,y,w,h){
+	this.Sprite = new Image();
+	this.Sprite.src = img;
+	this.X = x;
+	this.Y = y;
+	this.W = w;
+	this.H = h;
+} 
+
 //===========================================================================================
 
 startFunc();
@@ -198,8 +218,24 @@ function startFunc(){
 	attackimg = new Image();
 	attackimg.src = "../img/Bullet.png"
 	//=======================================================================================
-	//Platformer
-	
+	// Platformer
+	for ( var i = 0; i < map.length; i++){
+		ground[i] = [];
+		for (var j = 0; j < map[i].length; j++){
+			if(map[i][j] == 0){
+				ground[i][j] = null;
+			}else if (map[i][j] == 1){
+				console.log("x "+i+" y "+j);
+				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
+			}else if (map[i][j] == 2){
+				MoneyBg = new Object ("../img/Moneybag.png", j*64,i*64,64,64);
+			}else if (map[i][j] == 3){
+				
+			}else if (map[i][j] == 4){
+				Spike = new Object ("../img/Spike.png", j*64,i*64,64,64);
+			}
+		}
+	}
 	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
@@ -228,7 +264,7 @@ function update(){
 		case 2: //platformer
 			movement();
 			movePlayer();
-			pltResult();
+			areaTreasure();
 			break;
 		case 3: //map
 
@@ -484,45 +520,32 @@ function movement()
 	pltPlayer.Y += pltPlayer.V_Y;
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
-	for ( var i = 0; i < maxBlock; i++){
-		if (pltPlayer.collision(block[i]) && pltPlayer.Y + pltPlayer.H < block[i].Y + pltPlayer.V_Y){
-			pltPlayer.Y = block[i].Y - pltPlayer.H;
-			pltPlayer.V_Y = 0;
+	for ( var i = 0; i < map.length; i++){
+		for (var j = 0; j < map[i].length; j++){
+			if (map[i][j] == 1){
+				if (pltPlayer.collision(ground[i][j]) && pltPlayer.Y + pltPlayer.H < ground[i][j].Y + pltPlayer.V_Y){
+					pltPlayer.Y = ground[i][j].Y - pltPlayer.H;
+					pltPlayer.V_Y = 0;
+				}
+			}
 		}
 	}
-}
-function movePlayer()
-{
-	if(pltPlayer.leftPressed)
-		pltPlayer.V_X = -3;
-	if(pltPlayer.rightPressed)
-		pltPlayer.V_X = 3;
-	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
-		pltPlayer.V_X = 0;
-	if (pltPlayer.upPressed && onGround){
-		pltPlayer.V_Y = -12	;
-		console.log(pltPlayer.X);
-		console.log(pltPlayer.Y);
-		onGround = false;
-	}
-
+	//checkCollision();	
+	pltResult();
 }
 function pltResult()
 {	
-    if (pltPlayer.X + pltPlayer.W >= 220 && pltPlayer.Y + pltPlayer.H >= 440 && pltPlayer.X <= 220 + Spike.W && pltPlayer.Y <= 440 - Spike.H
-	|| pltPlayer.X + pltPlayer.W >= 420 && pltPlayer.Y + pltPlayer.H >= 376 && pltPlayer.X <= 420 + Spike.W && pltPlayer.Y  <= 376 - Spike.H
-	|| pltPlayer.X + pltPlayer.W >= 552 && pltPlayer.Y + pltPlayer.H >= 248 && pltPlayer.X <= 552 + Spike.W && pltPlayer.Y  <= 248 - Spike.H
-	|| pltPlayer.X + pltPlayer.W >= 654 && pltPlayer.Y + pltPlayer.H >= 440 && pltPlayer.X <= 654 + Spike.W && pltPlayer.Y  <= 440 - Spike.H
-	|| pltPlayer.X + pltPlayer.W >= 729 && pltPlayer.Y + pltPlayer.H >= 120 && pltPlayer.X <= 729 + SpikeL.W && pltPlayer.Y  <= 120 - SpikeL.H)
+    if (pltPlayer.Y + pltPlayer.H == Spike.Y )
 	{
 	    leftPressed = rightPressed = upPressed = false;
+		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
 		console.log("Failed");
 		window.alert("You got wounded and lost some gold!")
 		gold = gold - 50;
 		cG = 0;
 		pltRespawn();
 	}
-	if (pltPlayer.X + pltPlayer.W >= 831 && pltPlayer.Y >= 420 - pltPlayer.H)
+	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
 	{
 		leftPressed = rightPressed = upPressed = false;
 		console.log("Win");
@@ -536,6 +559,67 @@ function pltRespawn()
 {
 	pltPlayer.X = 16;
 	pltPlayer.Y = 100;
+}
+/*function checkCollision()
+{
+	
+	for ( var i = 0; i < map.length; i++){
+		for (var j = 0; j < map[i].length; j++){
+			if (map[i][j] == 1){
+				if(pltPlayer.X + pltPlayer.W > ground[i][j].X)  pltPlayer.X = ground[i][j].X - pltPlayer.W;
+				if(pltPlayer.X + 25 < ground[i][j].X + ground[i][j].W) pltPlayer.X = ground[i][j].X + ground[i][j].W -25;
+				//if(pltPlayer.Y > ground[i][j].Y + ground[i][j].H) pltPlayer.Y += pltPlayer.V_Y;
+			}
+		}
+	}
+}*/
+function movePlayer()
+{
+	if(pltPlayer.leftPressed)
+		pltPlayer.V_X = -5;
+	if(pltPlayer.rightPressed)
+		pltPlayer.V_X = 5;
+	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
+		pltPlayer.V_X = 0;
+	if (pltPlayer.upPressed && onGround){
+		pltPlayer.V_Y = -9;
+		//console.log(pltPlayer.X);
+		//console.log(pltPlayer.Y);
+		onGround = false;
+	}
+
+}
+function areaTreasure()
+{
+
+	
+		
+	if (pltPlayer.X == 762 && pltPlayer.Y == 36)
+	{
+		leftPressed = rightPressed = upPressed = false;
+		console.log("Win");
+		window.alert("You found some Gold!");
+		gold += 50;
+		cG = 0;
+		ouch = true;
+		winCtr();
+	}
+		
+
+}
+function winCtr()
+{
+	var winCtr
+	winCtr++
+	if (winCtr = 1)
+	{
+		pltPlayer.X = 100;
+		pltPlayer.Y = 100;
+		winCtr = 0;
+		console.log("hi");
+		ouch = false;
+		
+	}
 }
 //===========================================================================================
 //RENDER
@@ -621,15 +705,19 @@ function render(){
 			break;
 		case 2:
 			renderer.drawImage(wall, 0, 0);
-			renderer.drawImage(Spike.Sprite, 200, 420);
-			renderer.drawImage(Spike.Sprite, 400, 356);
-			renderer.drawImage(Spike.Sprite, 532, 228);
-			renderer.drawImage(Spike.Sprite, 634, 420);
-			renderer.drawImage(SpikeL.Sprite, 709, 100);// Spikes Positions
-			renderer.drawImage(MoneyBg.Sprite, 811, 420);
 			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
-				for ( var i = 0; i < maxBlock; i++)
-					renderer.drawImage(block[i].Sprite,block[i].X,block[i].Y);
+			for ( var i = 0; i < map.length; i++){
+				for (var j = 0; j < map[i].length; j++){
+					if (map[i][j] == 1)
+						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
+					else if (map[i][j] == 2)
+						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
+					else if (map[i][j] == 3){}
+					else if (map[i][j] == 4)
+						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
+					
+				}
+			}
 			break;
 		case 3:
 			renderer.drawImage(mapSelection,560,60);
