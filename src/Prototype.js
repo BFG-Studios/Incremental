@@ -650,7 +650,7 @@ function enemyAttack()
 						  sdcPlayer.health -= mArray[i].attack;
 						}
 					  }
-			}
+			}//butts
 		}
 	}
 	else {
