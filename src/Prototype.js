@@ -16,8 +16,8 @@ var goldBonus = 0;
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
-var tabs = 0;
 var baseImg; //soil image;
+var farmSize = {x:10, xw:266, y:10, yh:266}; //for checking if they've clicked on the farm
 var farmPlot = [];
 var selposX = 490; //these variables are for highlighting the currently selected plant
 var selposY = [160,200,240];
@@ -69,6 +69,7 @@ function Plant(gt,id,img,stat,price,sell,seed){
 var potato = new Plant(120,0,"../img/potato.png",0,5,25,5);
 var tomato = new Plant(120,1,"../img/tomato.png",1,5,25,5);
 var carrot = new Plant(120,2,"../img/carrot.png",2,5,25,5);
+
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
 //--------------------------------------------
@@ -82,6 +83,8 @@ function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.y = y; //y coordinate
 	this.w = w; //width of the button
 	this.h = h; //height of the button
+	this.xw = x + w; //the bottom x coordinate
+	this.yh = y + h; //the bottom y coordinate
 	this.cG = cG; //game state to load the button in
 	this.tab = tab; //tab to load the button in
 	this.textBool = tB //for stating whether a button has in render text over it
@@ -89,6 +92,9 @@ function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.tX = textX; //for editing placement of text on a button
 	this.tY = textY;
 	buttonRender[id] = this; //for rendering and discerning different buttons via #
+}
+function textUpdate(button,newText){
+	button.text = newText;
 }
 //BUTTON INTANTIATION
 //button id, x, y, width, height, gamestate, tab, render text bool, render text, render text x and y, base image
@@ -109,9 +115,10 @@ var mapTab2 = new Button(13,200,510,100,50,0,2,false,0,0,0,"../img/MapTab.png");
 var sellBtn = new Button(14,490,30,60,30,0,0,false,0,0,0,"../img/sell.png");
 var buyBtn = new Button(15,490,60,60,30,0,0,false,0,0,0,"../img/buy.png");
 var eatBtn = new Button(16,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
-var potatoBtn = new Button(17,selposX,selposY[0],60,30,0,0,true,0,selposX,selposY[0],"../img/potatoButton.png");
-var tomatoBtn = new Button(18,selposX,selposY[1],60,30,0,0,true,0,selposX,selposY[1],"../img/tomatoButton.png");
-var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,0,selposX,selposY[2],"../img/carrotButton.png");
+var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
+var potatoBtn = new Button(17,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(18,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 
 //============================================
 //--------------------------------------------
@@ -275,20 +282,24 @@ startFunc();
 //INITIALIZATION
 function startFunc(){
 	//INCREMENTAL INITIALIZATION
+	selRender = new Image;
 	baseImg = new Image;
+	selRender.src = "../img/Border.png";
 	baseImg.src = "../img/Soil.png";
 		for (i = 0; i < 4; i++){ //this stuff populates the farm/field player can grow shit on
 		farmPlot[i] = [];
 		for (j = 0; j < 4; j++){
 			var square = {};
-			square.x = i*64+10;
-			square.y = j*64+10;
-			square.img = baseImg;
-			square.seed = 3;
-			square.growing = false;
-			square.harvest = false;
-			square.tick = 0;
-			square.grow = 0;
+			square.x = i*64+10; //x coord
+			square.y = j*64+10; //y coord
+			square.xw = square.x+64; //bottom corner x coord
+			square.yh = square.y+64; //bottom corner y coord
+			square.img = baseImg; //image to render
+			square.seed = plantNull; //type of plant growing (null by default) 
+			square.growing = false; //is a plant growing?
+			square.harvest = false; //is a plant harvestable?
+			square.tick = 0; //timer for plant growth
+			square.grow = 0; //state of plant growth
 			farmPlot[i][j] = square;
 		}
 	}
@@ -357,6 +368,15 @@ function update(){
 	}
 	render();
 }
+function clickCheck(x,y,btnType){ //check if something is clicked
+	if (!(y > btnType.yh || //is the mouse inside the y axis?
+		  y < btnType.y||
+		  x > btnType.xw || //is the mouse inside the x axis?
+		  x < btnType.x)){
+		return true; //yes it is
+	}
+	return false; //no it's not
+}
 function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
@@ -414,103 +434,93 @@ function onClick(e){
 	switch (cG){
 		case 0:
 		//menu selection
-			if (yClick > shopTab0.y && yClick < shopTab0.y+shopTab0.h){ 
-				if(xClick > farmTab0.x && xClick < farmTab0.x+farmTab0.w){ //click farm tab
-					tabs = 0;
-					stage.style.backgroundColor = "#202316";
-				}
-				else if(xClick > shopTab0.x && xClick < shopTab0.x+shopTab0.w){//click shop tab
-					tabs = 1;
-					stage.style.backgroundColor = "white";
-				}
-				else if(xClick > shopTab0.x && xClick < shopTab0.x+shopTab0.w){//click map tab
-					tabs = 2;
-					stage.style.backgroundColor = "yellow";
-				}
+			if (clickCheck(xClick,yClick,farmTab0) == true){ //click farm tab
+				tab = 0;
+				stage.style.backgroundColor = "#202316";
 			}
-		switch (tabs){
+			else if (clickCheck(xClick,yClick,shopTab0) == true){//click shop tab
+				tab = 1;
+				stage.style.backgroundColor = "white";
+			}
+			else if (clickCheck(xClick,yClick,mapTab0) == true){//click map tab
+				tab = 2;
+				stage.style.backgroundColor = "yellow";
+			}
+		switch (tab){
 			case 0:
-				if (xClick > mapBtn.x && xClick < mapBtn.x+mapBtn.w && yClick > mapBtn.y && yClick < mapBtn.y+mapBtn.h)
+				if (clickCheck(xClick,yClick,mapBtn) == true) //did the player click on the map?
 				{
 					 cG = 3;
+					 tab = 0;
 				}
-				if (xClick > 10 && xClick < 266){ // checks if they clicked inside the farm space
-					if (yClick > 10 && yClick < 266){
-						for (i = 0; i < 4; i++){
-							if (xClick > farmPlot[i][0].x && xClick < farmPlot[i][0].x+64){ // checks for the individual square they clicked on
-								for (j = 0; j < 4; j++){
-									if (yClick > farmPlot[i][j].y && yClick < farmPlot[i][j].y+64){
-										if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != 3 && seeds[selected] > 0){ // checks if the square is empty and tells that square to grow
-											farmPlot[i][j].seed = selected;
-											farmPlot[i][j].growing = true;
-											farmPlot[i][j].img = plantHolder[selected];
-											plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
-											planting.play();
-										}
-										if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
+				if (clickCheck(xClick,yClick,farmSize) == true){ //did the player click on the farm?
+					for (i = 0; i < 4; i++){
+						for (j = 0; j < 4; j++){
+							if (clickCheck(xClick,yClick,farmPlot[i][j]) == true){ //check to see which square they clicked on
+								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != 3 && plantHolder[selected].seed > 0){ // checks if the square is empty and tells that square to grow
+									farmPlot[i][j].seed = selected;
+									farmPlot[i][j].growing = true;
+									farmPlot[i][j].img = plantHolder[selected].img[0];
+									plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
+									textUpdate(buttonRender[selected+plantBtnSt],plantHolder[selected].seed+"             "+plantHolder[selected].plant); //updates the text on the respective button
+									planting.play();
+								}
+								if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
 
-											if (Math.random()*100 < seedChance){
-												plantHolder[farmPlot[i][j].seed].seed += 1;
-												bonus.play();
-											}/* has a chance to gain an extra seed of the type harvested*/
+									if (Math.random()*100 < seedChance){
+										plantHolder[farmPlot[i][j].seed].seed += 1;
+										bonus.play();
+									}/* has a chance to gain an extra seed of the type harvested*/
 
-											if (Math.random()*100 < extraChance){
-												plantHolder[farmPlot[i][j].seed].plant += 1;
-												bonus.play();
-											}/*chance to gain a second plant of the type harvested*/
+									if (Math.random()*100 < extraChance){
+										plantHolder[farmPlot[i][j].seed].plant += 1;
+										bonus.play();
+									}/*chance to gain a second plant of the type harvested*/
 
-											plantHolder[farmPlot[i][j].seed].plant += 1;
-											farmPlot[i][j].harvest = false;
-											farmPlot[i][j].seed = plantNull;
-											farmPlot[i][j].img = baseImg;
-											farmPlot[i][j].grow = 0;
-											harvest.play();
-										}
-									}
+									plantHolder[farmPlot[i][j].seed].plant += 1;
+									textUpdate(buttonRender[farmPlot[i][j].seed+plantBtnSt],plantHolder[farmPlot[i][j].seed].seed+"             "+plantHolder[farmPlot[i][j].seed].plant); //updates the text on the respective button
+									farmPlot[i][j].harvest = false;
+									farmPlot[i][j].seed = plantNull;
+									farmPlot[i][j].img = baseImg;
+									farmPlot[i][j].grow = 0;
+									harvest.play();
 								}
 							}
 						}
 					}
 				}
-				if(xClick > 490 && xClick < 550){ 
-					if (yClick > 60 && yClick < 90){ // check if they clicked the buy button
-						if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
-							plantHolder[selected].seed++;
-							gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
-						}
-					}
-					if (yClick > 0 && yClick < 30){ // check if they clicked the shop button
-						shop = 1;
-					}
-					if (yClick > 30 && yClick < 60){ // check if they clicked the sell button
-						if (selected != plantNull && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
-							plantHolder[selected].plant -= 1;
-							gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
-						}
-					}
-					if (yClick > 90 && yClick < 120){ // check if they clicked the eat button
-						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected, and a plant to eat, eat it
-							plantHolder[selected].plant -= 1;
-							stats[selected] += 1;
-						}
+				if(clickCheck(xClick,yClick,buyBtn) == true){ // check if they clicked the buy button
+					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
+						plantHolder[selected].seed++;
+						gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 					}
 				}
-				if(xClick > potatoBtn.x && xClick < potatoBtn.x+potatoBtn.w){
-					if (yClick > potatoBtn.y && yClick < potatoBtn.y+potatoBtn.h){ //check if they clicked the potato button and select potatoes if so
-						selected = 0;
-						selX = selposX;
-						selY = selposY[selected]; // all three of these also move the highlight image around the button
+				if (clickCheck(xClick,yClick,sellBtn) == true){ // check if they clicked the sell button
+					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
+						plantHolder[selected].plant -= 1;
+						gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 					}
-					if (yClick > tomatoBtn.y && yClick < tomatoBtn.y+tomatoBtn.h){ //check if they clicked the tomato button and select tomatoes if so
-						selected = 1;
-						selX = selposX;
-						selY = selposY[selected];
+				}
+				if (clickCheck(xClick,yClick,eatBtn) == true){ // check if they clicked the eat button
+					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
+						plantHolder[selected].plant -= 1;
+						stats[selected] += 1;
 					}
-					if (yClick > carrotBtn.y && yClick < carrotBtn.y+carrotBtn.h){ //check if they clicked the carrot button and select carrots if so
-						selected = 2;
-						selX = selposX;
-						selY = selposY[selected];
-					}
+				}
+				if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
+					selected = 0;
+					selX = selposX;
+					selY = selposY[selected]; // all three of these also move the highlight image around the button
+				}
+				if (clickCheck(xClick,yClick,tomatoBtn) == true){ //check if they clicked the tomato button and select tomatoes if so
+					selected = 1;
+					selX = selposX;
+					selY = selposY[selected];
+				}
+				if (clickCheck(xClick,yClick,carrotBtn) == true){ //check if they clicked the carrot button and select carrots if so
+					selected = 2;
+					selX = selposX;
+					selY = selposY[selected];
 				}
 				break;
 			case 1://IN SHOP //shopitems = 50 shopy[6] = 350
@@ -567,35 +577,40 @@ function onClick(e){
 						selected = 2;
 					}
 					else {
-						selected = -1;
+						selected = plantNull;
 					} //dex int cha tabs
 				}
 				break;
 			case 2://IN MAP
 				break;
+		}
 			break;
 		case 1: //sidescroller
-            if (xClick > backBtnSdc.x && xClick < backBtnSdc.x+backBtnSdc.w && yClick > backBtnSdc.y && yClick < backBtnSdc.y+backBtnSdc.h){//back to incremental level
+            if (clickCheck(xClick,yClick,backBtnSdc) == true){//back to incremental level
 			    cG = 0;
+				tab = 0;
 			}
 			break;
 		case 2: //platformer
-		    if (xClick > backBtnPlt.x && xClick < backBtnPlt.x+backBtnPlt.w && yClick > backBtnPlt.y && yClick < backBtnPlt.y+backBtnPlt.h){//back to incremental level
+		    if (clickCheck(xClick,yClick,backBtnPlt) == true){//back to incremental level
 			    cG = 0;
+				tab = 0;
 			}
 			break;
 		case 3: //map
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y && yClick < mapSelBtn.y+(mapSelBtn.h/3)){ //platformer transition
 				cG = 2;
+				tab = 0;
 			}
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y+(mapSelBtn.h/3) && yClick < mapSelBtn.y+(2*(mapSelBtn.h/3))){ //platformer transition
 				cG = 1;
+				tab = 0;
 			}
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick >mapSelBtn.y+(2*(mapSelBtn.h/3)) && yClick < mapSelBtn.y+mapSelBtn.h){ //platformer transition
 				cG = 0;
+				tab = 0;
 			}
 			break;
-		}
 	}
 }
 //===========================================================================================
@@ -893,18 +908,19 @@ function movePlayer()
 //RENDER
 function render(){
 	renderer.clearRect(0,0,canvas.width,canvas.height);
-	switch (cG){
-		case 0:
-			for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
-				if (buttonRender[i].cG == cG){ //is the button in this gamestate?
-					if (buttonRender[i].tab == tab){ //is the button in this tab?
-						renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
-						if (buttonRender[i].textBool == true){ //does the button have text to render?
-							renderer.fillText(buttonRender[i].text,buttonRender[i].textX,buttonRender[i].textY); //render the text
-						}
-					}
+	for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
+		if (buttonRender[i].cG == cG){ //is the button in this gamestate?
+			if (buttonRender[i].tab == tab){ //is the button in this tab?
+				renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
+				if (buttonRender[i].textBool == true){ //does the button have text to render?
+					renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
 				}
 			}
+		}
+	}
+	switch (cG){
+		case 0:
+			renderer.drawImage(selRender,selX,selY);
 			for (i = 0; i < 3; i++){ //renders stats on screen
 				renderer.fillText(statName[i],selposX,selposY[i]+200);
 				renderer.fillText(stats[i],selposX+50,selposY[i]+200);
@@ -917,7 +933,7 @@ function render(){
 				}
 			}
 			/*
-			if (tabs == 1){
+			if (tab == 1){
 				goldT = gold.toString();
 				renderer.clearRect(0,0,canvas.width,canvas.height);
 				stage.style.backgroundColor = "white";
@@ -973,7 +989,7 @@ function render(){
 				renderer.fillText(plantT,invItemsX+225,shopY[i+1]+150);
 				}
 			}
-			if (tabs == 2) {
+			if (tab == 2) {
 				renderer.clearRect(0,0,canvas.width,canvas.height);
 				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
 				renderer.drawImage(shopTab,100,510);
@@ -982,7 +998,6 @@ function render(){
 			*/
 			break;
 		case 1:
-			renderer.clearRect(0,0,canvas.width,canvas.height);
 			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
 			renderer.drawImage(sdcPlayer.sprite,sdcPlayer.x,sdcPlayer.y);
 			for (i = 0; i < mArray.length; i++)
