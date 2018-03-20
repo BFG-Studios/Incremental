@@ -906,7 +906,7 @@ function pltResult()
 		cG = 0;
 		pltRespawn();
 	}
-	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
+	if (pltPlayer.X + pltPlayer.W == MoneyBg.X + 30 && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		console.log("Win");
