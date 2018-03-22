@@ -316,11 +316,13 @@ function startFunc(){
 				console.log("x "+i+" y "+j);
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
-				MoneyBg = new Object ("../img/Moneybag.png", j*64,i*64,64,64);
+				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
+				MoneyBg = ground[i][j];
 			}else if (map[i][j] == 3){
 				
 			}else if (map[i][j] == 4){
-				Spike = new Object ("../img/Spike.png", j*64,i*64,64,64);
+				ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64);
+				Spike = ground[i][j];
 			}
 		}
 	}
@@ -830,6 +832,12 @@ function movement()
 {
 	pltPlayer.gav = 10;
 
+	for( var i = 0; i < map.length; i++){
+		for( var j = 0; j < map[i].length; j++){
+			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 4)
+				ground[i][j].X += -pltPlayer.V_X;
+		}
+	}
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
 	if (pltPlayer.V_Y < pltPlayer.gav)
@@ -849,7 +857,7 @@ function movement()
 }
 function pltResult()
 {	
-    if (pltPlayer.Y + pltPlayer.H == Spike.Y )
+    if (Spike.Y == pltPlayer.Y + pltPlayer.H|| Spike.Y <= pltPlayer.Y + pltPlayer.H )
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
@@ -859,7 +867,7 @@ function pltResult()
 		cG = 0;
 		pltRespawn();
 	}
-	if (pltPlayer.X + pltPlayer.W == MoneyBg.X + 30 && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
+	if (pltPlayer.X == MoneyBg.X + 30 - pltPlayer.W && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		console.log("Win");
