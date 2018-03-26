@@ -125,55 +125,32 @@ var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"   
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
-var renderer = canvas.getContext("2d");
-var shotimg;//var for projectile img
-var soldierA = [];//array to hold the values of mArray that are soldiers
-var rAtk = [];// holds the values of each bullet
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
-var leftMove = rightMove = backMove = forMove = false;
-var playerimg;
-var attackimg;
-var fakeX = 0;
-var jumpInt = 0;
-//Enemy Spawn
-var sAcount = 0; //this variable controls which wave we're on
-var sACmax = 4; //this is the max number of waves
-var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
-			  [2,1,3,0,0,0,0],
-			  [2,2,3,0,0,0,0],
-			  [1,1,1,3,0,0,0],
-			  [2,2,1,1,3,0,0]];
-var mArray = [];
-var spawnMax = 6;
-var waveT = 0; //time between waves
-var waveTM = 10; //max time between waves
-var waveTB = true; //bool stating when a wave is over
-soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
-function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
-	this.Sprite = new Image();
-	this.Sprite.src = img; //enemy image
-	this.Attack = new Image();
-	this.Attack.src = atkImg;
-	this.health = health; //enemy health
-	this.attack = attack; //enemy damage value
-	this.x = 0; //enemy's position, to be implemented upon spawning
-	this.y = 0;
+class Enemy{
+	constructor(img,atkImg,health,attack,aDelay,aW,aH,proj){
+		this.Sprite = new Image();
+		this.Sprite.src = img; //enemy image
+		this.Attack = new Image();
+		this.Attack.src = atkImg;
+		this.health = health; //enemy health
+		this.attack = attack; //enemy damage value
+		this.x = 0; //enemy's position, to be implemented upon spawning
+		this.y = 0;
 
-	this.deltaMove = 0;// distance moved
-	this.mAtkL = false;// whether or not it should melee attack left
-	this.mAtkR = false;// whether or not it should melee attack right
+		this.deltaMove = 0;// distance moved
+		this.mAtkL = false;// whether or not it should melee attack left
+		this.mAtkR = false;// whether or not it should melee attack right
 
-	this.speed = 1; //enemy's movement speed
-	this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
-	this.aTimer = 0; //the timer for that max value
-	this.aW = aW; //the width of the attack
-	this.aH = aH; //the height of the attack
-	this.proj = proj; //bool stating whether the enemy uses a projectile attack
-	if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
-		this.projSp = 2;
+		this.speed = 1; //enemy's movement speed
+		this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
+		this.aTimer = 0; //the timer for that max value
+		this.aW = aW; //the width of the attack
+		this.aH = aH; //the height of the attack
+		this.proj = proj; //bool stating whether the enemy uses a projectile attack
+		if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
+			this.projSp = 2;
+		}
+		this.isHit = false;
 	}
-	this.isHit = false;
 
 }
 function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
@@ -205,6 +182,31 @@ function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
 	this.isHit = false;
 	this.hitTime = 0;
 }
+var renderer = canvas.getContext("2d");
+var shotimg;//var for projectile img
+var soldierA = [];//array to hold the values of mArray that are soldiers
+var rAtk = [];// holds the values of each bullet
+var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
+var leftMove = rightMove = backMove = forMove = false;
+var playerimg;
+var attackimg;
+var fakeX = 0;
+var jumpInt = 0;
+//Enemy Spawn
+var sAcount = 0; //this variable controls which wave we're on
+var sACmax = 4; //this is the max number of waves
+var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+			  [2,1,3,0,0,0,0],
+			  [2,2,3,0,0,0,0],
+			  [1,1,1,3,0,0,0],
+			  [2,2,1,1,3,0,0]];
+var mArray = [];
+var spawnMax = 6;
+var waveT = 0; //time between waves
+var waveTM = 10; //max time between waves
+var waveTB = true; //bool stating when a wave is over
+soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
+archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
 //===========================================================================================
 //PLATFORMER VARIABLES
 var wall = new Image();
