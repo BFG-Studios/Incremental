@@ -10,12 +10,14 @@ renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
 //player related/ miscellaneous variables
-var seedChance = 50;
-var extraChance = 0;
+var seedChance = 20;
+var extraChance = 10;
 var goldBonus = 0;
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
+//var bonus2 = new Audio("../wav/Bonus2.wav");
+//var diggin = new Audio("../wav/dig.wav");
 var baseImg; //soil image;
 var farmSize = {x:10, xw:266, y:10, yh:266}; //for checking if they've clicked on the farm
 var farmPlot = [];
@@ -67,8 +69,9 @@ function Plant(gt,id,img,stat,price,sell,seed){
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
 var potato = new Plant(120,0,"../img/potato.png",0,5,25,5);
-var tomato = new Plant(120,1,"../img/tomato.png",1,5,25,5);
-var carrot = new Plant(120,2,"../img/carrot.png",2,5,25,5);
+var tomato = new Plant(340,1,"../img/tomato.png",1,5,25,5);
+var carrot = new Plant(600,2,"../img/carrot.png",2,5,25,5);
+var eggplant = new Plant(70,3,"../img/Eggplant.png",1,5,25,1);
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
@@ -96,7 +99,7 @@ function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 function textUpdate(button,newText){
 	button.text = newText;
 }
-//BUTTON INTANTIATION
+//BUTTON INSTANTIATION
 //button id, x, y, width, height, gamestate, tab, render text bool, render text, render text x and y, base image
 var backBtnSdc = new Button(0,10,10,120,40,1,0,false,0,0,0,"../img/BackBtn.png"); 
 var backBtnPlt = new Button(1,10,10,120,40,2,0,false,0,0,0,"../img/BackBtn.png");
@@ -114,43 +117,67 @@ var mapTab1 = new Button(12,200,510,100,50,0,1,false,0,0,0,"../img/MapTab.png");
 var mapTab2 = new Button(13,200,510,100,50,0,2,false,0,0,0,"../img/MapTab.png");
 var sellBtn = new Button(14,490,30,60,30,0,0,false,0,0,0,"../img/sell.png");
 var buyBtn = new Button(15,490,60,60,30,0,0,false,0,0,0,"../img/buy.png");
+//var digBtn = new Button(21,100,400,60,30,0,0,false,0,0,0,"../img/dig.png");
 var eatBtn = new Button(16,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
 var potatoBtn = new Button(17,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
 var tomatoBtn = new Button(18,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
 var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
-
+var eggplantBtn = new Button(20,selposX+90,selposY[1],60,30,0,0,true,eggplant.seed+"             "+eggplant.plant,selposX-15,selposY[1],"../img/potatoButton.png");
 //============================================
 //--------------------------------------------
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
-class Enemy{
-	constructor(img,atkImg,health,attack,aDelay,aW,aH,proj){
-		this.Sprite = new Image();
-		this.Sprite.src = img; //enemy image
-		this.Attack = new Image();
-		this.Attack.src = atkImg;
-		this.health = health; //enemy health
-		this.attack = attack; //enemy damage value
-		this.x = 0; //enemy's position, to be implemented upon spawning
-		this.y = 0;
+var renderer = canvas.getContext("2d");
+var shotimg;//var for projectile img
+var soldierA = [];//array to hold the values of mArray that are soldiers
+var rAtk = [];// holds the values of each bullet
+var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
+var leftMove = rightMove = backMove = forMove = false;
+var playerimg;
+var attackimg;
+var fakeX = 0;
+var jumpInt = 0;
+//Enemy Spawn
+var sAcount = 0; //this variable controls which wave we're on
+var sACmax = 4; //this is the max number of waves
+var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+			  [2,1,3,0,0,0,0],
+			  [2,2,3,0,0,0,0],
+			  [1,1,1,3,0,0,0],
+			  [2,2,1,1,3,0,0]];
+var mArray = [];
+var spawnMax = 6;
+var waveT = 0; //time between waves
+var waveTM = 10; //max time between waves
+var waveTB = true; //bool stating when a wave is over
+soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
+archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
+function Enemy(img,atkImg,health,attack,aDelay,aW,aH,proj){
+	this.Sprite = new Image();
+	this.Sprite.src = img; //enemy image
+	this.Attack = new Image();
+	this.Attack.src = atkImg;
+	this.health = health; //enemy health
+	this.attack = attack; //enemy damage value
+	this.x = 0; //enemy's position, to be implemented upon spawning
+	this.y = 0;
 
-		this.deltaMove = 0;// distance moved
-		this.mAtkL = false;// whether or not it should melee attack left
-		this.mAtkR = false;// whether or not it should melee attack right
+	this.deltaMove = 0;// distance moved
+	this.mAtkL = false;// whether or not it should melee attack left
+	this.mAtkR = false;// whether or not it should melee attack right
 
-		this.speed = 1; //enemy's movement speed
-		this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
-		this.aTimer = 0; //the timer for that max value
-		this.aW = aW; //the width of the attack
-		this.aH = aH; //the height of the attack
-		this.proj = proj; //bool stating whether the enemy uses a projectile attack
-		if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
-			this.projSp = 2;
-		}
-		this.isHit = false;
+	this.speed = 1; //enemy's movement speed
+	this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
+	this.aTimer = 0; //the timer for that max value
+	this.aW = aW; //the width of the attack
+	this.aH = aH; //the height of the attack
+	this.proj = proj; //bool stating whether the enemy uses a projectile attack
+	if (this.proj = true){ //if the enemy does use a projectile then this dictates the speed that travels at
+		this.projSp = 2;
 	}
+	this.isHit = false;
 
 }
 function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
@@ -182,31 +209,6 @@ function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
 	this.isHit = false;
 	this.hitTime = 0;
 }
-var renderer = canvas.getContext("2d");
-var shotimg;//var for projectile img
-var soldierA = [];//array to hold the values of mArray that are soldiers
-var rAtk = [];// holds the values of each bullet
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
-var leftMove = rightMove = backMove = forMove = false;
-var playerimg;
-var attackimg;
-var fakeX = 0;
-var jumpInt = 0;
-//Enemy Spawn
-var sAcount = 0; //this variable controls which wave we're on
-var sACmax = 4; //this is the max number of waves
-var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
-			  [2,1,3,0,0,0,0],
-			  [2,2,3,0,0,0,0],
-			  [1,1,1,3,0,0,0],
-			  [2,2,1,1,3,0,0]];
-var mArray = [];
-var spawnMax = 6;
-var waveT = 0; //time between waves
-var waveTM = 10; //max time between waves
-var waveTB = true; //bool stating when a wave is over
-soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
 //===========================================================================================
 //PLATFORMER VARIABLES
 var wall = new Image();
@@ -315,7 +317,6 @@ function startFunc(){
 			if(map[i][j] == 0){
 				ground[i][j] = null;
 			}else if (map[i][j] == 1){
-				console.log("x "+i+" y "+j);
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
 				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
@@ -461,14 +462,17 @@ function onClick(e){
 					for (i = 0; i < 4; i++){
 						for (j = 0; j < 4; j++){
 							if (clickCheck(xClick,yClick,farmPlot[i][j]) == true){ //check to see which square they clicked on
-								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != 3 && plantHolder[selected].seed > 0){ // checks if the square is empty and tells that square to grow
-									farmPlot[i][j].seed = selected;
-									farmPlot[i][j].growing = true;
-									farmPlot[i][j].img = plantHolder[selected].img[0];
-									plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
-									textUpdate(buttonRender[selected+plantBtnSt],plantHolder[selected].seed+"             "+plantHolder[selected].plant); //updates the text on the respective button
-									planting.play();
-								}
+								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != plantNull ){ // checks if the square is empty and tells that square to grow
+										if (plantHolder[selected].seed > 0){
+										farmPlot[i][j].seed = selected;
+										farmPlot[i][j].growing = true;
+										farmPlot[i][j].img = plantHolder[selected].img[0];
+										plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
+										textUpdate(buttonRender[selected+plantBtnSt],plantHolder[selected].seed+"             "+plantHolder[selected].plant); //updates the text on the respective button
+										planting.play();
+									}
+								
+							}
 								if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
 
 									if (Math.random()*100 < seedChance){
@@ -511,7 +515,7 @@ function onClick(e){
 						stats[selected] += 1;
 					}
 				}
-				if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
+			/* 	if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
 					selected = 0;
 					selX = selposX;
 					selY = selposY[selected]; // all three of these also move the highlight image around the button
@@ -526,6 +530,25 @@ function onClick(e){
 					selX = selposX;
 					selY = selposY[selected];
 				}
+				if (clickCheck(xClick,yClick,eggplantBtn) == true){ //check if they clicked the eggplant button and select eggplants if so
+					selected = 3;
+					selX = selposX+90;
+					selY = selposY[selected];
+				} */
+				for (var i = 0; i < plantHolder.length; i++){
+					if (clickCheck(xClick,yClick,buttonRender[i+plantBtnSt]) == true){
+						selected = i;
+						selX = buttonRender[i+plantBtnSt].x;
+						selY = buttonRender[i+plantBtnSt].y;
+						}
+				}
+				//if (clickCheck(xClick,yClick,digBtn) == true){ 
+					//diggin.play();
+					//if (Math.random()*100 < 2){
+										//eggplant.seed += 1;
+										//bonus2.play();
+									//}
+				//}
 				break;
 			case 1://IN SHOP //shopitems = 50 shopy[6] = 350
 				if (yClick > 320 && yClick < 384) {
@@ -539,12 +562,12 @@ function onClick(e){
 						selected = 2;
 					}
 					else {
-						selected = -1;
+						selected = plantNull;
 					}
 				}
 				if(xClick > 50 && xClick < 110){ // check if they clicked the buy button
 					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
+						if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 							seeds[selected]++;
 							gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 						}
@@ -552,7 +575,7 @@ function onClick(e){
 				}	
 				if(xClick > 120 && xClick < 180){ // check if they clicked the sell button
 					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
+						if (selected != plantNull && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
 							plants[selected] -= 1;
 							gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 						}
@@ -560,9 +583,9 @@ function onClick(e){
 				}
 				if(xClick > 190 && xClick < 250){ // check if they clicked the eat button
 					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected, and a plant to eat, eat it
+						if (selected != plantNull && plants[selected] > 0){ // if they have a plant selected, and a plant to eat, eat it
 							plants[selected] -= 1;
-							stats[selected] += 1;
+							stats[selected].stat += 1;
 						}
 					}
 				}
