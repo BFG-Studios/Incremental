@@ -27,6 +27,7 @@ var selX = 1000;
 var selY = 1000;
 var selRender; //selected plant variables stop here
 var statName = ["Dex: ","Int: ","Cha: "];
+var diminish = [1,1,1];
 var stats = [0,0,0]; //the three stats
 var gold = 0; //player gold
 var selected = plantNull; //which plant is selected
@@ -48,7 +49,7 @@ var rightArrow; //right arrow for shop
 //--------------------------------------------
 //plant function and plant related variables
 var plantHolder = []; //array for calling plants by id
-function Plant(gt,id,img,stat,price,sell,seed){
+function Plant(gt,id,img,stat,price,sell,seed,boost){
 	this.gt = gt; //dictates interval the plant will change growstates at
 	this.img = [];
 	this.img[0] = new Image();
@@ -64,14 +65,15 @@ function Plant(gt,id,img,stat,price,sell,seed){
 	this.sell = sell; //the amount this plant sells for
 	this.seed = seed; //number of seeds of this plant type
 	this.plant = 0; //number of full grown plants of this plant type
+	this.boost = boost;
 	plantHolder[id] = this; //id for calling each plant type by #
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant(120,0,"../img/potato.png",0,5,25,5);
-var tomato = new Plant(340,1,"../img/tomato.png",1,5,25,5);
-var carrot = new Plant(600,2,"../img/carrot.png",2,5,25,5);
-var eggplant = new Plant(70,3,"../img/Eggplant.png",1,5,25,1);
+var potato = new Plant(120,0,"../img/potato.png",0,5,25,5,1);
+var tomato = new Plant(340,1,"../img/tomato.png",1,5,25,5,1);
+var carrot = new Plant(600,2,"../img/carrot.png",2,5,25,5,1);
+var eggplant = new Plant(70,3,"../img/Eggplant.png",1,5,25,1,5);
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
@@ -335,15 +337,16 @@ function startFunc(){
 //===========================================================================================
 //GENERAL CODE BLOCK
 function update(){
-	switch (cG){
-		case 0: //incremental
-			for (i = 0; i < 4; i++){
+	for (i = 0; i < 4; i++){
 				for (j = 0; j < 4; j++){
 					if (farmPlot[i][j].growing == true){
 						growUp(farmPlot[i][j]);
 					}
 				}
 			}
+	switch (cG){
+		case 0: //incremental
+			
 			break;
 		case 1: //sidescroller
 			playerMove();
@@ -500,19 +503,20 @@ function onClick(e){
 				if(clickCheck(xClick,yClick,buyBtn) == true){ // check if they clicked the buy button
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
-						gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 					}
 				}
 				if (clickCheck(xClick,yClick,sellBtn) == true){ // check if they clicked the sell button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plantHolder[selected].plant -= 1;
-						gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
+						gold += plantHolder[selected].sell  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 					}
 				}
 				if (clickCheck(xClick,yClick,eatBtn) == true){ // check if they clicked the eat button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
 						plantHolder[selected].plant -= 1;
-						stats[selected] += 1;
+						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
+						diminish[plantHolder[selected].stat] /= 0.01;
 					}
 				}
 			/* 	if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
