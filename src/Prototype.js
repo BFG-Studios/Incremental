@@ -10,9 +10,10 @@ renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
 //player related/ miscellaneous variables
-var seedChance = 50;
+var seedChance = 10;
 var extraChance = 0;
 var goldBonus = 0;
+var diminish = [1,1,1];
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
@@ -59,17 +60,17 @@ function Plant(name,gt,id,img,stat,price,sell,seed,plant){
 	this.price = price; //the price to buy this type of plant
 	this.sell = sell; //the amount this plant sells for
 	this.seed = seed; //number of seeds of this plant type
-	this.plant = 0; //number of full grown plants of this plant type
+	this.plant = plant; //number of full grown plants of this plant type
 	plantHolder[id] = this; //id for calling each plant type by #
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5);
-var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5);
-var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5); //all plants have names now in the class
-var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5);
-var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5);
-var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5); //plants for testing
+var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5,0);
+var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5,0);
+var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5,0); //all plants have names now in the class
+var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5,0);
+var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5,0);
+var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5,0); //plants for testing
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
@@ -127,17 +128,19 @@ var intTab = new Button(24,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
 var chaTab = new Button(25,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //stat tab buttons
 var leftArrow = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
 var rightArrow = new Button(27,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //arrows
-var plantSel = new Button(28,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
-var goldTxt = new Button(29,0,0,64,64,0,1,true,"Gold: " +gold,550,350,""); 
-var invTxt = new Button(30,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
-var invPotato = new Button(31,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
-var invTomato = new Button(32,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
-var invCarrot = new Button(33,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
-var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
-var potatoBtn = new Button(34,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(35,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(36,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 
+var goldTxt = new Button(28,0,0,64,64,0,1,true,"Gold: " +gold,550,350,""); 
+
+var invTxt = new Button(29,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
+var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
+
+var potatoBtn = new Button(30,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(31,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(32,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var invPotato = new Button(33,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
+var invTomato = new Button(34,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
+var invCarrot = new Button(35,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
+var plantSel = new Button(36,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
 /*
 if (tab == 1){
 	goldT = gold.toString();
@@ -406,7 +409,7 @@ function startFunc(){
 			if(map[i][j] == 0){
 				ground[i][j] = null;
 			}else if (map[i][j] == 1){
-				console.log("x "+i+" y "+j);
+				
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
 				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
@@ -583,6 +586,7 @@ function onClick(e){
 									farmPlot[i][j].grow = 0;
 									harvest.play();
 								}
+								
 							}
 						}
 					}
@@ -596,7 +600,7 @@ function onClick(e){
 				if (clickCheck(xClick,yClick,sellBtn0) == true){ // check if they clicked the sell button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plantHolder[selected].plant -= 1;
-						gold += plantHolder[selected].sell  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
+						gold += plantHolder[selected].sell + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 					}
 				}
 				if (clickCheck(xClick,yClick,eatBtn0) == true){ // check if they clicked the eat button
@@ -604,23 +608,16 @@ function onClick(e){
 						plantHolder[selected].plant -= 1;
 						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
 						diminish[plantHolder[selected].stat] /= 0.01;
+						console.log(plantHolder[selected].stat);
 					}
 				}
-				if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
-					selected = 0;
-					selX = selposX;
-					selY = selposY[selected]; // all three of these also move the highlight image around the button
-				}
-				if (clickCheck(xClick,yClick,tomatoBtn) == true){ //check if they clicked the tomato button and select tomatoes if so
-					selected = 1;
-					selX = selposX;
-					selY = selposY[selected];
-				}
-				if (clickCheck(xClick,yClick,carrotBtn) == true){ //check if they clicked the carrot button and select carrots if so
-					selected = 2;
-					selX = selposX;
-					selY = selposY[selected];
-				}
+				for (var i = 0; i < plantHolder.length; i++){
+ 					if (clickCheck(xClick,yClick,buttonRender[i+plantBtnSt]) == true){
+ 						selected = i;
+ 						selX = buttonRender[i+plantBtnSt].x;
+ 						selY = buttonRender[i+plantBtnSt].y;
+ 						}
+ 				}
 				break;
 			case 1://IN SHOP //shopitems = 50 shopy[6] = 350
 				if(clickCheck(xClick,yClick,buyBtn1) == true){ // check if they clicked the buy button
