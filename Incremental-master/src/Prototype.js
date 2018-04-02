@@ -121,21 +121,21 @@ var buyBtnBord = new Button(19,50,340,60,30,0,1,false,0,0,0,"../img/Border.png")
 var eatBtn0 = new Button(20,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
 var eatBtn1 = new Button(21,190,340,60,30,0,1,false,0,0,0,"../img/eat.png"); //kevin added eat button for shop
 var eatBtnBord = new Button(22,190,340,60,30,0,1,false,0,0,0,"../img/Border.png"); //border
-var dexTab = new Button(26,50,100,64,40,0,1,false,0,0,0,"../img/DexTab.png");
-var intTab = new Button(27,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
-var chaTab = new Button(28,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //kevin added all stat tab buttons
-var leftArrow = new Button(29,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
-var rightArrow = new Button(30,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //kevin added right and left arrows
-var plantSel = new Button(31,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //kevin added for plant selection
-var goldTxt = new Button(32,0,0,64,64,0,1,true,"Gold: " +gold,550,350,""); //kevin added text
-var invTxt = new Button(33,0,0,64,64,0,1,true,"Inventory",550,50,""); //kevin added more text
-var invPotato = new Button(34,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
-var invTomato = new Button(35,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
-var invCarrot = new Button(36,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //kevin added plants in inventory
+var dexTab = new Button(23,50,100,64,40,0,1,false,0,0,0,"../img/DexTab.png");
+var intTab = new Button(24,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
+var chaTab = new Button(25,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //kevin added all stat tab buttons
+var leftArrow = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
+var rightArrow = new Button(27,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //kevin added right and left arrows
+var plantSel = new Button(28,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //kevin added for plant selection
+var goldTxt = new Button(29,0,0,64,64,0,1,true,"Gold: " +gold,550,350,""); //kevin added text
+var invTxt = new Button(30,0,0,64,64,0,1,true,"Inventory",550,50,""); //kevin added more text
+var invPotato = new Button(31,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
+var invTomato = new Button(32,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
+var invCarrot = new Button(33,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //kevin added plants in inventory
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
-var potatoBtn = new Button(23,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(24,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(25,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var potatoBtn = new Button(34,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(35,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(36,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 
 /*
 if (tab == 1){
@@ -679,7 +679,7 @@ function onClick(e){
 					plantSel.img.src = plantHolder[arrow].img[3].src;
 					plantSel.text = plantHolder[arrow].name;
 					console.log(arrow);
-				}
+					}
 				}
 				if (clickCheck(xClick,yClick,rightArrow) == true) {
 					if (arrow < plantHolder.length - 1){
@@ -687,9 +687,9 @@ function onClick(e){
 						plantSel.img.src = plantHolder[arrow].img[3].src;
 						plantSel.text = plantHolder[arrow].name;
 						console.log(arrow);
-				}
-				}
-			} */ //kevin added for arrow functionality
+					}
+				}*/ //kevin added for arrow functionality
+			} 
 				break;
 			case 2://IN MAP
 				break;
