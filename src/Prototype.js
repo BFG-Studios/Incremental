@@ -458,10 +458,10 @@ function onClick(e){
 					 tab = 0;
 				}
 				if (clickCheck(xClick,yClick,farmSize) == true){ //did the player click on the farm?
-					for (i = 0; i < 4; i++){
+					for ( i = 0; i < 4; i++){
 						for (j = 0; j < 4; j++){
 							if (clickCheck(xClick,yClick,farmPlot[i][j]) == true){ //check to see which square they clicked on
-								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != 3 && plantHolder[selected].seed > 0){ // checks if the square is empty and tells that square to grow
+								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != plantNull && plantHolder[selected].seed > 0){ // checks if the square is empty and tells that square to grow
 									farmPlot[i][j].seed = selected;
 									farmPlot[i][j].growing = true;
 									farmPlot[i][j].img = plantHolder[selected].img[0];
