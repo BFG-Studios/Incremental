@@ -114,12 +114,10 @@ var eatBtn = new Button(16,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
 var dexTab = new Button(17,50,100,64,40,0.1,false,0,0,0,"../img/DexTab.png");
 var intTab = new Button(18,120,100,64,40,0.1,false,0,0,0,"../img/DexTab.png");
 var chaTab = new Button(19,190,100,64,40,0.1,false,0,0,0,"../img/DexTab.png");
-var intTab;
-var chaTab;
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
-var potatoBtn = new Button(17,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(18,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var potatoBtn = new Button(20,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(21,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(22,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 
 //============================================
 //--------------------------------------------
@@ -314,7 +312,6 @@ function startFunc(){
 			if(map[i][j] == 0){
 				ground[i][j] = null;
 			}else if (map[i][j] == 1){
-				console.log("x "+i+" y "+j);
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
 				MoneyBg = new Object ("../img/Moneybag.png", j*64,i*64,64,64);
