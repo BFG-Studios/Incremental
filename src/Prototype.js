@@ -13,6 +13,7 @@ renderer.font = "20px Arial";
 var seedChance = 20;
 var extraChance = 10;
 var goldBonus = 0;
+var baseDiminish = 0.04;
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
@@ -70,7 +71,7 @@ function Plant(gt,id,img,stat,price,sell,seed,boost){
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant(120,0,"../img/potato.png",0,5,25,5,1);
+var potato = new Plant(30,0,"../img/potato.png",0,5,25,5,1);
 var tomato = new Plant(340,1,"../img/tomato.png",1,5,25,5,1);
 var carrot = new Plant(600,2,"../img/carrot.png",2,5,25,5,1);
 var eggplant = new Plant(70,3,"../img/Eggplant.png",1,5,25,1,5);
@@ -515,8 +516,9 @@ function onClick(e){
 				if (clickCheck(xClick,yClick,eatBtn) == true){ // check if they clicked the eat button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
 						plantHolder[selected].plant -= 1;
-						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
-						diminish[plantHolder[selected].stat] /= 0.01;
+						stats[plantHolder[selected].stat] += (plantHolder[selected].boost*diminish[plantHolder[selected].stat]) / (stats[plantHolder[selected].stat] + plantHolder[selected].boost);
+						//diminish[plantHolder[selected].stat] /= 0.01;
+						
 					}
 				}
 			/* 	if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
