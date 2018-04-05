@@ -77,7 +77,8 @@ var plantNull = plantHolder.length + 1; //variable for selected to store a nonex
 //--------------------------------------------
 //button function and button related variables
 var buttonRender = []; //array for calling buttons by id
-function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
+class Button{
+	constructor (id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.img = new Image(); //basic image for the button
 	this.imgP = new Image(); //image for when the button is pressed
 	this.img.src = img;
@@ -94,6 +95,7 @@ function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.tX = textX; //for editing placement of text on a button
 	this.tY = textY;
 	buttonRender[id] = this; //for rendering and discerning different buttons via #
+	}
 }
 function textUpdate(button,newText){
 	button.text = newText;
@@ -128,75 +130,16 @@ var intTab = new Button(24,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
 var chaTab = new Button(25,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //stat tab buttons
 var leftArrow = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
 var rightArrow = new Button(27,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //arrows
-
-var goldTxt = new Button(28,0,0,64,64,0,1,true,"Gold: " +gold,550,350,""); 
-
-var invTxt = new Button(29,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
+var invTxt = new Button(28,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
 
-var potatoBtn = new Button(30,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(31,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(32,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
-var invPotato = new Button(33,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
-var invTomato = new Button(34,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
-var invCarrot = new Button(35,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
-var plantSel = new Button(36,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
-/*
-if (tab == 1){
-	goldT = gold.toString();
-	renderer.clearRect(0,0,canvas.width,canvas.height);
-	stage.style.backgroundColor = "white";
-	renderer.fillText("Gold: "+goldT,550,shopY[7]);
-	renderer.fillText("Store",50,shopY[0]);
-	renderer.fillText("Inventory",550,shopY[0]);
-	renderer.drawImage(buyImg,50,shopY[6]+40);
-	renderer.drawImage(selRender,50,shopY[6]+40); //buy button
-	renderer.drawImage(sellImg,50+70,shopY[6]+40);
-	renderer.drawImage(selRender,50+70,shopY[6]+40); //sell button
-	renderer.drawImage(eatImg,50+140,shopY[6]+40);
-	renderer.drawImage(selRender,50+140,shopY[6]+40); //eat button
-	//renderer.drawImage(plantImg[0][3],50,shopY[6]-30); //potato
-	//renderer.drawImage(plantImg[1][3],50+68.3,shopY[6]-30); //tomato
-	//renderer.drawImage(plantImg[2][3],50+136.6,shopY[6]-30); //carrot
-	if (selected == 0) {
-	renderer.fillText("Potato",120,300);
-	dexTab.src = "../img/DexTabSel.png";
-	intTab.src = "../img/IntTab.png";
-	chaTab.src = "../img/ChaTab.png";
-	renderer.drawImage(plantImg[0][3],120,210); //potato
-	}
-	else if (selected == 1) {
-	renderer.fillText("Tomato",120,300);
-	intTab.src = "../img/IntTabSel.png";
-	dexTab.src = "../img/DexTab.png";
-	chaTab.src = "../img/ChaTab.png";
-	renderer.drawImage(plantImg[1][3],120,210); //tomato
-	}
-	else if (selected == 2) {
-	renderer.fillText("Carrot",120,300);
-	chaTab.src = "../img/ChaTabSel.png";
-	dexTab.src = "../img/DexTab.png";
-	intTab.src = "../img/IntTab.png";
-	renderer.drawImage(plantImg[2][3],120,210); //carrot
-	}
-	for (i = 0; i < 6; i++){
-	storeT = storeStrings[i].toString();
-	renderer.fillText(storeT,550,shopY[i+1]); //inventory strings
-	}
-	for (i = 0; i < 6; i++){
-	seedT = seeds[i].toString();
-	plantT = plants[i].toString();
-	renderer.fillText(seedT,550+225,shopY[i+1]);
-	renderer.fillText(plantT,550+225,shopY[i+1]+150);
-	}
-}
-if (tab == 2) {
-	renderer.clearRect(0,0,canvas.width,canvas.height);
-	renderer.drawImage(farmTab,0,510); //tabs sized 100,50
-	renderer.drawImage(shopTab,100,510);
-	renderer.drawImage(mapTab,200,510); //all tabs
-}
-*/
+var potatoBtn = new Button(29,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(30,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(31,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var invPotato = new Button(32,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
+var invTomato = new Button(33,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
+var invCarrot = new Button(34,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
+var plantSel = new Button(35,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
 
 function countPlants() {
 	for (x = 0; x < plantHolder.length; x++){
@@ -464,7 +407,17 @@ function update(){
 
 			break;
 	}
+	shopUpdate();
 	render();
+}
+function shopUpdate(){
+	textUpdate(potatoBtn,potato.seed+"             "+potato.plant); 
+	textUpdate(tomatoBtn,tomato.seed+"             "+tomato.plant); 
+	textUpdate(carrotBtn,carrot.seed+"             "+carrot.plant); 
+	textUpdate(invPotato,"Potatoes: "+potato.plant); 
+	textUpdate(invTomato,"Tomato: "+tomato.plant); 
+	textUpdate(invCarrot,"Carrot: "+carrot.plant); 
+	
 }
 function clickCheck(x,y,btnType){ //check if something is clicked
 	if (!(y > btnType.yh || //is the mouse inside the y axis?
@@ -561,7 +514,7 @@ function onClick(e){
 										farmPlot[i][j].growing = true;
 										farmPlot[i][j].img = plantHolder[selected].img[0];
 										plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
-										textUpdate(buttonRender[selected+plantBtnSt],plantHolder[selected].seed+"             "+plantHolder[selected].plant); //updates the text on the respective button
+										
 										planting.play();
 									}
 
@@ -579,7 +532,7 @@ function onClick(e){
 									}/*chance to gain a second plant of the type harvested*/
 
 									plantHolder[farmPlot[i][j].seed].plant += 1;
-									textUpdate(buttonRender[farmPlot[i][j].seed+plantBtnSt],plantHolder[farmPlot[i][j].seed].seed+"             "+plantHolder[farmPlot[i][j].seed].plant); //updates the text on the respective button
+									
 									farmPlot[i][j].harvest = false;
 									farmPlot[i][j].seed = plantNull;
 									farmPlot[i][j].img = baseImg;
@@ -595,12 +548,14 @@ function onClick(e){
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
 						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						
 					}
 				}
 				if (clickCheck(xClick,yClick,sellBtn0) == true){ // check if they clicked the sell button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plantHolder[selected].plant -= 1;
 						gold += plantHolder[selected].sell + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
+						
 					}
 				}
 				if (clickCheck(xClick,yClick,eatBtn0) == true){ // check if they clicked the eat button
@@ -609,6 +564,7 @@ function onClick(e){
 						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
 						diminish[plantHolder[selected].stat] /= 0.01;
 						console.log(plantHolder[selected].stat);
+						
 					}
 				}
 				for (var i = 0; i < plantHolder.length; i++){
@@ -866,7 +822,7 @@ function enemyAttack()
 						  sdcPlayer.health -= mArray[i].attack;
 						}
 					  }
-			}//butts
+			}
 		}
 	}
 	else {
@@ -1018,40 +974,22 @@ function render(){
 			for (i = 0; i < 3; i++){ //renders stats on screen
 				renderer.fillText(statName[i],selposX,selposY[i]+200);
 				renderer.fillText(stats[i],selposX+50,selposY[i]+200);
+				
 			}
 			renderer.fillText("Gold: ",selposX,selposY[2]+240);
 			renderer.fillText(gold, selposX+50,selposY[2]+240);
 		switch (tab) {
 			case 0: // farm tab
-				renderer.clearRect(0,0,canvas.width,canvas.height);
+				
 				for (i = 0; i < 4; i++){ //draws the farm plots
 					for (j = 0; j < 4; j++){
 						renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
 					}
 				}
-				for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
-					if (buttonRender[i].cG == cG){ //is the button in this gamestate?
-						if (buttonRender[i].tab == tab){ //is the button in this tab?
-							renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
-							if (buttonRender[i].textBool == true){ //does the button have text to render?
-								renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
-							}
-						}
-					}
-				}
+			
 				break;
 			case 1: // shop tab
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
-					if (buttonRender[i].cG == cG){ //is the button in this gamestate?
-						if (buttonRender[i].tab == tab){ //is the button in this tab?
-							renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
-							if (buttonRender[i].textBool == true){ //does the button have text to render?
-								renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
-							}
-						}
-					}
-				}
+				break;
 			switch(statSel) { //stat tab functionality
 				case 0:
 				//changes img of dex tab when clicked
@@ -1077,17 +1015,7 @@ function render(){
 			}
 				break;
 			case 2:
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
-					if (buttonRender[i].cG == cG){ //is the button in this gamestate?
-						if (buttonRender[i].tab == tab){ //is the button in this tab?
-							renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
-							if (buttonRender[i].textBool == true){ //does the button have text to render?
-								renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
-							}
-						}
-					}
-				}
+				break;
 
 		}
 			/*
