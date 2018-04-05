@@ -211,13 +211,14 @@ archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//
 //PLATFORMER VARIABLES
 var wall = new Image();
 wall.src = "../img/temple_wall.png";
+var faceRight = true;
 var playerSprite = 0;
 var maxSprites = 4;
 var spriteCtr = 0;
 var framesPerSprite = 6;
 var map_vx = 0;
 var onGround = false;
-var pltPlayer = new PlatPlayer("../img/platformerSprite_L.png", 16,300,64,64,0,0); // creating a player object for platformer
+var pltPlayer = new PlatPlayer("../img/CharAnimRS.png", 16,300,64,64,0,0); // creating a player object for platformer
 var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
@@ -921,20 +922,20 @@ function movePlayer()
 	if(pltPlayer.leftPressed){
 		map_vx = -8;
 		pltPlayer.V_X = -5;
-		pltPlayer.Sprite.src = "../img/platformerSprite_L.png";
+		pltPlayer.Sprite.src = "../img/CharAnimL.png";
 	}
 	if(pltPlayer.rightPressed){
 		map_vx = 8;
 		pltPlayer.V_X = 5;
-		pltPlayer.Sprite.src = "../img/platformerSprite_R.png";
+		pltPlayer.Sprite.src = "../img/CharAnimR.png";
 	}
 	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed){
 		pltPlayer.V_X = 0;
 		map_vx = 0;
-		/*if(faceRight)
-			pltPlayer.Sprite.src = "../img/faceRight.png";
+		if(faceRight)
+			pltPlayer.Sprite.src = "../img/CharAnimLS.png";
 		else 
-			pltPlayer.Sprite.src = "../img/faceLeft.png";*/
+			pltPlayer.Sprite.src = "../img/CharAnimRS.png";
 	}
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
