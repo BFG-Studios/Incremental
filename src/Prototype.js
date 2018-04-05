@@ -44,7 +44,7 @@ var statSel = plantNull; //selecting stat tabs
 //--------------------------------------------
 //plant function and plant related variables
 var plantHolder = []; //array for calling plants by id
-function Plant(name,gt,id,img,stat,price,sell,seed,plant){
+function Plant(name,gt,id,img,stat,price,sell,seed){
 	this.name = name; //kevin added names
 	this.gt = gt; //dictates interval the plant will change growstates at
 	this.img = [];
@@ -60,17 +60,17 @@ function Plant(name,gt,id,img,stat,price,sell,seed,plant){
 	this.price = price; //the price to buy this type of plant
 	this.sell = sell; //the amount this plant sells for
 	this.seed = seed; //number of seeds of this plant type
-	this.plant = plant; //number of full grown plants of this plant type
+	this.plant = 0; //number of full grown plants of this plant type
 	plantHolder[id] = this; //id for calling each plant type by #
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5,0);
-var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5,0);
-var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5,0); //all plants have names now in the class
-var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5,0);
-var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5,0);
-var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5,0); //plants for testing
+var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5);
+var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5);
+var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5); //all plants have names now in the class
+var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5);
+var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5);
+var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5); //plants for testing
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
