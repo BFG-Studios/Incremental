@@ -1071,7 +1071,7 @@ function render(){
 		case 2:
 			renderer.drawImage(wall, 0, 0);
 			renderer.drawImage(pltPlayer.Sprite,
-							   pltPlayer.SIZE*playerSprite, 0, pltPlayer.SIZE, 58,
+							   pltPlayer.SIZE*playerSprite, 0, pltPlayer.SIZE, 64,
 							   pltPlayer.X, pltPlayer.Y, pltPlayer.SIZE, pltPlayer.SIZE);
 			for ( var i = 0; i < map.length; i++){
 				for (var j = 0; j < map[i].length; j++){
