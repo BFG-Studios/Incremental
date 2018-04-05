@@ -211,8 +211,13 @@ archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//
 //PLATFORMER VARIABLES
 var wall = new Image();
 wall.src = "../img/temple_wall.png";
+var playerSprite = 0;
+var maxSprites = 4;
+var spriteCtr = 0;
+var framesPerSprite = 6;
+var map_vx = 0;
 var onGround = false;
-var pltPlayer = new PlatPlayer("../img/character.png", 16,300,64,64,0,0); // creating a player object for platformer
+var pltPlayer = new PlatPlayer("../img/platformerSprite_L.png", 16,300,64,64,0,0); // creating a player object for platformer
 var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
@@ -250,6 +255,7 @@ function PlatPlayer(img,x,y,w,h,vx,vy){
 	this.upPressed = false;
 	this.Previous_X;
 	this.Previous_Y;
+	this.SIZE = 64;
 	this.gav = 0;
 	this.weight = 0.5;
 	this.collision = function(obj){
@@ -833,11 +839,11 @@ function enemyMove()
 function movement()
 {
 	pltPlayer.gav = 10;
-
+	
 	for( var i = 0; i < map.length; i++){
 		for( var j = 0; j < map[i].length; j++){
 			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 4)
-				ground[i][j].X += -pltPlayer.V_X;
+				ground[i][j].X += -map_vx;
 		}
 	}
 	pltPlayer.X += pltPlayer.V_X;
@@ -854,6 +860,7 @@ function movement()
 			}
 		}
 	}
+	animatePlayer();
 	//checkCollision();	
 	pltResult();
 }
@@ -898,14 +905,37 @@ function pltRespawn()
 		}
 	}
 }*/
+function animatePlayer()
+{
+	spriteCtr++;
+	if(spriteCtr == framesPerSprite)
+	{
+		spriteCtr = 0;
+		playerSprite++;
+		if(playerSprite == maxSprites)
+			playerSprite = 0;
+	}
+}
 function movePlayer()
 {
-	if(pltPlayer.leftPressed)
+	if(pltPlayer.leftPressed){
+		map_vx = -8;
 		pltPlayer.V_X = -5;
-	if(pltPlayer.rightPressed)
+		pltPlayer.Sprite.src = "../img/platformerSprite_L.png";
+	}
+	if(pltPlayer.rightPressed){
+		map_vx = 8;
 		pltPlayer.V_X = 5;
-	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed)
+		pltPlayer.Sprite.src = "../img/platformerSprite_R.png";
+	}
+	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed){
 		pltPlayer.V_X = 0;
+		map_vx = 0;
+		/*if(faceRight)
+			pltPlayer.Sprite.src = "../img/faceRight.png";
+		else 
+			pltPlayer.Sprite.src = "../img/faceLeft.png";*/
+	}
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
 		//console.log(pltPlayer.X);
@@ -1039,7 +1069,9 @@ function render(){
 			break;
 		case 2:
 			renderer.drawImage(wall, 0, 0);
-			renderer.drawImage(pltPlayer.Sprite,pltPlayer.X,pltPlayer.Y);
+			renderer.drawImage(pltPlayer.Sprite,
+							   pltPlayer.SIZE*playerSprite, 0, pltPlayer.SIZE, 58,
+							   pltPlayer.X, pltPlayer.Y, pltPlayer.SIZE, pltPlayer.SIZE);
 			for ( var i = 0; i < map.length; i++){
 				for (var j = 0; j < map[i].length; j++){
 					if (map[i][j] == 1)
