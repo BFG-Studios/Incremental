@@ -920,11 +920,13 @@ function animatePlayer()
 function movePlayer()
 {
 	if(pltPlayer.leftPressed){
+		faceRight = false;
 		map_vx = -8;
 		pltPlayer.V_X = -5;
 		pltPlayer.Sprite.src = "../img/CharAnimL.png";
 	}
 	if(pltPlayer.rightPressed){
+		faceRight = true;
 		map_vx = 8;
 		pltPlayer.V_X = 5;
 		pltPlayer.Sprite.src = "../img/CharAnimR.png";
@@ -933,9 +935,9 @@ function movePlayer()
 		pltPlayer.V_X = 0;
 		map_vx = 0;
 		if(faceRight)
-			pltPlayer.Sprite.src = "../img/CharAnimLS.png";
-		else 
 			pltPlayer.Sprite.src = "../img/CharAnimRS.png";
+		else 
+			pltPlayer.Sprite.src = "../img/CharAnimLS.png";
 	}
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
