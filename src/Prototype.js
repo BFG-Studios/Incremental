@@ -218,21 +218,21 @@ var spriteCtr = 0;
 var framesPerSprite = 6;
 var map_vx = 0;
 var onGround = false;
-var pltPlayer = new PlatPlayer("../img/CharAnimRS.png", 16,300,64,64,0,0); // creating a player object for platformer
+var pltPlayer = new PlatPlayer("../img/CharAnimRS.png", 150,300,40,64,0,0); // creating a player object for platformer
 var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
 var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
 var map = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,0],
-	[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,2,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
-	[1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0],
+	[3,0,0,0,0,0,0,0,0,2,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
 	
 ];
 var ground = [];
@@ -321,14 +321,14 @@ function startFunc(){
 		for (var j = 0; j < map[i].length; j++){
 			if(map[i][j] == 0){
 				ground[i][j] = null;
-			}else if (map[i][j] == 1){
+			}else if (map[i][j] == 1 ){
 				console.log("x "+i+" y "+j);
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
 				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
 				MoneyBg = ground[i][j];
 			}else if (map[i][j] == 3){
-				
+				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64);
 			}else if (map[i][j] == 4){
 				ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64);
 				Spike = ground[i][j];
@@ -841,19 +841,21 @@ function movement()
 {
 	pltPlayer.gav = 10;
 	
-	for( var i = 0; i < map.length; i++){
-		for( var j = 0; j < map[i].length; j++){
-			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 4)
-				ground[i][j].X += -map_vx;
+	
+		for( var i = 0; i < map.length; i++){
+			for( var j = 0; j < map[i].length; j++){
+				if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+					ground[i][j].X += -map_vx;
+			}
 		}
-	}
+	
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
 	for ( var i = 0; i < map.length; i++){
 		for (var j = 0; j < map[i].length; j++){
-			if (map[i][j] == 1){
+			if (map[i][j] == 1 || map[i][j] == 3){
 				if (pltPlayer.collision(ground[i][j]) && pltPlayer.Y + pltPlayer.H < ground[i][j].Y + pltPlayer.V_Y){
 					pltPlayer.Y = ground[i][j].Y - pltPlayer.H;
 					pltPlayer.V_Y = 0;
@@ -862,7 +864,12 @@ function movement()
 		}
 	}
 	animatePlayer();
-	//checkCollision();	
+	for( var i = 0; i < map.length; i++){
+		for( var j = 0; j < map[i].length; j++){
+			if(map[i][j] == 3)
+				checkCollision(ground[i][j]);
+		}
+	}	
 	pltResult();
 }
 function pltResult()
@@ -889,23 +896,29 @@ function pltResult()
 }
 function pltRespawn()
 {
+	for( var i = 0; i < map.length; i++){
+		for( var j = 0; j < map[i].length; j++){
+			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+				ground[i][j].X = j*64;
+		}
+	}
+	
 	pltPlayer.X = 16;
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
 }
-/*function checkCollision()
+function checkCollision(ground)
 {
-	
-	for ( var i = 0; i < map.length; i++){
-		for (var j = 0; j < map[i].length; j++){
-			if (map[i][j] == 1){
-				if(pltPlayer.X + pltPlayer.W > ground[i][j].X)  pltPlayer.X = ground[i][j].X - pltPlayer.W;
-				if(pltPlayer.X + 25 < ground[i][j].X + ground[i][j].W) pltPlayer.X = ground[i][j].X + ground[i][j].W -25;
-				//if(pltPlayer.Y > ground[i][j].Y + ground[i][j].H) pltPlayer.Y += pltPlayer.V_Y;
-			}
-		}
-	}
-}*/
+	if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.collision(ground))  {
+		console.log("left"+ pltPlayer.X);
+		pltPlayer.X = ground.X - pltPlayer.W;
+		map_vx = 0;
+	}if(pltPlayer.X + 25 < ground.X + ground.W && pltPlayer.collision(ground)) {
+		console.log("right");
+		pltPlayer.X = ground.X + ground.W - 25; 
+		map_vx = 0;
+	}	//if(pltPlayer.Y > ground[i][j].Y + ground[i][j].H) pltPlayer.Y += pltPlayer.V_Y;
+}
 function animatePlayer()
 {
 	spriteCtr++;
@@ -941,8 +954,6 @@ function movePlayer()
 	}
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
-		//console.log(pltPlayer.X);
-		//console.log(pltPlayer.Y);
 		onGround = false;
 	}
 
@@ -975,70 +986,6 @@ function render(){
 					renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
 				}
 			}
-			/*
-			if (tab == 1){
-				goldT = gold.toString();
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				stage.style.backgroundColor = "white";
-				renderer.fillText("Gold: "+goldT,invItemsX,shopY[7]);
-				renderer.fillText("Store",shopItemsX,shopY[0]);
-				renderer.fillText("Inventory",invItemsX,shopY[0]);
-				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
-				renderer.drawImage(shopTab,100,510);
-				renderer.drawImage(mapTab,200,510); //all tabs
-				renderer.drawImage(dexTab,50,100);
-				renderer.drawImage(intTab,120,100);
-				renderer.drawImage(chaTab,190,100);//stats tabs
-				renderer.drawImage(buyImg,shopItemsX,shopY[6]+40);
-				renderer.drawImage(selRender,shopItemsX,shopY[6]+40); //buy button
-				renderer.drawImage(sellImg,shopItemsX+70,shopY[6]+40);
-				renderer.drawImage(selRender,shopItemsX+70,shopY[6]+40); //sell button
-				renderer.drawImage(eatImg,shopItemsX+140,shopY[6]+40);
-				renderer.drawImage(selRender,shopItemsX+140,shopY[6]+40); //eat button
-				renderer.drawImage(leftArrow,75,222); //left arrow
-				renderer.drawImage(rightArrow,189,222); //right arrow
-				//renderer.drawImage(plantImg[0][3],shopItemsX,shopY[6]-30); //potato
-				//renderer.drawImage(plantImg[1][3],shopItemsX+68.3,shopY[6]-30); //tomato
-				//renderer.drawImage(plantImg[2][3],shopItemsX+136.6,shopY[6]-30); //carrot
-				if (selected == 0) {
-				renderer.fillText("Potato",120,300);
-				dexTab.src = "../img/DexTabSel.png";
-				intTab.src = "../img/IntTab.png";
-				chaTab.src = "../img/ChaTab.png";
-				renderer.drawImage(plantImg[0][3],120,210); //potato
-				}
-				else if (selected == 1) {
-				renderer.fillText("Tomato",120,300);
-				intTab.src = "../img/IntTabSel.png";
-				dexTab.src = "../img/DexTab.png";
-				chaTab.src = "../img/ChaTab.png";
-				renderer.drawImage(plantImg[1][3],120,210); //tomato
-				}
-				else if (selected == 2) {
-				renderer.fillText("Carrot",120,300);
-				chaTab.src = "../img/ChaTabSel.png";
-				dexTab.src = "../img/DexTab.png";
-				intTab.src = "../img/IntTab.png";
-				renderer.drawImage(plantImg[2][3],120,210); //carrot
-				}
-				for (i = 0; i < 6; i++){
-				storeT = storeStrings[i].toString();
-				renderer.fillText(storeT,invItemsX,shopY[i+1]); //inventory strings
-				}
-				for (i = 0; i < 6; i++){
-				seedT = seeds[i].toString();
-				plantT = plants[i].toString();
-				renderer.fillText(seedT,invItemsX+225,shopY[i+1]);
-				renderer.fillText(plantT,invItemsX+225,shopY[i+1]+150);
-				}
-			}
-			if (tab == 2) {
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
-				renderer.drawImage(shopTab,100,510);
-				renderer.drawImage(mapTab,200,510); //all tabs
-			}
-			*/
 			break;
 		case 1:
 			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
@@ -1081,7 +1028,8 @@ function render(){
 						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
 					else if (map[i][j] == 2)
 						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
-					else if (map[i][j] == 3){}
+					else if (map[i][j] == 3)
+						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 4)
 						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
 					
