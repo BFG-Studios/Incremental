@@ -13,7 +13,7 @@ renderer.font = "20px Arial";
 var seedChance = 10;
 var extraChance = 0;
 var goldBonus = 0;
-var diminish = [1,1,1];
+var diminish = 0.4;
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
@@ -44,7 +44,7 @@ var statSel = plantNull; //selecting stat tabs
 //--------------------------------------------
 //plant function and plant related variables
 var plantHolder = []; //array for calling plants by id
-function Plant(name,gt,id,img,stat,price,sell,seed,plant){
+function Plant(name,gt,id,img,stat,price,sell,seed,plant,boost){
 	this.name = name; //kevin added names
 	this.gt = gt; //dictates interval the plant will change growstates at
 	this.img = [];
@@ -61,16 +61,17 @@ function Plant(name,gt,id,img,stat,price,sell,seed,plant){
 	this.sell = sell; //the amount this plant sells for
 	this.seed = seed; //number of seeds of this plant type
 	this.plant = plant; //number of full grown plants of this plant type
+	this.boost = boost;
 	plantHolder[id] = this; //id for calling each plant type by #
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5,0);
-var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5,0);
-var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5,0); //all plants have names now in the class
-var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5,0);
-var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5,0);
-var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5,0); //plants for testing
+var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5,0,1);
+var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5,0,1);
+var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5,0,1); //all plants have names now in the class
+var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5,0,1);
+var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5,0,1);
+var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5,0,1); //plants for testing
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
@@ -561,9 +562,9 @@ function onClick(e){
 				if (clickCheck(xClick,yClick,eatBtn0) == true){ // check if they clicked the eat button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
 						plantHolder[selected].plant -= 1;
-						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
-						diminish[plantHolder[selected].stat] /= 0.01;
-						console.log(plantHolder[selected].stat);
+						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish;
+						//diminish[plantHolder[selected].stat] /= 0.01;
+						console.log(stats[plantHolder[selected].stat]);
 						
 					}
 				}
@@ -593,6 +594,7 @@ function onClick(e){
 						plantHolder[selected].plant -= 1;
 						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
 						diminish[plantHolder[selected].stat] /= 0.01;
+						console.log("yum");
 					}
 				}
 				if(clickCheck(xClick,yClick,dexTab) == true) { //clicks dex tab
