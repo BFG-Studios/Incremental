@@ -1,3 +1,4 @@
+//master
 //CANVAS VARIABLES
 window.addEventListener("click", onClick);
 window.addEventListener("keydown", onKeyDown);
@@ -98,7 +99,7 @@ function textUpdate(button,newText){
 }
 //BUTTON INTANTIATION
 //button id, x, y, width, height, gamestate, tab, render text bool, render text, render text x and y, base image
-var backBtnSdc = new Button(0,10,10,120,40,1,0,false,0,0,0,"../img/BackBtn.png"); 
+var backBtnSdc = new Button(0,10,10,120,40,1,0,false,0,0,0,"../img/BackBtn.png");
 var backBtnPlt = new Button(1,10,10,120,40,2,0,false,0,0,0,"../img/BackBtn.png");
 var mapBtn = new Button(2,460,290,120,25,0,0,false,0,0,0,"../img/map.png");
 var mapSelBtn = new Button(3,250,160,360,240,3,0,false,0,0,0,"../img/selections.png");
@@ -126,7 +127,8 @@ var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"   
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 class Enemy{
-	constructor(img,atkImg,health,attack,aDelay,aW,aH,proj){
+	constructor(name,img,atkImg,health,attack,aDelay,aW,aH,proj){
+		this.name = name;
 		this.Sprite = new Image();
 		this.Sprite.src = img; //enemy image
 		this.Attack = new Image();
@@ -137,8 +139,15 @@ class Enemy{
 		this.y = 0;
 
 		this.deltaMove = 0;// distance moved
-		this.mAtkL = false;// whether or not it should melee attack left
-		this.mAtkR = false;// whether or not it should melee attack right
+		this.mAtk = false;// whether or not it should melee attack left
+		this.rAtkX = 0;
+		this.rAtkY = 0;
+		this.bullDist =0;
+
+		this.deltaMove = 0;
+		this.mAtkX = 0;
+		this.mAtkY = 0;
+		this.side;
 
 		this.speed = 1; //enemy's movement speed
 		this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
@@ -153,39 +162,40 @@ class Enemy{
 	}
 
 }
-function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
-	this.x = x;
-	this.y = y;
-	this.w = w;
-	this.h = h;
-	this.jump = false;
-	this.attack = false;
-	this.grav = 10;
-	this.floorY = y;
-	this.jspeed = jspeed;
-	this.jtop = false;
-	this.health = health;
-	this.dmg = dmg + stats[1]; // increases damage (int)
-	this.blockRt = 0 + stats[2]; // increases block (cha)
-	this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
-	this.vspeed = vspeed; //increasese vertical speed (dex)
-	this.sprite = new Image();
-	this.sprite.src = img;
-	this.shadow = new Image();
-	this.shadow.src = sImg;
-	this.aSprite = new Image();
-	this.aSprite.src = aImg;
-	this.hitboxX = 0;
-	this.hitboxY = 0;
-	this.hitboxC = 0;
-	this.hitboxR = false;
-	this.isHit = false;
-	this.hitTime = 0;
+class Player{
+	constructor(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.jump = false;
+		this.attack = false;
+		this.grav = 10;
+		this.floorY = y;
+		this.jspeed = jspeed;
+		this.jtop = false;
+		this.health = health;
+		this.healthMax = health;
+		this.dmg = dmg + stats[1]; // increases damage (int)
+		this.blockRt = 0 + stats[2]; // increases block (cha)
+		this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
+		this.vspeed = vspeed; //increasese vertical speed (dex)
+		this.sprite = new Image();
+		this.sprite.src = img;
+		this.shadow = new Image();
+		this.shadow.src = sImg;
+		this.aSprite = new Image();
+		this.aSprite.src = aImg;
+		this.hitboxX = 0;
+		this.hitboxY = 0;
+		this.hitboxC = 0;
+		this.hitboxR = false;
+		this.isHit = false;
+		this.hitTime = 0;
+	}
 }
 var renderer = canvas.getContext("2d");
 var shotimg;//var for projectile img
-var soldierA = [];//array to hold the values of mArray that are soldiers
-var rAtk = [];// holds the values of each bullet
 var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
 var leftMove = rightMove = backMove = forMove = false;
 var playerimg;
@@ -195,7 +205,7 @@ var jumpInt = 0;
 //Enemy Spawn
 var sAcount = 0; //this variable controls which wave we're on
 var sACmax = 4; //this is the max number of waves
-var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+var sArray = [[2,3,0,0,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
 			  [2,1,3,0,0,0,0],
 			  [2,2,3,0,0,0,0],
 			  [1,1,1,3,0,0,0],
@@ -205,8 +215,6 @@ var spawnMax = 6;
 var waveT = 0; //time between waves
 var waveTM = 10; //max time between waves
 var waveTB = true; //bool stating when a wave is over
-soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
 //===========================================================================================
 //PLATFORMER VARIABLES
 var wall = new Image();
@@ -233,7 +241,7 @@ var map = [
 	[0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 	[1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
 	[1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
-	
+
 ];
 var ground = [];
 
@@ -246,12 +254,12 @@ function PlatPlayer(img,x,y,w,h,vx,vy){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
 	this.X = x; // object x position
-	this.Y = y; // object y position 
-	this.W = w; // object width	
+	this.Y = y; // object y position
+	this.W = w; // object width
 	this.H = h; // object height
-	this.V_X = vx; // object horizontal velocity 
-	this.V_Y = vy; // object vertical velocity 
-	this.leftPressed = false;  
+	this.V_X = vx; // object horizontal velocity
+	this.V_Y = vy; // object vertical velocity
+	this.leftPressed = false;
 	this.rightPressed = false;
 	this.upPressed = false;
 	this.Previous_X;
@@ -283,7 +291,7 @@ function Block(img,x,y,w,h){
 	this.Y = y;
 	this.W = w;
 	this.H = h;
-} 
+}
 
 //===========================================================================================
 
@@ -304,7 +312,7 @@ function startFunc(){
 			square.xw = square.x+64; //bottom corner x coord
 			square.yh = square.y+64; //bottom corner y coord
 			square.img = baseImg; //image to render
-			square.seed = plantNull; //type of plant growing (null by default) 
+			square.seed = plantNull; //type of plant growing (null by default)
 			square.growing = false; //is a plant growing?
 			square.harvest = false; //is a plant harvestable?
 			square.tick = 0; //timer for plant growth
@@ -322,13 +330,13 @@ function startFunc(){
 			if(map[i][j] == 0){
 				ground[i][j] = null;
 			}else if (map[i][j] == 1){
-				console.log("x "+i+" y "+j);
+
 				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
 			}else if (map[i][j] == 2){
 				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
 				MoneyBg = ground[i][j];
 			}else if (map[i][j] == 3){
-				
+
 			}else if (map[i][j] == 4){
 				ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64);
 				Spike = ground[i][j];
@@ -366,8 +374,7 @@ function update(){
 					spawn();
 				}
 			}
-			enemyAttack();//updates the bullets
-			enemyMove();//moves the soldiers
+			enemyAi();//handles the enemy Ai
 			break;
 		case 2: //platformer
 			movement();
@@ -556,7 +563,7 @@ function onClick(e){
 							gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 						}
 					}
-				}	
+				}
 				if(xClick > 120 && xClick < 180){ // check if they clicked the sell button
 					if (yClick > 390 && yClick < 420){
 						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
@@ -686,8 +693,15 @@ function attack(){ //this spawns the player's attack
 				if (mArray[i].isHit == false){
 					mArray[i].health -= sdcPlayer.dmg;
 					mArray[i].isHit = true; //is hit stops the enemy from taking damage on every frame of player attack, they only take damage once
+					if(mArray[i].health <= 0)
+						mArray.splice(i,1);
+
 				}
 			}
+		}
+		if(mArray.length == 0){
+			alert("You beat that wave, spawning new wave");
+			spawn();
 		}
 	}
 	else{ //once the player attack is done, all enemies are rendered hitable again.
@@ -709,34 +723,32 @@ function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
-				archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
-				mArray[i] = archer;
-				mArray[i].x = 500;
-				mArray[i].y = i*70+200;
-				if(i == rAtk.length)
-				{
-					rAtk[i] = {x: mArray[i].x, y: mArray[i].y, sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
+				mArray[i] =  new Enemy ("archer","../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
+				mArray[i].x = 510;
+				mArray[i].y = i*70+230;
 
-				}//if the current index of mArray is the same as the length of the rAtk array create a new bullet at that index
-				else if(i > rAtk.length)
-				{
-					rAtk[rAtk.length] = {x: mArray[i].x, y: mArray[i].y,sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
-				}//if the current index of mArray is the same as the length of the rAtk array create a new bullet at the last index of rAtk
+				if(mArray[i].y >= 400){
+					var j = i-3;
+					mArray[i].x = 700;
+					mArray[i].y = j*70+230;
+				}//spawns behind after 3rd enemy
+
+				mArray[i].rAtkX = mArray[i].x;
+				mArray[i].rAtkY = mArray[i].y;//sets the x,y values for the archer projectile
+
 				console.log ("archer");
 				break;
 			case 2:
-				soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-				mArray[i] = soldier;
-				mArray[i].x = 500;
-				mArray[i].y = i*70+200;
-				if(i == soldierA.length)
-				{
-					soldierA[i] = i;
-				}//if the current index of mArray is the same as the length of the soldierA create add the current index of mArray to the same index of soldierA
-				else if(i > soldierA.length)
-				{
-					soldierA[soldierA.length] = i;
-				}//if current index of mArray is larger than the length of soldierA add the current index of mArray at the last index of soldierA
+				mArray[i] = new Enemy ("soldier","../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
+				mArray[i].x = 510;
+				mArray[i].y = i*70+230;
+				if(mArray[i].y >= 400){
+					var j = i-3;
+					mArray[i].x = 700;
+					mArray[i].y = j*70+230;
+				}
+				mArray[i].side = mArray[i].x - (2 * mArray[i].aW);
+				mArray[i].mAtkY = mArray[i].y;
 				console.log ("soldier");
 				break;
 			case 3: //when the array has a 3 in it the for loop stops checking and the spawning stops
@@ -752,32 +764,94 @@ function spawn(){ //spawns enemies
 
 
 }
-function enemyAttack()
-{
-	for (i = 0; i < rAtk.length; i++)
+function enemyAi() {
+	for (i = 0; i < mArray.length; i++)
 	{
-		rAtk[i].x -= archer.projSp;
-		rAtk[i].bullDist += 1;
-		if(rAtk[i].bullDist >= 150)
+		mArray[i].rAtkX -= mArray[i].projSp;
+		mArray[i].bullDist += 1;
+		if(mArray[i].bullDist >= 150)
 		{
-			rAtk[i].x = rAtk[i].sX;
-			rAtk[i].bullDist = 0;
+			mArray[i].rAtkX = mArray[i].x;
+			mArray[i].bullDist = 0;
 		}
 		if (sdcPlayer.isHit == false){
-			if (!(rAtk[i].y > sdcPlayer.y+64 ||
-					  rAtk[i].y+32 < sdcPlayer.y ||
-					  rAtk[i].x > sdcPlayer.x+48 ||
-					  rAtk[i].x+32 < sdcPlayer.x)){
+			if (!(mArray[i].rAtkY > sdcPlayer.y+64 ||
+					  mArray[i].rAtkY + 32 < sdcPlayer.y ||
+					  mArray[i].rAtkX > sdcPlayer.x+48 ||
+					  mArray[i].rAtkX + 32 < sdcPlayer.x)){
 				if (sdcPlayer.isHit == false){
 					sdcPlayer.isHit = true;
 					sdcPlayer.health -= mArray[i].attack;
+					if(sdcPlayer.health <= 0){
+						alert("You lost");
+						sAcount = 0;
+						mArray = [];
+						waveTB = true;
+						sdcPlayer.health = sdcPlayer.healthMax;
+						cG = 0;
+					}
+					mArray[i].rAtkX = mArray[i].x;
+					mArray[i].bullDist = 0;
 				}
 			}
+		}//player takes damage
+
+		if(mArray[i].name == "soldier"){
+			
+			if(mArray[i].deltaMove < 100)
+			{
+				mArray[i].mAtkX = mArray[i].x + mArray[i].side;//constantly traces the soldiers position for its attack
+				if(mArray[i].mAtk == true){
+					if (sdcPlayer.isHit == false){
+								if (!(mArray[i].mAtkY > sdcPlayer.y+64 ||
+									  mArray[i].mAtkY + 32 < sdcPlayer.y ||
+									  mArray[i].mAtkX > sdcPlayer.x+48 ||
+									  mArray[i].mAtkX + 32 < sdcPlayer.x)){
+									if (sdcPlayer.isHit == false){
+										sdcPlayer.isHit = true;
+										sdcPlayer.health -= mArray[i].attack;
+										if(sdcPlayer.health <= 0){
+											alert("You lost");
+											sAcount = 0;
+											waveTB = true;
+											mArray = [];
+											sdcPlayer.health = sdcPlayer.healthMax;
+											cG = 0;
+										}
+									}
+								}
+							}
+				}//player takes damage
+				
+				if(mArray[i].deltaMove == 10)
+				{
+					mArray[i].mAtk = false;
+				}//stops the attack
+
+				mArray[i].x -= mArray[i].speed;
+				mArray[i].deltaMove ++;
+			}//moves the soldier
+
+			if(mArray[i].deltaMove == 100)
+			{
+				if(mArray[i].speed == 1){
+					mArray[i].side = -(2 * mArray[i].aW);
+					mArray[i].mAtk = true;					
+				}
+				if(mArray[i].speed == -1){
+					mArray[i].side = (3.5 * mArray[i].aW);
+					mArray[i].mAtk = true;
+				}
+				
+				mArray[i].deltaMove = 0;
+				mArray[i].speed = -mArray[i].speed;
+			}//swaps the direction and makes an attack on the approrite side
 		}
-	}//updates each bullet
+	}//handles the Ai for the enemies
+
 	if (sdcPlayer.isHit == false){
 		for (i = 0; i < mArray.length; i++){
-			if (mArray[i].proj == true){	
+			if (mArray[i].proj == true){
 			}
 			if (mArray[i].proj == false){
 					if (!(mArray[i].y > sdcPlayer.y+64 ||
@@ -792,6 +866,7 @@ function enemyAttack()
 			}//butts
 		}
 	}
+
 	else {
 		sdcPlayer.hitTime += 1;
 		if (sdcPlayer.hitTime > 40){
@@ -799,48 +874,15 @@ function enemyAttack()
 			sdcPlayer.isHit = false;
 		}
 	}
+
 }
-function enemyMove()
-{
-	for(i = 0; i < soldierA.length; i++)
-	{
-			if(mArray[soldierA[i]].deltaMove < 100)
-			{
-				if(mArray[soldierA[i]].deltaMove == 10)
-				{
-					mArray[soldierA[i]].mAtkR = false;
-				}//stops the attack on right side
-				mArray[soldierA[i]].x -= soldier.speed;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-			}//moves the soldier left
-			else if(mArray[soldierA[i]].deltaMove == 100)
-			{
-				mArray[soldierA[i]].mAtkL = true;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-				mArray[soldierA[i]].x += soldier.speed;
-			}//makes an attack on the leftside
-			else if(mArray[soldierA[i]].deltaMove == 200)
-			{
-				mArray[soldierA[i]].mAtkR = true;
-				mArray[soldierA[i]].deltaMove = 0;
-			}//makes an attack on the rightside
-			else if(mArray[soldierA[i]].deltaMove > 100)
-			{
-				if(mArray[soldierA[i]].deltaMove == 110)
-				{
-					mArray[soldierA[i]].mAtkL = false;
-				}//stops the attack on the leftside
-				mArray[soldierA[i]].x += soldier.speed;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-			}//moves the soldier right
-	}//loops through all soldier indexs stored in soldierA within mArray
-}//function for enemy movement.
+
 //===========================================================================================
 //PLATFORMER CODE BLOCK
 function movement()
 {
 	pltPlayer.gav = 10;
-	
+
 	for( var i = 0; i < map.length; i++){
 		for( var j = 0; j < map[i].length; j++){
 			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 4)
@@ -862,11 +904,11 @@ function movement()
 		}
 	}
 	animatePlayer();
-	//checkCollision();	
+	//checkCollision();
 	pltResult();
 }
 function pltResult()
-{	
+{
     if (Spike.Y == pltPlayer.Y + pltPlayer.H|| Spike.Y <= pltPlayer.Y + pltPlayer.H )
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
@@ -895,7 +937,7 @@ function pltRespawn()
 }
 /*function checkCollision()
 {
-	
+
 	for ( var i = 0; i < map.length; i++){
 		for (var j = 0; j < map[i].length; j++){
 			if (map[i][j] == 1){
@@ -936,7 +978,7 @@ function movePlayer()
 		map_vx = 0;
 		if(faceRight)
 			pltPlayer.Sprite.src = "../img/CharAnimRS.png";
-		else 
+		else
 			pltPlayer.Sprite.src = "../img/CharAnimLS.png";
 	}
 	if (pltPlayer.upPressed && onGround){
@@ -1047,22 +1089,15 @@ function render(){
 			{
 				renderer.drawImage(mArray[i].Sprite, mArray[i].x, mArray[i].y);//draws each enemy
 
-				if(mArray[i].proj == true)
+				if(mArray[i].name == "archer")
 				{
-					if(i < rAtk.length)
-					{
-						renderer.drawImage(mArray[i].Attack, rAtk[i].x, rAtk[i].y);//draws each bullet for the archers
-					}//not quite sure why but fixed an error so not going to question it
-
+					renderer.drawImage(mArray[i].Attack, mArray[i].rAtkX, mArray[i].rAtkY);//draws each bullet for the archers
 				}
-				if(mArray[i].mAtkL == true)
+				if(mArray[i].mAtk == true)
 				{
-					renderer.drawImage(mArray[i].Attack, mArray[i].x - (2 * mArray[i].aW), mArray[i].y);
-				}//makes a melee attack on the left side
-				if(mArray[i].mAtkR == true)
-				{
-					renderer.drawImage(mArray[i].Attack, mArray[i].x + (3.5 * mArray[i].aW), mArray[i].y);
-				}// makes a melee attack on the right side
+					renderer.drawImage(mArray[i].Attack, mArray[i].mAtkX, mArray[i].mAtkY);
+				}//renders the melee attack
+
 				renderer.fillText (mArray[i].health,mArray[i].x,mArray[i].y);
 			}
 			if (sdcPlayer.hitboxR == true){
@@ -1078,13 +1113,13 @@ function render(){
 			for ( var i = 0; i < map.length; i++){
 				for (var j = 0; j < map[i].length; j++){
 					if (map[i][j] == 1)
-						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
+						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 2)
 						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
 					else if (map[i][j] == 3){}
 					else if (map[i][j] == 4)
 						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
-					
+
 				}
 			}
 			break;
