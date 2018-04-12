@@ -256,9 +256,9 @@ var backgroundSS = new Image;
 backgroundSS.src = "../img/backgroundSS.png";
 //===========================================================================================
 //PLATFORMER VARIABLES
-var jump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
-var footStep = new Audio("../wav/Footsteps.wav"); //sound effect while platplayer walking
-var hurt = new Audio("../wav/Hurt.wav");//sound effect when play fall
+var pltJump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
+var pltFootStep = new Audio("../wav/Footsteps.wav"); //sound effect while platplayer walking
+var pltHurt = new Audio("../wav/Hurt.wav");//sound effect when play fall
 var pltBG = new Image();
 pltBG.src = "../img/temple_wall.png";
 var faceRight = true;
@@ -450,8 +450,8 @@ function shopUpdate(){
 	textUpdate(invPotato,"Potatoes: "+potato.plant);
 	textUpdate(invTomato,"Tomato: "+tomato.plant);
 	textUpdate(invCarrot,"Carrot: "+carrot.plant);
-
 }
+
 function clickCheck(x,y,btnType){ //check if something is clicked
 	if (!(y > btnType.yh || //is the mouse inside the y axis?
 		  y < btnType.y||
@@ -461,6 +461,7 @@ function clickCheck(x,y,btnType){ //check if something is clicked
 	}
 	return false; //no it's not
 }
+
 function onKeyDown(e){
 	switch(e.keyCode){
 		case 65:
@@ -515,6 +516,7 @@ function onKeyUp(e){
 function onClick(e){
 	var xClick = e.pageX - canvas.offsetLeft;
 	var yClick = e.pageY - canvas.offsetTop;
+	console.log(xClick+"  "+yClick);
 	switch (cG){
 		case 0:
 		//menu selection
@@ -664,19 +666,21 @@ function onClick(e){
 				break;
 			break;
 		case 1: //sidescroller
+		console.log("x: "+xClick+"y: "+yClick);
             if (clickCheck(xClick,yClick,backBtnSdc) == true){//back to incremental level
 			    cG = 0;
 				tab = 0;
 			}
 			break;
 		case 2: //platformer
+			console.log("x: "+xClick+"y: "+yClick);
 		    if (clickCheck(xClick,yClick,backBtnPlt) == true){//back to incremental level
-					console.log("x: "+xClick+"y: "+yClick);
 			    cG = 0;
 					tab = 0;
 				}
 			break;
 		case 3: //map
+		console.log("x: "+xClick+"y: "+yClick);
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y && yClick < mapSelBtn.y+(mapSelBtn.h/3)){ //platformer transition
 				cG = 2;
 				tab = 0;
@@ -989,7 +993,7 @@ function pltResult(ground){
 				{
 					pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 					pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
-					hurt.play();
+					pltHurt.play();
 					console.log("Failed");
 					window.alert("You got wounded and lost some gold!")
 					gold = gold - 50;
@@ -1021,21 +1025,22 @@ function pltRespawn(){
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
 }
-function checkCollisionRight(ground){
+function checkCollisionLeft(ground){
 	if(pltPlayer.collision(ground)){
 		if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H)  {
 			console.log("left"+ ground);
-			pltPlayer.X = ground.X + ground.W - 25;
+			pltPlayer.X = ground.X - 45;
 			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
 	}
 }
-function checkCollisionLeft(ground){
+function checkCollisionRight(ground){
 	if(pltPlayer.collision(ground)){
 		if(pltPlayer.X + 25 < ground.X + ground.W  && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H) {
 			console.log("right");
-			pltPlayer.X = ground.X - 45;
+			pltPlayer.X = ground.X + ground.W - 25;
+
 			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
@@ -1061,8 +1066,8 @@ function movePlayer()
 		pltPlayer.V_X = -0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimL.png";
 		if(onGround){
-		footStep.play();
-		footStep.volume = 0.01;
+		pltFootStep.play();
+		pltFootStep.volume = 0.01;
 		}
 	}
 	if(pltPlayer.rightPressed){
@@ -1071,8 +1076,8 @@ function movePlayer()
 		pltPlayer.V_X = 0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimR.png";
 		if(onGround){
-		footStep.play();
-		footStep.volume = 0.01;
+		pltFootStep.play();
+		pltFootStep.volume = 0.01;
 		}
 	}
 	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed){
@@ -1086,8 +1091,8 @@ function movePlayer()
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
 		onGround = false;
-		jump.play(); //play sound fx while jumping
-		jump.volume = 0.1; //set sound volume to 0.1
+		pltJump.play(); //play sound fx while jumping
+		pltJump.volume = 0.1; //set sound volume to 0.1
 	}
 
 }
@@ -1139,44 +1144,13 @@ function render(){
 					buttonRender[25].img.src = "../img/ChaTabSel.png";
 					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
 					break;
-			}
+				}
 				break;
 			case 2:
 				break;
 
-		}
-			/*
-			if (tab == 1){
-				goldT = gold.toString();
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				stage.style.backgroundColor = "white";
-				renderer.fillText("Gold: "+goldT,550,shopY[7]);
-				renderer.fillText("Store",50,shopY[0]);
-				renderer.fillText("Inventory",550,shopY[0]);
-				renderer.drawImage(buyImg,50,shopY[6]+40);
-				renderer.drawImage(selRender,50,shopY[6]+40); //buy button
-				renderer.drawImage(sellImg,50+70,shopY[6]+40);
-				renderer.drawImage(selRender,50+70,shopY[6]+40); //sell button
-				renderer.drawImage(eatImg,50+140,shopY[6]+40);
-				renderer.drawImage(selRender,50+140,shopY[6]+40); //eat button
-				for (i = 0; i < 6; i++){
-				storeT = storeStrings[i].toString();
-				renderer.fillText(storeT,550,shopY[i+1]); //inventory strings
-				}
-				for (i = 0; i < 6; i++){
-				seedT = seeds[i].toString();
-				plantT = plants[i].toString();
-				renderer.fillText(seedT,550+225,shopY[i+1]);
-				renderer.fillText(plantT,550+225,shopY[i+1]+150);
-				}
 			}
-			if (tab == 2) {
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
-				renderer.drawImage(shopTab,100,510);
-				renderer.drawImage(mapTab,200,510); //all tabs
-			}
-			*/
+
 			break;
 		case 1:
 			renderer.drawImage(backgroundSS,0,0);
