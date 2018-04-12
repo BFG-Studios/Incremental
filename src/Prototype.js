@@ -209,8 +209,8 @@ soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false
 archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
 //===========================================================================================
 //PLATFORMER VARIABLES
-var wall = new Image();
-wall.src = "../img/temple_wall.png";
+var pltBG = new Image();
+pltBG.src = "../img/temple_wall.png";
 var faceRight = true;
 var playerSprite = 0;
 var maxSprites = 4;
@@ -218,25 +218,36 @@ var spriteCtr = 0;
 var framesPerSprite = 6;
 var map_vx = 0;
 var onGround = false;
-var pltPlayer = new PlatPlayer("../img/CharAnimRS.png", 150,300,40,64,0,0); // creating a player object for platformer
+var pltPlayer = new PlatPlayer("../img/CharAnimRS.png", 64,300,40,64,0,0); // creating a player object for platformer
 var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
-var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
+//var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
 var map = [
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,0,0,0,2,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
-	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,2,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
+	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
 	
 ];
+var map2 = [
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,3,3,3,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0],
+	[3,0,0,0,0,0,0,0,0,0,3,3,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	[3,0,0,0,0,0,3,3,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,4,0,0,0,0,0,0,0],
+	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+]
 var ground = [];
-
+var currentX;
 
 
 pltPlayer.V_Y = 3;
@@ -276,13 +287,14 @@ function Object(img,x,y,w,h){
 	this.W = w;
 	this.H = h;
 }
-function Block(img,x,y,w,h){
+function Block(img,x,y,w,h,type){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
 	this.X = x;
 	this.Y = y;
 	this.W = w;
 	this.H = h;
+	this.type = type;
 } 
 
 //===========================================================================================
@@ -319,19 +331,19 @@ function startFunc(){
 	for ( var i = 0; i < map.length; i++){
 		ground[i] = [];
 		for (var j = 0; j < map[i].length; j++){
-			if(map[i][j] == 0){
-				ground[i][j] = null;
-			}else if (map[i][j] == 1 ){
-				console.log("x "+i+" y "+j);
-				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64); // creating the platform
-			}else if (map[i][j] == 2){
-				ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64);
-				MoneyBg = ground[i][j];
-			}else if (map[i][j] == 3){
-				ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64);
-			}else if (map[i][j] == 4){
-				ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64);
-				Spike = ground[i][j];
+				if(map[i][j] == 0){
+					ground[i][j] = null;
+				}else if (map[i][j] == 1 ){
+					console.log("x "+i+" y "+j);
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"ground"); // creating the platform
+				}else if (map[i][j] == 2){
+					ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64,"money");
+					MoneyBg = ground[i][j];
+				}else if (map[i][j] == 3){
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"wall");
+				}else if (map[i][j] == 4){
+					ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64,"spike");
+					Spike = ground[i][j];
 			}
 		}
 	}
@@ -842,15 +854,11 @@ function movement()
 	pltPlayer.gav = 10;
 	
 	
-		for( var i = 0; i < map.length; i++){
-			for( var j = 0; j < map[i].length; j++){
-				if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
-					ground[i][j].X += -map_vx;
-			}
-		}
-	
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
+	
+	
+	
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
 	for ( var i = 0; i < map.length; i++){
@@ -864,17 +872,30 @@ function movement()
 		}
 	}
 	animatePlayer();
-	for( var i = 0; i < map.length; i++){
-		for( var j = 0; j < map[i].length; j++){
+	//console.log("plyerX  "+pltPlayer.X);
+	currentX = (pltPlayer.X+40-map_vx)/64;
+	//console.log(currentX);
+	for (var i = 0; i < map.length; i++){
+		for( var j = 0; j< map[i].length; j++){
 			if(map[i][j] == 3)
-				checkCollision(ground[i][j]);
+				checkCollision(ground[i][j]); 
 		}
-	}	
+	}
+	console.log(map_vx);
+	if(pltPlayer.V_X != 0){
+		for( var i = 0; i < map.length; i++){
+			for( var j = 0; j < map[i].length; j++){
+				if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+					ground[i][j].X += -map_vx;
+			}
+		}
+	}
+	
 	pltResult();
 }
 function pltResult()
 {	
-    if (Spike.Y == pltPlayer.Y + pltPlayer.H|| Spike.Y <= pltPlayer.Y + pltPlayer.H )
+    if (Spike.Y == pltPlayer.Y + pltPlayer.H || Spike.Y <= pltPlayer.Y + pltPlayer.H )
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
@@ -884,9 +905,16 @@ function pltResult()
 		cG = 0;
 		pltRespawn();
 	}
-	if (pltPlayer.X == MoneyBg.X + 30 - pltPlayer.W && pltPlayer.Y >= MoneyBg.Y - pltPlayer.H + 30)
+	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+		//for( var i = 0; i < map.length; i++){
+		//for( var j = 0; j < map[i].length; j++){
+		//	if(map[i][j] == 3)
+		//		map[i][j] = 0;
+		//}
+		//}
+		//MoneyBg = ground[2][21];
 		console.log("Win");
 		window.alert("You found some Gold!");
 		gold += 100;
@@ -903,22 +931,28 @@ function pltRespawn()
 		}
 	}
 	
-	pltPlayer.X = 16;
+	pltPlayer.X = 64;
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
 }
 function checkCollision(ground)
 {
-	if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.collision(ground))  {
-		console.log("left"+ pltPlayer.X);
-		pltPlayer.X = ground.X - pltPlayer.W;
-		map_vx = 0;
-	}if(pltPlayer.X + 25 < ground.X + ground.W && pltPlayer.collision(ground)) {
-		console.log("right");
-		pltPlayer.X = ground.X + ground.W - 25; 
-		map_vx = 0;
-	}	//if(pltPlayer.Y > ground[i][j].Y + ground[i][j].H) pltPlayer.Y += pltPlayer.V_Y;
+	if(pltPlayer.collision(ground)){
+		if(pltPlayer.X + 25 < ground.X + ground.W  && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H) {
+			console.log("right");
+			pltPlayer.X = ground.X - 45;
+			pltPlayer.V_X = 0;		
+			map_vx = 0;
+		}	
+		if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H)  {
+			console.log("left"+ ground);
+			pltPlayer.X = ground.X + ground.W - 25;
+			pltPlayer.V_X = 0;
+			map_vx = 0;
+		}
+	}
 }
+
 function animatePlayer()
 {
 	spriteCtr++;
@@ -935,13 +969,13 @@ function movePlayer()
 	if(pltPlayer.leftPressed){
 		faceRight = false;
 		map_vx = -8;
-		pltPlayer.V_X = -5;
+		pltPlayer.V_X = -0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimL.png";
 	}
 	if(pltPlayer.rightPressed){
 		faceRight = true;
 		map_vx = 8;
-		pltPlayer.V_X = 5;
+		pltPlayer.V_X = 0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimR.png";
 	}
 	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed){
@@ -1018,7 +1052,7 @@ function render(){
 			renderer.fillText(sdcPlayer.health,840,20);
 			break;
 		case 2:
-			renderer.drawImage(wall, 0, 0);
+			renderer.drawImage(pltBG, 0 ,0);
 			renderer.drawImage(pltPlayer.Sprite,
 							   pltPlayer.SIZE*playerSprite, 0, pltPlayer.SIZE, 64,
 							   pltPlayer.X, pltPlayer.Y, pltPlayer.SIZE, pltPlayer.SIZE);
