@@ -256,6 +256,8 @@ var backgroundSS = new Image;
 backgroundSS.src = "../img/backgroundSS.png";
 //===========================================================================================
 //PLATFORMER VARIABLES
+var goldCounter = 0; // counter for money bag
+var pltCoin = new Audio("../wav/pickCoin.wav"); // sound effect while platplayer pick the money bag
 var pltJump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
 var pltFootStep = new Audio("../wav/Footsteps.wav"); //sound effect while platplayer walking
 var pltHurt = new Audio("../wav/Hurt.wav");//sound effect when play fall
@@ -276,13 +278,13 @@ var Spike; // Object for Spike
 var map = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,2,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
-	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,0,2,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,4,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,4,0,4,0,0,2,3],
 	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
-	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
+	[3,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,4,1,1,4,1,1,1,1,1,1,3],
 
 ];
 var map2 = [
@@ -682,8 +684,15 @@ function onClick(e){
 		case 3: //map
 		console.log("x: "+xClick+"y: "+yClick);
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y && yClick < mapSelBtn.y+(mapSelBtn.h/3)){ //platformer transition
-				cG = 2;
-				tab = 0;
+				if(gold >= 50){ // check if player have gold to enter the platform, 50 gold at least.
+					gold = gold - 50;
+					cG = 2;
+					tab = 0;
+				}
+				else{
+					window.alert("You need 50 gold at least for taking advantage!")
+					cG = 0;
+				}
 			}
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y+(mapSelBtn.h/3) && yClick < mapSelBtn.y+(2*(mapSelBtn.h/3))){ //platformer transition
 				cG = 1;
@@ -989,27 +998,34 @@ function movement(){
 }
 function pltResult(ground){
 	if(ground.type == "spike"){
-			if (ground.Y == pltPlayer.Y + pltPlayer.H || ground.Y <= pltPlayer.Y + pltPlayer.H )
+			if (ground.Y <= pltPlayer.Y + 40 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 40 >= pltPlayer.X )
 				{
 					pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 					pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
 					pltHurt.play();
 					console.log("Failed");
 					window.alert("You got wounded and lost some gold!")
-					gold = gold - 50;
+					gold = gold - 100;
 					cG = 0;
 					pltRespawn();
 				}
 		}
 	if(ground.type == "money"){
-		if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
+		if (ground.Y <= pltPlayer.Y + 50 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 30 >= pltPlayer.X)
 		{
-			pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-			console.log("Win");
-			window.alert("You found some Gold!");
-			gold += 100;
-			cG = 0;
-			pltRespawn();
+			pltCoin.play();
+			goldCounter++;
+			console.log(goldCounter);
+			ground.type = null;//disable the money bag.
+			if(goldCounter >= 3){
+				pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+				goldCounter = 0;
+				console.log("Win");
+				window.alert("You found some Gold!");
+				gold += 100 * goldCounter;
+				cG = 0;
+				pltRespawn();
+			}			
 		}
 	}
 }
@@ -1186,11 +1202,11 @@ function render(){
 					if (map[i][j] == 1)
 						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 2)
-						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 3)
 						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 4)
-						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
 
 				}
 			}
