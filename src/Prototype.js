@@ -849,8 +849,7 @@ function enemyMove()
 }//function for enemy movement.
 //===========================================================================================
 //PLATFORMER CODE BLOCK
-function movement()
-{
+function movement(){
 	pltPlayer.gav = 10;
 	
 	
@@ -877,11 +876,13 @@ function movement()
 	//console.log(currentX);
 	for (var i = 0; i < map.length; i++){
 		for( var j = 0; j< map[i].length; j++){
-			if(map[i][j] == 3)
-				checkCollision(ground[i][j]); 
+			if(map[i][j] == 3 && faceRight == true)
+				checkCollisionLeft(ground[i][j]); 
+			else if(map[i][j] == 3 && faceRight == false)
+				checkCollisionRight(ground[i][j]);
 		}
 	}
-	console.log(map_vx);
+	//console.log(map_vx);
 	if(pltPlayer.V_X != 0){
 		for( var i = 0; i < map.length; i++){
 			for( var j = 0; j < map[i].length; j++){
@@ -893,8 +894,7 @@ function movement()
 	
 	pltResult();
 }
-function pltResult()
-{	
+function pltResult(){	
     if (Spike.Y == pltPlayer.Y + pltPlayer.H || Spike.Y <= pltPlayer.Y + pltPlayer.H )
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
@@ -908,13 +908,6 @@ function pltResult()
 	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-		//for( var i = 0; i < map.length; i++){
-		//for( var j = 0; j < map[i].length; j++){
-		//	if(map[i][j] == 3)
-		//		map[i][j] = 0;
-		//}
-		//}
-		//MoneyBg = ground[2][21];
 		console.log("Win");
 		window.alert("You found some Gold!");
 		gold += 100;
@@ -922,8 +915,7 @@ function pltResult()
 		pltRespawn();
 	}
 }
-function pltRespawn()
-{
+function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
 		for( var j = 0; j < map[i].length; j++){
 			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
@@ -935,19 +927,22 @@ function pltRespawn()
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
 }
-function checkCollision(ground)
-{
+function checkCollisionRight(ground){
+	if(pltPlayer.collision(ground)){
+		if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H)  {
+			console.log("left"+ ground);
+			pltPlayer.X = ground.X + ground.W - 25;
+			pltPlayer.V_X = 0;
+			map_vx = 0;
+		}
+	}
+}
+function checkCollisionLeft(ground){
 	if(pltPlayer.collision(ground)){
 		if(pltPlayer.X + 25 < ground.X + ground.W  && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H) {
 			console.log("right");
 			pltPlayer.X = ground.X - 45;
 			pltPlayer.V_X = 0;		
-			map_vx = 0;
-		}	
-		if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H)  {
-			console.log("left"+ ground);
-			pltPlayer.X = ground.X + ground.W - 25;
-			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
 	}
