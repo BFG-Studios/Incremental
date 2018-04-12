@@ -411,7 +411,7 @@ function update(){
 		case 1: //sidescroller
 			playerMove();
 			if (sdcPlayer.jump == true){
-				jump();
+				jump1();
 			}
 			if (sdcPlayer.attack == true){
 				attack();
@@ -721,7 +721,7 @@ function playerMove(){ //basic movement stuff, just like in the platformer
 		sdcPlayer.y += sdcPlayer.vspeed;
 	}
 }
-function jump(){ //this is some awful jump code that makes the player spin in a fucking parabola
+function jump1(){ //this is some awful jump code that makes the player spin in a fucking parabola
 	sdcPlayer.y -= sdcPlayer.jspeed - sdcPlayer.grav;
 	switch (sdcPlayer.jtop){
 		case false:
