@@ -10,9 +10,10 @@ renderer.font = "20px Arial";
 
 //INCREMENTAL VARIABLES
 //player related/ miscellaneous variables
-var seedChance = 50;
+var seedChance = 10;
 var extraChance = 0;
 var goldBonus = 0;
+var diminish = 0.4;
 var harvest = new Audio("../wav/Harvest.wav"); //audio variables
 var bonus = new Audio("../wav/Bonus.wav");
 var planting = new Audio("../wav/Planting.wav");
@@ -32,21 +33,19 @@ var tab = 0; //tracks the current tab of the player
 var cG = 0;
 //bunch of shop code i dunno what the fuck to do with
 var shopY = [50,100,150,200,250,300,350,400];
-var shopItemsX = 50;
-var invItemsX = 550;
 var storeT;
 var storeStrings = ["Potato Seed","Tomato Seed","Carrot Seed","Potato Plant","Tomato Plant","Carrot Plant"];
 var storeSeed = 0;
-var storePlant = 0;
-var dexTab;
-var intTab;
-var chaTab; //shop tabs for plants
-var leftArrow; //left arrow for shop
-var rightArrow; //right arrow for shop
+var arrow = 0; //list index for plants
+var dexPlants = 0; //counting dex plants
+var intPlants = 0; //counting int plants
+var chaPlants = 0; //counting cha plants
+var statSel = plantNull; //selecting stat tabs
 //--------------------------------------------
 //plant function and plant related variables
 var plantHolder = []; //array for calling plants by id
-function Plant(gt,id,img,stat,price,sell,seed){
+function Plant(name,gt,id,img,stat,price,sell,seed,plant,boost){
+	this.name = name; //kevin added names
 	this.gt = gt; //dictates interval the plant will change growstates at
 	this.img = [];
 	this.img[0] = new Image();
@@ -61,21 +60,26 @@ function Plant(gt,id,img,stat,price,sell,seed){
 	this.price = price; //the price to buy this type of plant
 	this.sell = sell; //the amount this plant sells for
 	this.seed = seed; //number of seeds of this plant type
-	this.plant = 0; //number of full grown plants of this plant type
+	this.plant = plant; //number of full grown plants of this plant type
+	this.boost = boost;
 	plantHolder[id] = this; //id for calling each plant type by #
 }
 //PLANT TYPE INSTANTIATION
  //growtime, plantid, final growth source, stat affected (by #id), buy price, sell price, number of seeds
-var potato = new Plant(120,0,"../img/potato.png",0,5,25,5);
-var tomato = new Plant(120,1,"../img/tomato.png",1,5,25,5);
-var carrot = new Plant(120,2,"../img/carrot.png",2,5,25,5);
+var potato = new Plant("Potato",120,0,"../img/potato.png",0,5,25,5,0,1);
+var tomato = new Plant("Tomato",120,1,"../img/tomato.png",1,5,25,5,0,1);
+var carrot = new Plant("Carrot",120,2,"../img/carrot.png",2,5,25,5,0,1); //all plants have names now in the class
+var p2 = new Plant("Test1",120,3,"../img/potato.png",0,5,25,5,0,1);
+var t2 = new Plant("Test2",120,4,"../img/tomato.png",1,5,25,5,0,1);
+var c2 = new Plant("Test3",120,5,"../img/carrot.png",2,5,25,5,0,1); //plants for testing
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
 //--------------------------------------------
 //button function and button related variables
 var buttonRender = []; //array for calling buttons by id
-function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
+class Button{
+	constructor (id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.img = new Image(); //basic image for the button
 	this.imgP = new Image(); //image for when the button is pressed
 	this.img.src = img;
@@ -92,13 +96,14 @@ function Button(id,x,y,w,h,cG,tab,tB,text,textX,textY,img){
 	this.tX = textX; //for editing placement of text on a button
 	this.tY = textY;
 	buttonRender[id] = this; //for rendering and discerning different buttons via #
+	}
 }
 function textUpdate(button,newText){
 	button.text = newText;
 }
 //BUTTON INTANTIATION
 //button id, x, y, width, height, gamestate, tab, render text bool, render text, render text x and y, base image
-var backBtnSdc = new Button(0,10,10,120,40,1,0,false,0,0,0,"../img/BackBtn.png"); 
+var backBtnSdc = new Button(0,10,10,120,40,1,0,false,0,0,0,"../img/BackBtn.png");
 var backBtnPlt = new Button(1,10,10,120,40,2,0,false,0,0,0,"../img/BackBtn.png");
 var mapBtn = new Button(2,460,290,120,25,0,0,false,0,0,0,"../img/map.png");
 var mapSelBtn = new Button(3,250,160,360,240,3,0,false,0,0,0,"../img/selections.png");
@@ -112,21 +117,55 @@ var farmTab2 = new Button(10,0,510,100,50,0,2,false,0,0,0,"../img/FarmTab.png");
 var mapTab0 = new Button(11,200,510,100,50,0,0,false,0,0,0,"../img/MapTab.png");
 var mapTab1 = new Button(12,200,510,100,50,0,1,false,0,0,0,"../img/MapTab.png");
 var mapTab2 = new Button(13,200,510,100,50,0,2,false,0,0,0,"../img/MapTab.png");
-var sellBtn = new Button(14,490,30,60,30,0,0,false,0,0,0,"../img/sell.png");
-var buyBtn = new Button(15,490,60,60,30,0,0,false,0,0,0,"../img/buy.png");
-var eatBtn = new Button(16,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
+var sellBtn0 = new Button(14,490,30,60,30,0,0,false,0,0,0,"../img/sell.png");
+var sellBtn1 = new Button(15,120,340,60,30,0,1,false,0,0,0,"../img/sell.png"); //sell button for shop
+var sellBtnBord = new Button(16,120,340,60,30,0,1,false,0,0,0,"../img/Border.png"); //border for button
+var buyBtn0 = new Button(17,490,60,60,30,0,0,false,0,0,0,"../img/buy.png");
+var buyBtn1 = new Button(18,50,340,60,30,0,1,false,0,0,0,"../img/buy.png"); //buy button for shop
+var buyBtnBord = new Button(19,50,340,60,30,0,1,false,0,0,0,"../img/Border.png"); //border
+var eatBtn0 = new Button(20,490,90,60,30,0,0,false,0,0,0,"../img/eat.png");
+var eatBtn1 = new Button(21,190,340,60,30,0,1,false,0,0,0,"../img/eat.png"); //eat button for shop
+var eatBtnBord = new Button(22,190,340,60,30,0,1,false,0,0,0,"../img/Border.png"); //border
+var dexTab = new Button(23,50,100,64,40,0,1,false,0,0,0,"../img/DexTab.png");
+var intTab = new Button(24,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
+var chaTab = new Button(25,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //stat tab buttons
+var leftArrow = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
+var rightArrow = new Button(27,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //arrows
+var invTxt = new Button(28,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
-var potatoBtn = new Button(17,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(18,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(19,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 
+var potatoBtn = new Button(29,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(30,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(31,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var invPotato = new Button(32,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
+var invTomato = new Button(33,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
+var invCarrot = new Button(34,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
+var plantSel = new Button(35,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
+
+function countPlants() {
+	for (x = 0; x < plantHolder.length; x++){
+		if (plantHolder[x].stat == 0){ //if the plant is dex, adds to dex counter
+			dexPlants += 1;
+		}
+		else if (plantHolder[x].stat == 1){ //if plant is int, adds to int counter
+			intPlants += 1;
+		}
+		else if (plantHolder[x].stat == 2) { //if plant is cha, adds to cha counter
+			chaPlants += 1;
+		}
+	}
+	console.log("dex: " + dexPlants);
+	console.log("int: " + intPlants);
+	console.log("cha: " + chaPlants); //just to check if i did it right
+}
 //============================================
 //--------------------------------------------
 //===========================================================================================
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 class Enemy{
-	constructor(img,atkImg,health,attack,aDelay,aW,aH,proj){
+	constructor(name,img,atkImg,health,attack,aDelay,aW,aH,proj){
+		this.name = name;
 		this.Sprite = new Image();
 		this.Sprite.src = img; //enemy image
 		this.Attack = new Image();
@@ -137,8 +176,15 @@ class Enemy{
 		this.y = 0;
 
 		this.deltaMove = 0;// distance moved
-		this.mAtkL = false;// whether or not it should melee attack left
-		this.mAtkR = false;// whether or not it should melee attack right
+		this.mAtk = false;// whether or not it should melee attack left
+		this.rAtkX = 0;
+		this.rAtkY = 0;
+		this.bullDist =0;
+
+		this.deltaMove = 0;
+		this.mAtkX = 0;
+		this.mAtkY = 0;
+		this.side;
 
 		this.speed = 1; //enemy's movement speed
 		this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
@@ -153,40 +199,41 @@ class Enemy{
 	}
 
 }
-function Player(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
-	this.x = x;
-	this.y = y;
-	this.w = w;
-	this.h = h;
-	this.jump = false;
-	this.attack = false;
-	this.grav = 10;
-	this.floorY = y;
-	this.jspeed = jspeed;
-	this.jtop = false;
-	this.health = health;
-	this.dmg = dmg + stats[1]; // increases damage (int)
-	this.blockRt = 0 + stats[2]; // increases block (cha)
-	this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
-	this.vspeed = vspeed; //increasese vertical speed (dex)
-	this.sprite = new Image();
-	this.sprite.src = img;
-	this.shadow = new Image();
-	this.shadow.src = sImg;
-	this.aSprite = new Image();
-	this.aSprite.src = aImg;
-	this.hitboxX = 0;
-	this.hitboxY = 0;
-	this.hitboxC = 0;
-	this.hitboxR = false;
-	this.isHit = false;
-	this.hitTime = 0;
+class Player{
+	constructor(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.jump = false;
+		this.attack = false;
+		this.grav = 10;
+		this.floorY = y;
+		this.jspeed = jspeed;
+		this.jtop = false;
+		this.health = health;
+		this.healthMax = health;
+		this.dmg = dmg + stats[1]; // increases damage (int)
+		this.blockRt = 0 + stats[2]; // increases block (cha)
+		this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
+		this.vspeed = vspeed; //increasese vertical speed (dex)
+		this.sprite = new Image();
+		this.sprite.src = img;
+		this.shadow = new Image();
+		this.shadow.src = sImg;
+		this.aSprite = new Image();
+		this.aSprite.src = aImg;
+		this.hitboxX = 0;
+		this.hitboxY = 0;
+		this.hitboxC = 0;
+		this.hitboxR = false;
+		this.isHit = false;
+		this.hitTime = 0;
+	}
 }
 var renderer = canvas.getContext("2d");
 var shotimg;//var for projectile img
-var soldierA = [];//array to hold the values of mArray that are soldiers
-var rAtk = [];// holds the values of each bullet
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Ship.png","../img/Bullet.png","../img/Shadow.png");
+var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Player_Sprite.png","../img/Bullet.png","../img/Shadow.png");
 var leftMove = rightMove = backMove = forMove = false;
 var playerimg;
 var attackimg;
@@ -195,7 +242,7 @@ var jumpInt = 0;
 //Enemy Spawn
 var sAcount = 0; //this variable controls which wave we're on
 var sACmax = 4; //this is the max number of waves
-var sArray = [[1,2,1,2,1,2,3], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
+var sArray = [[2,3,0,0,0,0,0], //this is the wave list, 1 = archer, 2 = soldier, 3 says to stop instantiating
 			  [2,1,3,0,0,0,0],
 			  [2,2,3,0,0,0,0],
 			  [1,1,1,3,0,0,0],
@@ -205,8 +252,8 @@ var spawnMax = 6;
 var waveT = 0; //time between waves
 var waveTM = 10; //max time between waves
 var waveTB = true; //bool stating when a wave is over
-soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
+var backgroundSS = new Image;
+backgroundSS.src = "../img/backgroundSS.png";
 //===========================================================================================
 //PLATFORMER VARIABLES
 var jump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
@@ -300,6 +347,7 @@ function Block(img,x,y,w,h,type){
 	this.type = type;
 } 
 
+
 //===========================================================================================
 
 startFunc();
@@ -319,7 +367,7 @@ function startFunc(){
 			square.xw = square.x+64; //bottom corner x coord
 			square.yh = square.y+64; //bottom corner y coord
 			square.img = baseImg; //image to render
-			square.seed = plantNull; //type of plant growing (null by default) 
+			square.seed = plantNull; //type of plant growing (null by default)
 			square.growing = false; //is a plant growing?
 			square.harvest = false; //is a plant harvestable?
 			square.tick = 0; //timer for plant growth
@@ -358,13 +406,7 @@ function startFunc(){
 function update(){
 	switch (cG){
 		case 0: //incremental
-			for (i = 0; i < 4; i++){
-				for (j = 0; j < 4; j++){
-					if (farmPlot[i][j].growing == true){
-						growUp(farmPlot[i][j]);
-					}
-				}
-			}
+			
 			break;
 		case 1: //sidescroller
 			playerMove();
@@ -381,8 +423,7 @@ function update(){
 					spawn();
 				}
 			}
-			enemyAttack();//updates the bullets
-			enemyMove();//moves the soldiers
+			enemyAi();//handles the enemy Ai
 			break;
 		case 2: //platformer
 			movement();
@@ -392,7 +433,24 @@ function update(){
 
 			break;
 	}
+	for (i = 0; i < 4; i++){
+		for (j = 0; j < 4; j++){
+			if (farmPlot[i][j].growing == true){
+				growUp(farmPlot[i][j]);
+			}
+		}
+	}
+	shopUpdate();
 	render();
+}
+function shopUpdate(){
+	textUpdate(potatoBtn,potato.seed+"             "+potato.plant); 
+	textUpdate(tomatoBtn,tomato.seed+"             "+tomato.plant); 
+	textUpdate(carrotBtn,carrot.seed+"             "+carrot.plant); 
+	textUpdate(invPotato,"Potatoes: "+potato.plant); 
+	textUpdate(invTomato,"Tomato: "+tomato.plant); 
+	textUpdate(invCarrot,"Carrot: "+carrot.plant); 
+	
 }
 function clickCheck(x,y,btnType){ //check if something is clicked
 	if (!(y > btnType.yh || //is the mouse inside the y axis?
@@ -480,17 +538,20 @@ function onClick(e){
 					 tab = 0;
 				}
 				if (clickCheck(xClick,yClick,farmSize) == true){ //did the player click on the farm?
-					for ( i = 0; i < 4; i++){
+					for (i = 0; i < 4; i++){
 						for (j = 0; j < 4; j++){
 							if (clickCheck(xClick,yClick,farmPlot[i][j]) == true){ //check to see which square they clicked on
-								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != plantNull && plantHolder[selected].seed > 0){ // checks if the square is empty and tells that square to grow
-									farmPlot[i][j].seed = selected;
-									farmPlot[i][j].growing = true;
-									farmPlot[i][j].img = plantHolder[selected].img[0];
-									plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
-									textUpdate(buttonRender[selected+plantBtnSt],plantHolder[selected].seed+"             "+plantHolder[selected].plant); //updates the text on the respective button
-									planting.play();
-								}
+								if (farmPlot[i][j].growing == false && farmPlot[i][j].harvest == false && selected != plantNull ){ // checks if the square is empty and tells that square to grow
+										if (plantHolder[selected].seed > 0){
+										farmPlot[i][j].seed = selected;
+										farmPlot[i][j].growing = true;
+										farmPlot[i][j].img = plantHolder[selected].img[0];
+										plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
+										
+										planting.play();
+									}
+
+							}
 								if (farmPlot[i][j].harvest == true){ //checks if the square is harvestable, takes the plant into the inventory and returns to it's start state
 
 									if (Math.random()*100 < seedChance){
@@ -504,112 +565,103 @@ function onClick(e){
 									}/*chance to gain a second plant of the type harvested*/
 
 									plantHolder[farmPlot[i][j].seed].plant += 1;
-									textUpdate(buttonRender[farmPlot[i][j].seed+plantBtnSt],plantHolder[farmPlot[i][j].seed].seed+"             "+plantHolder[farmPlot[i][j].seed].plant); //updates the text on the respective button
+									
 									farmPlot[i][j].harvest = false;
 									farmPlot[i][j].seed = plantNull;
 									farmPlot[i][j].img = baseImg;
 									farmPlot[i][j].grow = 0;
 									harvest.play();
 								}
+								
 							}
 						}
 					}
 				}
-				if(clickCheck(xClick,yClick,buyBtn) == true){ // check if they clicked the buy button
+				if(clickCheck(xClick,yClick,buyBtn0) == true){ // check if they clicked the buy button
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
-						gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						
 					}
 				}
-				if (clickCheck(xClick,yClick,sellBtn) == true){ // check if they clicked the sell button
+				if (clickCheck(xClick,yClick,sellBtn0) == true){ // check if they clicked the sell button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plantHolder[selected].plant -= 1;
-						gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
+						gold += plantHolder[selected].sell + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
+						
 					}
 				}
-				if (clickCheck(xClick,yClick,eatBtn) == true){ // check if they clicked the eat button
+				if (clickCheck(xClick,yClick,eatBtn0) == true){ // check if they clicked the eat button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
 						plantHolder[selected].plant -= 1;
-						stats[selected] += 1;
+						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish;
+						//diminish[plantHolder[selected].stat] /= 0.01;
+						console.log(stats[plantHolder[selected].stat]);
+						
 					}
 				}
-				if (clickCheck(xClick,yClick,potatoBtn) == true){ //check if they clicked the potato button and select potatoes if so
-					selected = 0;
-					selX = selposX;
-					selY = selposY[selected]; // all three of these also move the highlight image around the button
-				}
-				if (clickCheck(xClick,yClick,tomatoBtn) == true){ //check if they clicked the tomato button and select tomatoes if so
-					selected = 1;
-					selX = selposX;
-					selY = selposY[selected];
-				}
-				if (clickCheck(xClick,yClick,carrotBtn) == true){ //check if they clicked the carrot button and select carrots if so
-					selected = 2;
-					selX = selposX;
-					selY = selposY[selected];
-				}
+				for (var i = 0; i < plantHolder.length; i++){
+ 					if (clickCheck(xClick,yClick,buttonRender[i+plantBtnSt]) == true){
+ 						selected = i;
+ 						selX = buttonRender[i+plantBtnSt].x;
+ 						selY = buttonRender[i+plantBtnSt].y;
+ 						}
+ 				}
 				break;
 			case 1://IN SHOP //shopitems = 50 shopy[6] = 350
-				if (yClick > 320 && yClick < 384) {
-					if (xClick > 50 && xClick < 114) { //potato click
-						selected = 0;
+				if(clickCheck(xClick,yClick,buyBtn1) == true){ // check if they clicked the buy button
+					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
+						plantHolder[selected].seed++;
+						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 					}
-					else if (xClick > 118.3 && xClick < 182.3) { //tomato click
-						selected = 1;
+				}
+				if (clickCheck(xClick,yClick,sellBtn1) == true){ // check if they clicked the sell button
+					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
+						plantHolder[selected].plant -= 1;
+						gold += plantHolder[selected].sell  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
 					}
-					else if (xClick > 186.6 && xClick < 250.6) { //carrot click
-						selected = 2;
+				}
+				if (clickCheck(xClick,yClick,eatBtn1) == true){ // check if they clicked the eat button
+					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected, and a plant to eat, eat it
+						plantHolder[selected].plant -= 1;
+						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish[plantHolder[selected].stat];
+						diminish[plantHolder[selected].stat] /= 0.01;
+						console.log("yum");
+					}
+				}
+				if(clickCheck(xClick,yClick,dexTab) == true) { //clicks dex tab
+					statSel = 0;
+				}
+					else if(clickCheck(xClick,yClick,intTab) == true) { //clicks int tab
+						statSel = 1;
+					}
+					else if(clickCheck(xClick,yClick,chaTab) == true) {// clicks cha tab
+						statSel = 2;
 					}
 					else {
-						selected = -1;
-					}
-				}
-				if(xClick > 50 && xClick < 110){ // check if they clicked the buy button
-					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
-							seeds[selected]++;
-							gold -= 25 - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
-						}
-					}
-				}	
-				if(xClick > 120 && xClick < 180){ // check if they clicked the sell button
-					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected and have a plant to sell, sell it
-							plants[selected] -= 1;
-							gold += 50  + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
-						}
-					}
-				}
-				if(xClick > 190 && xClick < 250){ // check if they clicked the eat button
-					if (yClick > 390 && yClick < 420){
-						if (selected != 3 && plants[selected] > 0){ // if they have a plant selected, and a plant to eat, eat it
-							plants[selected] -= 1;
-							stats[selected] += 1;
-						}
-					}
-				}
-				//renderer.drawImage(dexTab,50,100);
-				//renderer.drawImage(intTab,120,100);
-				//renderer.drawImage(chaTab,190,100);
-				if(yClick > 100 && yClick < 140){
-					if(xClick > 50 && xClick <114){
-						selected = 0;
-						//dexTab.src = "../img/DexTabSel.png";
-					}
-					else if(xClick > 120 && xClick < 184) {
-						selected = 1;
-					}
-					else if(xClick > 190 && xClick < 254) {
-						selected = 2;
-					}
-					else {
-						selected = plantNull;
+						statSel = plantNull;
 					} //dex int cha tabs
+
+				if (clickCheck(xClick,yClick,leftArrow) == true) {
+					if (arrow > 0) {
+					arrow -= 1; //list index + 1
+					plantSel.img.src = plantHolder[arrow].img[3].src;
+					plantSel.text = plantHolder[arrow].name;
+					console.log(arrow);
+					}
 				}
+				if (clickCheck(xClick,yClick,rightArrow) == true) {
+					if (arrow < plantHolder.length - 1){
+						arrow += 1; //list index + 1
+						plantSel.img.src = plantHolder[arrow].img[3].src;
+						plantSel.text = plantHolder[arrow].name;
+						console.log(arrow);
+					}
+				}
+			} 
 				break;
 			case 2://IN MAP
 				break;
-		}
 			break;
 		case 1: //sidescroller
             if (clickCheck(xClick,yClick,backBtnSdc) == true){//back to incremental level
@@ -701,8 +753,15 @@ function attack(){ //this spawns the player's attack
 				if (mArray[i].isHit == false){
 					mArray[i].health -= sdcPlayer.dmg;
 					mArray[i].isHit = true; //is hit stops the enemy from taking damage on every frame of player attack, they only take damage once
+					if(mArray[i].health <= 0)
+						mArray.splice(i,1);
+
 				}
 			}
+		}
+		if(mArray.length == 0){
+			alert("You beat that wave, spawning new wave");
+			spawn();
 		}
 	}
 	else{ //once the player attack is done, all enemies are rendered hitable again.
@@ -724,34 +783,30 @@ function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
-				archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
-				mArray[i] = archer;
-				mArray[i].x = 500;
-				mArray[i].y = i*70+200;
-				if(i == rAtk.length)
-				{
-					rAtk[i] = {x: mArray[i].x, y: mArray[i].y, sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
+				mArray[i] =  new Enemy ("archer","../img/snake.png","../img/snakeBLT.png",5,4,5,50,10,true);//creates a new archer
+				mArray[i].x = 510;
+				mArray[i].y = i*70+230;
 
-				}//if the current index of mArray is the same as the length of the rAtk array create a new bullet at that index
-				else if(i > rAtk.length)
-				{
-					rAtk[rAtk.length] = {x: mArray[i].x, y: mArray[i].y,sX:mArray[i].x, sY: mArray[i].y, bullDist: 0};//creates a new bullet
-				}//if the current index of mArray is the same as the length of the rAtk array create a new bullet at the last index of rAtk
-				console.log ("archer");
+				if(mArray[i].y >= 400){
+					var j = i-3;
+					mArray[i].x = 700;
+					mArray[i].y = j*70+230;
+				}//spawns behind after 3rd enemy
+
+				mArray[i].rAtkX = mArray[i].x;
+				mArray[i].rAtkY = mArray[i].y;//sets the x,y values for the archer projectile
 				break;
 			case 2:
-				soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false);//creates a new soldier
-				mArray[i] = soldier;
-				mArray[i].x = 500;
-				mArray[i].y = i*70+200;
-				if(i == soldierA.length)
-				{
-					soldierA[i] = i;
-				}//if the current index of mArray is the same as the length of the soldierA create add the current index of mArray to the same index of soldierA
-				else if(i > soldierA.length)
-				{
-					soldierA[soldierA.length] = i;
-				}//if current index of mArray is larger than the length of soldierA add the current index of mArray at the last index of soldierA
+				mArray[i] = new Enemy ("soldier","../img/Skuller.png","../img/SkullerATK_Wpn.png",10,2,2,20,70,false);//creates a new soldier
+				mArray[i].x = 510;
+				mArray[i].y = i*70+230;
+				if(mArray[i].y >= 400){
+					var j = i-3;
+					mArray[i].x = 700;
+					mArray[i].y = j*70+230;
+				}
+				mArray[i].side = mArray[i].x - (2 * mArray[i].aW);
+				mArray[i].mAtkY = mArray[i].y;
 				console.log ("soldier");
 				break;
 			case 3: //when the array has a 3 in it the for loop stops checking and the spawning stops
@@ -767,32 +822,94 @@ function spawn(){ //spawns enemies
 
 
 }
-function enemyAttack()
-{
-	for (i = 0; i < rAtk.length; i++)
+function enemyAi() {
+	for (i = 0; i < mArray.length; i++)
 	{
-		rAtk[i].x -= archer.projSp;
-		rAtk[i].bullDist += 1;
-		if(rAtk[i].bullDist >= 150)
+		mArray[i].rAtkX -= mArray[i].projSp;
+		mArray[i].bullDist += 1;
+		if(mArray[i].bullDist >= 150)
 		{
-			rAtk[i].x = rAtk[i].sX;
-			rAtk[i].bullDist = 0;
+			mArray[i].rAtkX = mArray[i].x;
+			mArray[i].bullDist = 0;
 		}
 		if (sdcPlayer.isHit == false){
-			if (!(rAtk[i].y > sdcPlayer.y+64 ||
-					  rAtk[i].y+32 < sdcPlayer.y ||
-					  rAtk[i].x > sdcPlayer.x+48 ||
-					  rAtk[i].x+32 < sdcPlayer.x)){
+			if (!(mArray[i].rAtkY > sdcPlayer.y+64 ||
+					  mArray[i].rAtkY + 32 < sdcPlayer.y ||
+					  mArray[i].rAtkX > sdcPlayer.x+48 ||
+					  mArray[i].rAtkX + 32 < sdcPlayer.x)){
 				if (sdcPlayer.isHit == false){
 					sdcPlayer.isHit = true;
 					sdcPlayer.health -= mArray[i].attack;
+					if(sdcPlayer.health <= 0){
+						alert("You lost");
+						sAcount = 0;
+						mArray = [];
+						waveTB = true;
+						sdcPlayer.health = sdcPlayer.healthMax;
+						cG = 0;
+					}
+					mArray[i].rAtkX = mArray[i].x;
+					mArray[i].bullDist = 0;
 				}
 			}
+		}//player takes damage
+
+		if(mArray[i].name == "soldier"){
+			
+			if(mArray[i].deltaMove < 100)
+			{
+				mArray[i].mAtkX = mArray[i].x + mArray[i].side;//constantly traces the soldiers position for its attack
+				if(mArray[i].mAtk == true){
+					if (sdcPlayer.isHit == false){
+								if (!(mArray[i].mAtkY > sdcPlayer.y+64 ||
+									  mArray[i].mAtkY + 32 < sdcPlayer.y ||
+									  mArray[i].mAtkX > sdcPlayer.x+48 ||
+									  mArray[i].mAtkX + 32 < sdcPlayer.x)){
+									if (sdcPlayer.isHit == false){
+										sdcPlayer.isHit = true;
+										sdcPlayer.health -= mArray[i].attack;
+										if(sdcPlayer.health <= 0){
+											alert("You lost");
+											sAcount = 0;
+											waveTB = true;
+											mArray = [];
+											sdcPlayer.health = sdcPlayer.healthMax;
+											cG = 0;
+										}
+									}
+								}
+							}
+				}//player takes damage
+				
+				if(mArray[i].deltaMove == 10)
+				{
+					mArray[i].mAtk = false;
+				}//stops the attack
+
+				mArray[i].x -= mArray[i].speed;
+				mArray[i].deltaMove ++;
+			}//moves the soldier
+
+			if(mArray[i].deltaMove == 100)
+			{
+				if(mArray[i].speed == 1){
+					mArray[i].side = -(2 * mArray[i].aW);
+					mArray[i].mAtk = true;					
+				}
+				if(mArray[i].speed == -1){
+					mArray[i].side = (3.5 * mArray[i].aW);
+					mArray[i].mAtk = true;
+				}
+				
+				mArray[i].deltaMove = 0;
+				mArray[i].speed = -mArray[i].speed;
+			}//swaps the direction and makes an attack on the approrite side
 		}
-	}//updates each bullet
+	}//handles the Ai for the enemies
+
 	if (sdcPlayer.isHit == false){
 		for (i = 0; i < mArray.length; i++){
-			if (mArray[i].proj == true){	
+			if (mArray[i].proj == true){
 			}
 			if (mArray[i].proj == false){
 					if (!(mArray[i].y > sdcPlayer.y+64 ||
@@ -807,6 +924,7 @@ function enemyAttack()
 			}//butts
 		}
 	}
+
 	else {
 		sdcPlayer.hitTime += 1;
 		if (sdcPlayer.hitTime > 40){
@@ -814,42 +932,9 @@ function enemyAttack()
 			sdcPlayer.isHit = false;
 		}
 	}
+
 }
-function enemyMove()
-{
-	for(i = 0; i < soldierA.length; i++)
-	{
-			if(mArray[soldierA[i]].deltaMove < 100)
-			{
-				if(mArray[soldierA[i]].deltaMove == 10)
-				{
-					mArray[soldierA[i]].mAtkR = false;
-				}//stops the attack on right side
-				mArray[soldierA[i]].x -= soldier.speed;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-			}//moves the soldier left
-			else if(mArray[soldierA[i]].deltaMove == 100)
-			{
-				mArray[soldierA[i]].mAtkL = true;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-				mArray[soldierA[i]].x += soldier.speed;
-			}//makes an attack on the leftside
-			else if(mArray[soldierA[i]].deltaMove == 200)
-			{
-				mArray[soldierA[i]].mAtkR = true;
-				mArray[soldierA[i]].deltaMove = 0;
-			}//makes an attack on the rightside
-			else if(mArray[soldierA[i]].deltaMove > 100)
-			{
-				if(mArray[soldierA[i]].deltaMove == 110)
-				{
-					mArray[soldierA[i]].mAtkL = false;
-				}//stops the attack on the leftside
-				mArray[soldierA[i]].x += soldier.speed;
-				mArray[soldierA[i]].deltaMove += soldier.speed;
-			}//moves the soldier right
-	}//loops through all soldier indexs stored in soldierA within mArray
-}//function for enemy movement.
+
 //===========================================================================================
 //PLATFORMER CODE BLOCK
 function movement(){
@@ -1005,60 +1090,113 @@ function movePlayer()
 //RENDER
 function render(){
 	renderer.clearRect(0,0,canvas.width,canvas.height);
-	for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
-		if (buttonRender[i].cG == cG){ //is the button in this gamestate?
-			if (buttonRender[i].tab == tab){ //is the button in this tab?
-				renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
-				if (buttonRender[i].textBool == true){ //does the button have text to render?
-					renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
-				}
-			}
-		}
-	}
 	switch (cG){
 		case 0:
 			renderer.drawImage(selRender,selX,selY);
 			for (i = 0; i < 3; i++){ //renders stats on screen
 				renderer.fillText(statName[i],selposX,selposY[i]+200);
 				renderer.fillText(stats[i],selposX+50,selposY[i]+200);
+				
 			}
 			renderer.fillText("Gold: ",selposX,selposY[2]+240);
 			renderer.fillText(gold, selposX+50,selposY[2]+240);
-			for (i = 0; i < 4; i++){ //draws the farm plots
-				for (j = 0; j < 4; j++){
-					renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
+		switch (tab) {
+			case 0: // farm tab
+				
+				for (i = 0; i < 4; i++){ //draws the farm plots
+					for (j = 0; j < 4; j++){
+						renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
+					}
+				}
+			
+				break;
+			case 1: // shop tab
+				break;
+			switch(statSel) { //stat tab functionality
+				case 0:
+				//changes img of dex tab when clicked
+					buttonRender[23].img.src = "../img/DexTabSel.png";
+					buttonRender[24].img.src = "../img/IntTab.png";
+					buttonRender[25].img.src = "../img/ChaTab.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+				case 1:
+				//changes img of int tab when clicked
+					buttonRender[23].img.src = "../img/DexTab.png";
+					buttonRender[24].img.src = "../img/IntTabSel.png";
+					buttonRender[25].img.src = "../img/ChaTab.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+				case 2:
+				//changes img of cha tab when clicked
+					buttonRender[23].img.src = "../img/DexTab.png";
+					buttonRender[24].img.src = "../img/IntTab.png";
+					buttonRender[25].img.src = "../img/ChaTabSel.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+			}
+				break;
+			case 2:
+				break;
+
+		}
+			/*
+			if (tab == 1){
+				goldT = gold.toString();
+				renderer.clearRect(0,0,canvas.width,canvas.height);
+				stage.style.backgroundColor = "white";
+				renderer.fillText("Gold: "+goldT,550,shopY[7]);
+				renderer.fillText("Store",50,shopY[0]);
+				renderer.fillText("Inventory",550,shopY[0]);
+				renderer.drawImage(buyImg,50,shopY[6]+40);
+				renderer.drawImage(selRender,50,shopY[6]+40); //buy button
+				renderer.drawImage(sellImg,50+70,shopY[6]+40);
+				renderer.drawImage(selRender,50+70,shopY[6]+40); //sell button
+				renderer.drawImage(eatImg,50+140,shopY[6]+40);
+				renderer.drawImage(selRender,50+140,shopY[6]+40); //eat button
+				for (i = 0; i < 6; i++){
+				storeT = storeStrings[i].toString();
+				renderer.fillText(storeT,550,shopY[i+1]); //inventory strings
+				}
+				for (i = 0; i < 6; i++){
+				seedT = seeds[i].toString();
+				plantT = plants[i].toString();
+				renderer.fillText(seedT,550+225,shopY[i+1]);
+				renderer.fillText(plantT,550+225,shopY[i+1]+150);
 				}
 			}
+			if (tab == 2) {
+				renderer.clearRect(0,0,canvas.width,canvas.height);
+				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
+				renderer.drawImage(shopTab,100,510);
+				renderer.drawImage(mapTab,200,510); //all tabs
+			}
+			*/
 			break;
 		case 1:
+			renderer.drawImage(backgroundSS,0,0);
 			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
 			renderer.drawImage(sdcPlayer.sprite,sdcPlayer.x,sdcPlayer.y);
 			for (i = 0; i < mArray.length; i++)
 			{
 				renderer.drawImage(mArray[i].Sprite, mArray[i].x, mArray[i].y);//draws each enemy
 
-				if(mArray[i].proj == true)
+				if(mArray[i].name == "archer")
 				{
-					if(i < rAtk.length)
-					{
-						renderer.drawImage(mArray[i].Attack, rAtk[i].x, rAtk[i].y);//draws each bullet for the archers
-					}//not quite sure why but fixed an error so not going to question it
-
+					renderer.drawImage(mArray[i].Attack, mArray[i].rAtkX, mArray[i].rAtkY);//draws each bullet for the archers
 				}
-				if(mArray[i].mAtkL == true)
+				if(mArray[i].mAtk == true)
 				{
-					renderer.drawImage(mArray[i].Attack, mArray[i].x - (2 * mArray[i].aW), mArray[i].y);
-				}//makes a melee attack on the left side
-				if(mArray[i].mAtkR == true)
-				{
-					renderer.drawImage(mArray[i].Attack, mArray[i].x + (3.5 * mArray[i].aW), mArray[i].y);
-				}// makes a melee attack on the right side
+					renderer.drawImage(mArray[i].Attack, mArray[i].mAtkX, mArray[i].mAtkY);
+				}//renders the melee attack
+
 				renderer.fillText (mArray[i].health,mArray[i].x,mArray[i].y);
 			}
 			if (sdcPlayer.hitboxR == true){
 				renderer.drawImage(sdcPlayer.aSprite,sdcPlayer.hitboxX,sdcPlayer.hitboxY);
 			}
 			renderer.fillText(sdcPlayer.health,840,20);
+			break;
 			break;
 		case 2:
 			renderer.drawImage(pltBG, 0 ,0);
@@ -1079,5 +1217,15 @@ function render(){
 				}
 			}
 			break;
+	}
+	for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
+		if (buttonRender[i].cG == cG){ //is the button in this gamestate?
+			if (buttonRender[i].tab == tab){ //is the button in this tab?
+				renderer.drawImage(buttonRender[i].img,buttonRender[i].x,buttonRender[i].y); //draw the button
+				if (buttonRender[i].textBool == true){ //does the button have text to render?
+					renderer.fillText(buttonRender[i].text,buttonRender[i].tX,buttonRender[i].tY); //render the text
+				}
+			}
+		}
 	}
 }
