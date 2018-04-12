@@ -283,7 +283,7 @@ var map = [
 	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
 	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
 	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
-	
+
 ];
 var map2 = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
@@ -307,12 +307,12 @@ function PlatPlayer(img,x,y,w,h,vx,vy){
 	this.Sprite = new Image();
 	this.Sprite.src = img;
 	this.X = x; // object x position
-	this.Y = y; // object y position 
-	this.W = w; // object width	
+	this.Y = y; // object y position
+	this.W = w; // object width
 	this.H = h; // object height
-	this.V_X = vx; // object horizontal velocity 
-	this.V_Y = vy; // object vertical velocity 
-	this.leftPressed = false;  
+	this.V_X = vx; // object horizontal velocity
+	this.V_Y = vy; // object vertical velocity
+	this.leftPressed = false;
 	this.rightPressed = false;
 	this.upPressed = false;
 	this.Previous_X;
@@ -345,7 +345,7 @@ function Block(img,x,y,w,h,type){
 	this.W = w;
 	this.H = h;
 	this.type = type;
-} 
+}
 
 
 //===========================================================================================
@@ -406,7 +406,7 @@ function startFunc(){
 function update(){
 	switch (cG){
 		case 0: //incremental
-			
+
 			break;
 		case 1: //sidescroller
 			playerMove();
@@ -444,13 +444,13 @@ function update(){
 	render();
 }
 function shopUpdate(){
-	textUpdate(potatoBtn,potato.seed+"             "+potato.plant); 
-	textUpdate(tomatoBtn,tomato.seed+"             "+tomato.plant); 
-	textUpdate(carrotBtn,carrot.seed+"             "+carrot.plant); 
-	textUpdate(invPotato,"Potatoes: "+potato.plant); 
-	textUpdate(invTomato,"Tomato: "+tomato.plant); 
-	textUpdate(invCarrot,"Carrot: "+carrot.plant); 
-	
+	textUpdate(potatoBtn,potato.seed+"             "+potato.plant);
+	textUpdate(tomatoBtn,tomato.seed+"             "+tomato.plant);
+	textUpdate(carrotBtn,carrot.seed+"             "+carrot.plant);
+	textUpdate(invPotato,"Potatoes: "+potato.plant);
+	textUpdate(invTomato,"Tomato: "+tomato.plant);
+	textUpdate(invCarrot,"Carrot: "+carrot.plant);
+
 }
 function clickCheck(x,y,btnType){ //check if something is clicked
 	if (!(y > btnType.yh || //is the mouse inside the y axis?
@@ -547,7 +547,7 @@ function onClick(e){
 										farmPlot[i][j].growing = true;
 										farmPlot[i][j].img = plantHolder[selected].img[0];
 										plantHolder[selected].seed -= 1; // removes the selected seed type from player inventory
-										
+
 										planting.play();
 									}
 
@@ -565,14 +565,14 @@ function onClick(e){
 									}/*chance to gain a second plant of the type harvested*/
 
 									plantHolder[farmPlot[i][j].seed].plant += 1;
-									
+
 									farmPlot[i][j].harvest = false;
 									farmPlot[i][j].seed = plantNull;
 									farmPlot[i][j].img = baseImg;
 									farmPlot[i][j].grow = 0;
 									harvest.play();
 								}
-								
+
 							}
 						}
 					}
@@ -581,14 +581,14 @@ function onClick(e){
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
 						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
-						
+
 					}
 				}
 				if (clickCheck(xClick,yClick,sellBtn0) == true){ // check if they clicked the sell button
 					if (selected != plantNull && plantHolder[selected].plant > 0){ // if they have a plant selected and have a plant to sell, sell it
 						plantHolder[selected].plant -= 1;
 						gold += plantHolder[selected].sell + goldBonus;/*incorporated chr to increase sell value by 10 for each chr point*/
-						
+
 					}
 				}
 				if (clickCheck(xClick,yClick,eatBtn0) == true){ // check if they clicked the eat button
@@ -597,7 +597,7 @@ function onClick(e){
 						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish;
 						//diminish[plantHolder[selected].stat] /= 0.01;
 						console.log(stats[plantHolder[selected].stat]);
-						
+
 					}
 				}
 				for (var i = 0; i < plantHolder.length; i++){
@@ -658,7 +658,7 @@ function onClick(e){
 						console.log(arrow);
 					}
 				}
-			} 
+			}
 				break;
 			case 2://IN MAP
 				break;
@@ -671,9 +671,10 @@ function onClick(e){
 			break;
 		case 2: //platformer
 		    if (clickCheck(xClick,yClick,backBtnPlt) == true){//back to incremental level
+					console.log("x: "+xClick+"y: "+yClick);
 			    cG = 0;
-				tab = 0;
-			}
+					tab = 0;
+				}
 			break;
 		case 3: //map
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y && yClick < mapSelBtn.y+(mapSelBtn.h/3)){ //platformer transition
@@ -855,7 +856,7 @@ function enemyAi() {
 		}//player takes damage
 
 		if(mArray[i].name == "soldier"){
-			
+
 			if(mArray[i].deltaMove < 100)
 			{
 				mArray[i].mAtkX = mArray[i].x + mArray[i].side;//constantly traces the soldiers position for its attack
@@ -880,7 +881,7 @@ function enemyAi() {
 								}
 							}
 				}//player takes damage
-				
+
 				if(mArray[i].deltaMove == 10)
 				{
 					mArray[i].mAtk = false;
@@ -894,13 +895,13 @@ function enemyAi() {
 			{
 				if(mArray[i].speed == 1){
 					mArray[i].side = -(2 * mArray[i].aW);
-					mArray[i].mAtk = true;					
+					mArray[i].mAtk = true;
 				}
 				if(mArray[i].speed == -1){
 					mArray[i].side = (3.5 * mArray[i].aW);
 					mArray[i].mAtk = true;
 				}
-				
+
 				mArray[i].deltaMove = 0;
 				mArray[i].speed = -mArray[i].speed;
 			}//swaps the direction and makes an attack on the approrite side
@@ -939,13 +940,13 @@ function enemyAi() {
 //PLATFORMER CODE BLOCK
 function movement(){
 	pltPlayer.gav = 10;
-	
-	
+
+
 	pltPlayer.X += pltPlayer.V_X;
 	pltPlayer.Y += pltPlayer.V_Y;
-	
-	
-	
+
+
+
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
 	for ( var i = 0; i < map.length; i++){
@@ -959,50 +960,54 @@ function movement(){
 		}
 	}
 	animatePlayer();
-	//console.log("plyerX  "+pltPlayer.X);
-	currentX = (pltPlayer.X+40-map_vx)/64;
-	//console.log(currentX);
+
 	for (var i = 0; i < map.length; i++){
 		for( var j = 0; j< map[i].length; j++){
 			if(map[i][j] == 3 && faceRight == true)
-				checkCollisionLeft(ground[i][j]); 
+				checkCollisionLeft(ground[i][j]);
 			else if(map[i][j] == 3 && faceRight == false)
 				checkCollisionRight(ground[i][j]);
+			if(map[i][j] == 2 || map[i][j] == 4)
+				pltResult(ground[i][j]);
 		}
 	}
 	//console.log(map_vx);
 	if(pltPlayer.V_X != 0){
 		for( var i = 0; i < map.length; i++){
 			for( var j = 0; j < map[i].length; j++){
-				if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+				if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4){
 					ground[i][j].X += -map_vx;
+				}
 			}
 		}
 	}
-	
-	pltResult();
+
 }
-function pltResult(){	
-    if (Spike.Y == pltPlayer.Y + pltPlayer.H || Spike.Y <= pltPlayer.Y + pltPlayer.H )
-	{
-		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
-		hurt.play();
-		console.log("Failed");
-		window.alert("You got wounded and lost some gold!")
-		gold = gold - 50;
-		cG = 0;
-		pltRespawn();
+function pltResult(ground){
+	if(ground.type == "spike"){
+			if (ground.Y == pltPlayer.Y + pltPlayer.H || ground.Y <= pltPlayer.Y + pltPlayer.H )
+				{
+					pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+					pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
+					hurt.play();
+					console.log("Failed");
+					window.alert("You got wounded and lost some gold!")
+					gold = gold - 50;
+					cG = 0;
+					pltRespawn();
+				}
+		}
+	if(ground.type == "money"){
+		if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
+		{
+			pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+			console.log("Win");
+			window.alert("You found some Gold!");
+			gold += 100;
+			cG = 0;
+			pltRespawn();
+		}
 	}
-	/*if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
-	{
-		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-		console.log("Win");
-		window.alert("You found some Gold!");
-		gold += 100;
-		cG = 0;
-		pltRespawn();
-	}*/
 }
 function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
@@ -1011,7 +1016,7 @@ function pltRespawn(){
 				ground[i][j].X = j*64;
 		}
 	}
-	
+
 	pltPlayer.X = 64;
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
@@ -1031,7 +1036,7 @@ function checkCollisionLeft(ground){
 		if(pltPlayer.X + 25 < ground.X + ground.W  && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H) {
 			console.log("right");
 			pltPlayer.X = ground.X - 45;
-			pltPlayer.V_X = 0;		
+			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
 	}
@@ -1075,7 +1080,7 @@ function movePlayer()
 		map_vx = 0;
 		if(faceRight)
 			pltPlayer.Sprite.src = "../img/CharAnimRS.png";
-		else 
+		else
 			pltPlayer.Sprite.src = "../img/CharAnimLS.png";
 	}
 	if (pltPlayer.upPressed && onGround){
@@ -1096,19 +1101,19 @@ function render(){
 			for (i = 0; i < 3; i++){ //renders stats on screen
 				renderer.fillText(statName[i],selposX,selposY[i]+200);
 				renderer.fillText(stats[i],selposX+50,selposY[i]+200);
-				
+
 			}
 			renderer.fillText("Gold: ",selposX,selposY[2]+240);
 			renderer.fillText(gold, selposX+50,selposY[2]+240);
 		switch (tab) {
 			case 0: // farm tab
-				
+
 				for (i = 0; i < 4; i++){ //draws the farm plots
 					for (j = 0; j < 4; j++){
 						renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
 					}
 				}
-			
+
 				break;
 			case 1: // shop tab
 				break;
@@ -1197,7 +1202,6 @@ function render(){
 			}
 			renderer.fillText(sdcPlayer.health,840,20);
 			break;
-			break;
 		case 2:
 			renderer.drawImage(pltBG, 0 ,0);
 			renderer.drawImage(pltPlayer.Sprite,
@@ -1206,14 +1210,14 @@ function render(){
 			for ( var i = 0; i < map.length; i++){
 				for (var j = 0; j < map[i].length; j++){
 					if (map[i][j] == 1)
-						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
+						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 2)
 						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
 					else if (map[i][j] == 3)
 						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 4)
 						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
-					
+
 				}
 			}
 			break;
