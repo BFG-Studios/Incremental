@@ -209,6 +209,9 @@ soldier = new Enemy ("../img/soldier.png","../img/Bullet.png",10,2,2,20,70,false
 archer = new Enemy ("../img/archer.png","../img/Bullet.png",5,4,5,50,10,true);//creates a new archer
 //===========================================================================================
 //PLATFORMER VARIABLES
+var jump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
+var footStep = new Audio("../wav/Footsteps.wav"); //sound effect while platplayer walking
+var hurt = new Audio("../wav/Hurt.wav");//sound effect when play fall
 var pltBG = new Image();
 pltBG.src = "../img/temple_wall.png";
 var faceRight = true;
@@ -899,13 +902,14 @@ function pltResult(){
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
+		hurt.play();
 		console.log("Failed");
 		window.alert("You got wounded and lost some gold!")
 		gold = gold - 50;
 		cG = 0;
 		pltRespawn();
 	}
-	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
+	/*if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		console.log("Win");
@@ -913,7 +917,7 @@ function pltResult(){
 		gold += 100;
 		cG = 0;
 		pltRespawn();
-	}
+	}*/
 }
 function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
@@ -966,12 +970,20 @@ function movePlayer()
 		map_vx = -8;
 		pltPlayer.V_X = -0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimL.png";
+		if(onGround){
+		footStep.play();
+		footStep.volume = 0.01;
+		}
 	}
 	if(pltPlayer.rightPressed){
 		faceRight = true;
 		map_vx = 8;
 		pltPlayer.V_X = 0.04;
 		pltPlayer.Sprite.src = "../img/CharAnimR.png";
+		if(onGround){
+		footStep.play();
+		footStep.volume = 0.01;
+		}
 	}
 	if(!pltPlayer.leftPressed && !pltPlayer.rightPressed){
 		pltPlayer.V_X = 0;
@@ -984,6 +996,8 @@ function movePlayer()
 	if (pltPlayer.upPressed && onGround){
 		pltPlayer.V_Y = -9;
 		onGround = false;
+		jump.play(); //play sound fx while jumping
+		jump.volume = 0.1; //set sound volume to 0.1
 	}
 
 }
