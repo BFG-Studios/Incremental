@@ -684,7 +684,7 @@ function onClick(e){
 		case 3: //map
 		console.log("x: "+xClick+"y: "+yClick);
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y && yClick < mapSelBtn.y+(mapSelBtn.h/3)){ //platformer transition
-				if(gold >= 50){ // check if player have gold to enter the platform, 50 gold at least.
+				/*if(gold >= 50){ // check if player have gold to enter the platform, 50 gold at least.
 					gold = gold - 50;
 					cG = 2;
 					tab = 0;
@@ -692,7 +692,9 @@ function onClick(e){
 				else{
 					window.alert("You need 50 gold at least for taking advantage!")
 					cG = 0;
-				}
+				}*/
+				cG = 2;
+					tab = 0;
 			}
 			if (xClick > mapSelBtn.x && xClick < mapSelBtn.x+mapSelBtn.w && yClick > mapSelBtn.y+(mapSelBtn.h/3) && yClick < mapSelBtn.y+(2*(mapSelBtn.h/3))){ //platformer transition
 				cG = 1;
@@ -1017,9 +1019,10 @@ function pltResult(ground){
 			goldCounter++;
 			console.log(goldCounter);
 			ground.type = null;//disable the money bag.
+			//map[i][j] = 0;
 			if(goldCounter >= 3){
 				pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-				goldCounter = 0;
+				ground.type = "money";
 				console.log("Win");
 				window.alert("You found some Gold!");
 				gold += 100 * goldCounter;
@@ -1032,8 +1035,10 @@ function pltResult(ground){
 function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
 		for( var j = 0; j < map[i].length; j++){
-			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4){
 				ground[i][j].X = j*64;
+			    goldCounter = 0;
+			}
 		}
 	}
 
