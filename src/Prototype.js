@@ -36,7 +36,8 @@ var shopY = [50,100,150,200,250,300,350,400];
 var storeT;
 var storeStrings = ["Potato Seed","Tomato Seed","Carrot Seed","Potato Plant","Tomato Plant","Carrot Plant"];
 var storeSeed = 0;
-var arrow = 0; //list index for plants
+var arrow = 0; //list index for plants in farm
+var arrow2 = 0; //list index for plants in shop
 var dexPlants = 0; //counting dex plants
 var intPlants = 0; //counting int plants
 var chaPlants = 0; //counting cha plants
@@ -129,18 +130,22 @@ var eatBtnBord = new Button(22,190,340,60,30,0,1,false,0,0,0,"../img/Border.png"
 var dexTab = new Button(23,50,100,64,40,0,1,false,0,0,0,"../img/DexTab.png");
 var intTab = new Button(24,120,100,64,40,0,1,false,0,0,0,"../img/intTab.png");
 var chaTab = new Button(25,190,100,64,40,0,1,false,0,0,0,"../img/ChaTab.png"); //stat tab buttons
-var leftArrow = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
-var rightArrow = new Button(27,189,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //arrows
+var leftArrow2 = new Button(26,75,222,40,40,0,1,false,0,0,0,"../img/LeftArrow.png")
+var rightArrow2 = new Button(27,190,222,40,40,0,1,false,0,0,0,"../img/RightArrow.png") //arrows
 var invTxt = new Button(28,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
 
-var potatoBtn = new Button(29,selposX,selposY[0],60,30,0,0,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(30,selposX,selposY[1],60,30,0,0,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(31,selposX,selposY[2],60,30,0,0,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var potatoBtn = new Button(29,selposX,selposY[0],60,30,0,-1,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(30,selposX,selposY[1],60,30,0,-1,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(31,selposX,selposY[2],60,30,0,-1,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
 var invPotato = new Button(32,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
 var invTomato = new Button(33,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
 var invCarrot = new Button(34,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
-var plantSel = new Button(35,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
+var plantSel2 = new Button(35,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
+var plantSel = new Button(36,490,175,64,64,0,0,true,plantHolder[0].name,490,260,"../img/potato.png") //plant selection
+var leftArrow = new Button(37,445,187,40,40,0,0,false,0,0,0,"../img/LeftArrow.png")
+var rightArrow = new Button(38,560,187,40,40,0,0,false,0,0,0,"../img/RightArrow.png") //arrows
+
 
 function countPlants() {
 	for (x = 0; x < plantHolder.length; x++){
@@ -575,6 +580,22 @@ function onClick(e){
  						selY = buttonRender[i+plantBtnSt].y;
  						}
  				}
+				if (clickCheck(xClick,yClick,leftArrow) == true) {
+					if (arrow > 0) {
+					arrow -= 1; //list index + 1
+					plantSel.img.src = plantHolder[arrow].img[3].src;
+					plantSel.text = plantHolder[arrow].name;
+					console.log("A1: " + arrow);
+					}
+				}
+				if (clickCheck(xClick,yClick,rightArrow) == true) {
+					if (arrow < plantHolder.length - 1){
+						arrow += 1; //list index + 1
+						plantSel.img.src = plantHolder[arrow].img[3].src;
+						plantSel.text = plantHolder[arrow].name;
+						console.log("A1: " + arrow);
+					}
+				}
 				break;
 			case 1://IN SHOP //shopitems = 50 shopy[6] = 350
 				if(clickCheck(xClick,yClick,buyBtn1) == true){ // check if they clicked the buy button
@@ -610,20 +631,20 @@ function onClick(e){
 						statSel = plantNull;
 					} //dex int cha tabs
 
-				if (clickCheck(xClick,yClick,leftArrow) == true) {
-					if (arrow > 0) {
-					arrow -= 1; //list index + 1
-					plantSel.img.src = plantHolder[arrow].img[3].src;
-					plantSel.text = plantHolder[arrow].name;
-					console.log(arrow);
+				if (clickCheck(xClick,yClick,leftArrow2) == true) {
+					if (arrow2 > 0) {
+					arrow2 -= 1; //list index + 1
+					plantSel2.img.src = plantHolder[arrow2].img[3].src;
+					plantSel2.text = plantHolder[arrow2].name;
+					console.log("A2: " + arrow2);
 					}
 				}
-				if (clickCheck(xClick,yClick,rightArrow) == true) {
-					if (arrow < plantHolder.length - 1){
-						arrow += 1; //list index + 1
-						plantSel.img.src = plantHolder[arrow].img[3].src;
-						plantSel.text = plantHolder[arrow].name;
-						console.log(arrow);
+				if (clickCheck(xClick,yClick,rightArrow2) == true) {
+					if (arrow2 < plantHolder.length - 1){
+						arrow2 += 1; //list index + 1
+						plantSel2.img.src = plantHolder[arrow2].img[3].src;
+						plantSel2.text = plantHolder[arrow2].name;
+						console.log("A2: " + arrow2);
 					}
 				}
 			} 
@@ -982,16 +1003,37 @@ function render(){
 			renderer.fillText(gold, selposX+50,selposY[2]+240);
 		switch (tab) {
 			case 0: // farm tab
-				
 				for (i = 0; i < 4; i++){ //draws the farm plots
 					for (j = 0; j < 4; j++){
 						renderer.drawImage(farmPlot[i][j].img,farmPlot[i][j].x,farmPlot[i][j].y);
 					}
 				}
+				switch(statSel) { //stat tab functionality
+				case 0:
+				//changes img of dex tab when clicked
+					buttonRender[23].img.src = "../img/DexTabSel.png";
+					buttonRender[24].img.src = "../img/IntTab.png";
+					buttonRender[25].img.src = "../img/ChaTab.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+				case 1:
+				//changes img of int tab when clicked
+					buttonRender[23].img.src = "../img/DexTab.png";
+					buttonRender[24].img.src = "../img/IntTabSel.png";
+					buttonRender[25].img.src = "../img/ChaTab.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+				case 2:
+				//changes img of cha tab when clicked
+					buttonRender[23].img.src = "../img/DexTab.png";
+					buttonRender[24].img.src = "../img/IntTab.png";
+					buttonRender[25].img.src = "../img/ChaTabSel.png";
+					//plantSel.img.src = plantHolder[selected].img[3].src; //changes the plantSel img.src
+					break;
+				}
 			
 				break;
 			case 1: // shop tab
-				break;
 			switch(statSel) { //stat tab functionality
 				case 0:
 				//changes img of dex tab when clicked
@@ -1020,38 +1062,6 @@ function render(){
 				break;
 
 		}
-			/*
-			if (tab == 1){
-				goldT = gold.toString();
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				stage.style.backgroundColor = "white";
-				renderer.fillText("Gold: "+goldT,550,shopY[7]);
-				renderer.fillText("Store",50,shopY[0]);
-				renderer.fillText("Inventory",550,shopY[0]);
-				renderer.drawImage(buyImg,50,shopY[6]+40);
-				renderer.drawImage(selRender,50,shopY[6]+40); //buy button
-				renderer.drawImage(sellImg,50+70,shopY[6]+40);
-				renderer.drawImage(selRender,50+70,shopY[6]+40); //sell button
-				renderer.drawImage(eatImg,50+140,shopY[6]+40);
-				renderer.drawImage(selRender,50+140,shopY[6]+40); //eat button
-				for (i = 0; i < 6; i++){
-				storeT = storeStrings[i].toString();
-				renderer.fillText(storeT,550,shopY[i+1]); //inventory strings
-				}
-				for (i = 0; i < 6; i++){
-				seedT = seeds[i].toString();
-				plantT = plants[i].toString();
-				renderer.fillText(seedT,550+225,shopY[i+1]);
-				renderer.fillText(plantT,550+225,shopY[i+1]+150);
-				}
-			}
-			if (tab == 2) {
-				renderer.clearRect(0,0,canvas.width,canvas.height);
-				renderer.drawImage(farmTab,0,510); //tabs sized 100,50
-				renderer.drawImage(shopTab,100,510);
-				renderer.drawImage(mapTab,200,510); //all tabs
-			}
-			*/
 			break;
 		case 1:
 			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
