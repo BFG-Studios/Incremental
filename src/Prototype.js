@@ -279,8 +279,8 @@ var map = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,0,2,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3],
 	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
 	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
 	
@@ -411,7 +411,7 @@ function update(){
 		case 1: //sidescroller
 			playerMove();
 			if (sdcPlayer.jump == true){
-				jump();
+				jump1();
 			}
 			if (sdcPlayer.attack == true){
 				attack();
@@ -721,7 +721,7 @@ function playerMove(){ //basic movement stuff, just like in the platformer
 		sdcPlayer.y += sdcPlayer.vspeed;
 	}
 }
-function jump(){ //this is some awful jump code that makes the player spin in a fucking parabola
+function jump1(){ //this is some awful jump code that makes the player spin in a fucking parabola
 	sdcPlayer.y -= sdcPlayer.jspeed - sdcPlayer.grav;
 	switch (sdcPlayer.jtop){
 		case false:
@@ -994,7 +994,7 @@ function pltResult(){
 		cG = 0;
 		pltRespawn();
 	}
-	/*if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
+	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
 	{
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		console.log("Win");
@@ -1002,7 +1002,7 @@ function pltResult(){
 		gold += 100;
 		cG = 0;
 		pltRespawn();
-	}*/
+	}
 }
 function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
