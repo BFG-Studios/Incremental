@@ -28,7 +28,7 @@ var selRender; //selected plant variables stop here
 var statName = ["Dex: ","Int: ","Cha: "];
 var stats = [0,0,0]; //the three stats
 var gold = 0; //player gold
-var selected = plantNull; //which plant is selected
+var selected = 0; //which plant is selected
 var tab = 0; //tracks the current tab of the player
 var cG = 0;
 //bunch of shop code i dunno what the fuck to do with
@@ -135,12 +135,12 @@ var rightArrow2 = new Button(27,190,222,40,40,0,1,false,0,0,0,"../img/RightArrow
 var invTxt = new Button(28,0,0,64,64,0,1,true,"Inventory",550,50,""); //store texts
 var plantBtnSt = buttonRender.length; //for updating text on the plant buttons
 
-var potatoBtn = new Button(29,selposX,selposY[0],60,30,0,-1,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
-var tomatoBtn = new Button(30,selposX,selposY[1],60,30,0,-1,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
-var carrotBtn = new Button(31,selposX,selposY[2],60,30,0,-1,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
-var invPotato = new Button(32,0,0,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
-var invTomato = new Button(33,0,0,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
-var invCarrot = new Button(34,0,0,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
+var potatoBtn = new Button(29,900,900,60,30,0,-1,true,potato.seed+"             "+potato.plant,selposX-15,selposY[0]+20,"../img/potatoButton.png");
+var tomatoBtn = new Button(30,900,900,60,30,0,-1,true,tomato.seed+"             "+tomato.plant,selposX-15,selposY[1]+20,"../img/tomatoButton.png");
+var carrotBtn = new Button(31,900,900,60,30,0,-1,true,carrot.seed+"             "+carrot.plant,selposX-15,selposY[2]+20,"../img/carrotButton.png");
+var invPotato = new Button(32,900,900,64,64,0,1,true,"Potatoes: " +plantHolder[0].plant,550,80,"");
+var invTomato = new Button(33,900,900,64,64,0,1,true,"Tomatoes: " +plantHolder[1].plant,550,110,"");
+var invCarrot = new Button(34,900,900,64,64,0,1,true,"Carrots: " +plantHolder[2].plant,550,140,""); //plants in inventory
 var plantSel2 = new Button(35,120,210,64,64,0,1,true,plantHolder[0].name,127,300,"../img/potato.png") //plant selection
 var plantSel = new Button(36,490,175,64,64,0,0,true,plantHolder[0].name,490,260,"../img/potato.png") //plant selection
 var leftArrow = new Button(37,445,187,40,40,0,0,false,0,0,0,"../img/LeftArrow.png")
@@ -582,17 +582,22 @@ function onClick(e){
 				if (clickCheck(xClick,yClick,leftArrow) == true) {
 					if (arrow > 0) {
 						arrow -= 1; //list index + 1
+						selected -= 1; //list index + 1
 						plantSel.img.src = plantHolder[arrow].img[3].src;
 						plantSel.text = plantHolder[arrow].name;
 						console.log("A1: " + arrow);
+						console.log("This is selected: " +selected );
 					}
 				}
 				if (clickCheck(xClick,yClick,rightArrow) == true) {
 					if (arrow < plantHolder.length - 1){
 						arrow += 1; //list index + 1
+						selected += 1; //list index + 1
 						plantSel.img.src = plantHolder[arrow].img[3].src;
 						plantSel.text = plantHolder[arrow].name;
 						console.log("A1: " + arrow);
+						
+						console.log("This is selected: " +selected );
 					}
 				}
 				break;
