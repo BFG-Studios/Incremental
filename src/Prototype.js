@@ -282,21 +282,21 @@ var map1 = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,4,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,2,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,4,0,4,4,0,2,3],
-	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
+	[3,0,0,2,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,4,0,0,0,0,4,0,4,4,0,2,3],
+	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,4,0,0,1,1,0,1,1,1,1,1,1,3],
 	[3,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,4,1,1,4,1,1,1,1,1,1,3],
 
 ];
 var map2 = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,3,3,3,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,0,0,0,0,3,3,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,3,3,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,4,0,0,0,0,0,0,0],
-	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
-	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,4,2,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,3,3,3,3,0,2],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,4,3,0,0,0,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,3,3,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,3,0],
+	[3,0,0,0,4,0,3,3,0,3,2,0,0,0,0,2,3,4,2,4,0,0,3,4,0,0,0,3,4,0,0],
+	[3,1,1,1,1,1,1,1,0,1,1,1,4,1,1,1,1,1,1,1,1,4,1,1,4,1,4,1,1,4,0],
+	[3,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1],
 ]
 
 var map3 = [
@@ -950,6 +950,13 @@ function enemyAi() {
 //===========================================================================================
 //PLATFORMER CODE BLOCK
 
+function resetMap(){
+	goldCounter = 0;
+	randomMap();
+	doMap();
+}
+
+
 function doMap(){
 	for ( var i = 0; i < map.length; i++){
 		ground[i] = [];
@@ -1039,28 +1046,30 @@ function pltResult(ground){
 					window.alert("You got wounded and lost some gold!")
 					gold = gold - 100;
 					cG = 0;
+					//goldCounter = 0;
 					pltRespawn();
+					resetMap();
 				}
 		}
 	if(ground.type == "money"){
-		if (ground.Y <= pltPlayer.Y + 50 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 30 >= pltPlayer.X)
+		if (ground.Y <= pltPlayer.Y + 50 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 30 >= pltPlayer.X && goldCounter < 3)
 		{
 			pltCoin.play();
 			goldCounter++;
 			console.log(goldCounter);
 			ground.type = "blank";//disable the money bag.
-			//renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
-			if(goldCounter >= 3){
-				pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-				//ground.type = "money";
-				randomMap();
-				console.log("Win");
-				window.alert("You found some Gold!");
-				gold += 100 * goldCounter;
-				cG = 0;
-				pltRespawn();
-			}			
+			//renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);		
 		}
+		if(goldCounter >= 3){
+			pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+			//ground.type = "money";
+			console.log("Win");
+			window.alert("You found some Gold!");
+			gold += 100 * goldCounter;
+			cG = 0;
+			pltRespawn();
+			resetMap();
+		}	
 	}
 }
 function pltRespawn(){
@@ -1097,6 +1106,10 @@ function checkCollisionRight(ground){
 			map_vx = 0;
 		}
 	}
+}
+
+function checkCollisionhitBottom(ground){
+	
 }
 
 function animatePlayer()
