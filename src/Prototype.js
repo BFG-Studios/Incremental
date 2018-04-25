@@ -275,14 +275,14 @@ var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
 //var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
-var map = [
+var map1 = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,2,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,4,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,4,0,4,0,0,2,3],
+	[3,0,0,2,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,4,0,4,4,0,2,3],
 	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
 	[3,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,4,1,1,4,1,1,1,1,1,1,3],
 
@@ -297,6 +297,18 @@ var map2 = [
 	[3,0,0,0,0,0,3,3,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,4,0,0,0,0,0,0,0],
 	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
 	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+]
+
+var map3 = [
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,2],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,3,0,0,3,3,3,3,3,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,2,3,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,3,3,0,0,0,3,0,0,3,3,3,2,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,3,0,0,0,0,3,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,4,2,4,3,3,2,4,0,0,0,3,3,4,4,0,0,0,3,4,0,0,0,3,3],
+	[3,1,1,1,0,0,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,1,0,2,3],
+	[3,1,1,1,4,4,1,1,1,1,1,1,1,1,4,4,4,1,1,1,1,1,1,4,1,1,1,1,1,1,3],	
 ]
 var ground = [];
 var currentX;
@@ -381,25 +393,8 @@ function startFunc(){
 	//SIDESCROLLER
 	//=======================================================================================
 	// Platformer
-	for ( var i = 0; i < map.length; i++){
-		ground[i] = [];
-		for (var j = 0; j < map[i].length; j++){
-				if(map[i][j] == 0){
-					ground[i][j] = null;
-				}else if (map[i][j] == 1 ){
-					console.log("x "+i+" y "+j);
-					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"ground"); // creating the platform
-				}else if (map[i][j] == 2){
-					ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64,"money");
-					MoneyBg = ground[i][j];
-				}else if (map[i][j] == 3){
-					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"wall");
-				}else if (map[i][j] == 4){
-					ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64,"spike");
-					Spike = ground[i][j];
-			}
-		}
-	}
+	randomMap();
+	doMap();
 	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
@@ -428,6 +423,7 @@ function update(){
 			enemyAi();//handles the enemy Ai
 			break;
 		case 2: //platformer
+			
 			movement();
 			movePlayer();
 			break;
@@ -953,6 +949,40 @@ function enemyAi() {
 
 //===========================================================================================
 //PLATFORMER CODE BLOCK
+
+function doMap(){
+	for ( var i = 0; i < map.length; i++){
+		ground[i] = [];
+		for (var j = 0; j < map[i].length; j++){
+				if(map[i][j] == 0){
+					ground[i][j] = null;
+				}else if (map[i][j] == 1 ){
+					console.log("x "+i+" y "+j);
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"ground"); // creating the platform
+				}else if (map[i][j] == 2){
+					ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64,"money");
+					MoneyBg = ground[i][j];
+				}else if (map[i][j] == 3){
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"wall");
+				}else if (map[i][j] == 4){
+					ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64,"spike");
+					Spike = ground[i][j];
+				}
+				else if (map[i][j] == 5)
+					ground[i][j] = new Block("../img/Blank.png", j*64,i*64,64,64,"blank");
+		}
+	}
+}
+
+function randomMap(){
+	var x = Math.floor((Math.random()* 3) + 1 );
+	if(x == 1)
+		map = map1;
+	if(x == 2)
+		map = map2;
+	if(x == 3)
+		map = map3;
+}	
 function movement(){
 	pltPlayer.gav = 10;
 
@@ -1018,11 +1048,12 @@ function pltResult(ground){
 			pltCoin.play();
 			goldCounter++;
 			console.log(goldCounter);
-			ground.type = null;//disable the money bag.
-			//map[i][j] = 0;
+			ground.type = "blank";//disable the money bag.
+			//renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 			if(goldCounter >= 3){
 				pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-				ground.type = "money";
+				//ground.type = "money";
+				randomMap();
 				console.log("Win");
 				window.alert("You found some Gold!");
 				gold += 100 * goldCounter;
@@ -1211,6 +1242,8 @@ function render(){
 					else if (map[i][j] == 3)
 						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 4)
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
+					else if (map[i][j] == 5)
 						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
 
 				}
