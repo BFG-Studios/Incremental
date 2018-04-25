@@ -169,28 +169,34 @@ function countPlants() {
 //SIDESCROLLER VARIABLES
 stageHeight = 200;
 class Enemy{
-	constructor(name,img,atkImg,health,attack,aDelay,aW,aH,proj){
+	constructor(name,img,aAImg,atkImg,health,attack,aDelay,aW,aH,proj){
 		this.name = name;
 		this.Sprite = new Image();
 		this.Sprite.src = img; //enemy image
 		this.Attack = new Image();
 		this.Attack.src = atkImg;
+		this.aASprite = new Image();
+		this.aASprite.src = aAImg;
+		this.bSprite = new Image();
+		this.bSprite.src = img;
 		this.health = health; //enemy health
 		this.attack = attack; //enemy damage value
 		this.x = 0; //enemy's position, to be implemented upon spawning
 		this.y = 0;
-
+		
+		this.facing = "L";
 		this.deltaMove = 0;// distance moved
 		this.mAtk = false;// whether or not it should melee attack left
 		this.rAtkX = 0;
 		this.rAtkY = 0;
 		this.bullDist =0;
-
+		this.fCount = 0;//frame counter
+		this.fNum = 1;
 		this.deltaMove = 0;
 		this.mAtkX = 0;
 		this.mAtkY = 0;
 		this.side;
-
+		this.goldV = 50;
 		this.speed = 1; //enemy's movement speed
 		this.aDelay = aDelay; //the max value for the timer that decides when an enemy attacks
 		this.aTimer = 0; //the timer for that max value
@@ -205,7 +211,7 @@ class Enemy{
 
 }
 class Player{
-	constructor(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg){
+	constructor(x,y,w,h,health,dmg,hspeed,vspeed,jspeed,img,aImg,sImg,aAImg,jImg){
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -218,16 +224,21 @@ class Player{
 		this.jtop = false;
 		this.health = health;
 		this.healthMax = health;
-		this.dmg = dmg + stats[1]; // increases damage (int)
-		this.blockRt = 0 + stats[2]; // increases block (cha)
-		this.hspeed = hspeed + stats[0]; // increases horizontal speed (dex)
+		this.dmg = dmg; // increases damage (int)
 		this.vspeed = vspeed; //increasese vertical speed (dex)
+		this.hspeed = hspeed; // increases horizontal speed (dex)
 		this.sprite = new Image();
 		this.sprite.src = img;
 		this.shadow = new Image();
 		this.shadow.src = sImg;
 		this.aSprite = new Image();
 		this.aSprite.src = aImg;
+		this.aASprite = new Image();
+		this.aASprite.src = aAImg;
+		this.jSprite = new Image();
+		this.jSprite.src = jImg;
+		this.bSprite = new Image();
+		this.bSprite.src = img;
 		this.hitboxX = 0;
 		this.hitboxY = 0;
 		this.hitboxC = 0;
@@ -238,7 +249,7 @@ class Player{
 }
 var renderer = canvas.getContext("2d");
 var shotimg;//var for projectile img
-var sdcPlayer = new Player(430,230,64,64,10,1,5,2.5,20,"../img/Player_Sprite.png","../img/Bullet.png","../img/Shadow.png");
+var sdcPlayer = new Player(430,230,212,230,10,1,5,2.5,20,"../img/Player_Sprite.png","../img/Attaack.png","../img/Shadow.png","../img/Attack_Sprite.png","../img/Jump_Sprite.png");
 var leftMove = rightMove = backMove = forMove = false;
 var playerimg;
 var attackimg;
@@ -409,9 +420,11 @@ function startFunc(){
 //===========================================================================================
 //GENERAL CODE BLOCK
 function update(){
+	
 	switch (cG){
 		case 0: //incremental
-			
+			seedChance = Math.floor(stats[0]);
+			extraChance = Math.floor(stats[1])
 			break;
 		case 1: //sidescroller
 			playerMove();
@@ -428,6 +441,7 @@ function update(){
 					spawn();
 				}
 			}
+			
 			enemyAi();//handles the enemy Ai
 			break;
 		case 2: //platformer
@@ -585,7 +599,7 @@ function onClick(e){
 				if(clickCheck(xClick,yClick,buyBtn0) == true){ // check if they clicked the buy button
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
-						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						gold -= plantHolder[selected].price;/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 						
 					}
 				}
@@ -601,6 +615,7 @@ function onClick(e){
 						plantHolder[selected].plant -= 1;
 						stats[plantHolder[selected].stat] += plantHolder[selected].boost*diminish;
 						//diminish[plantHolder[selected].stat] /= 0.01;
+						stats[plantHolder[selected].stat] += 1*diminish;
 						console.log(stats[plantHolder[selected].stat]);
 						
 					}
@@ -638,7 +653,7 @@ function onClick(e){
 				if(clickCheck(xClick,yClick,buyBtn1) == true){ // check if they clicked the buy button
 					if (selected != plantNull && gold > 0){ // if they have a plant selected, and enough gold to buy a plant, buy it
 						plantHolder[selected].seed++;
-						gold -= plantHolder[selected].price - Math.floor(stats[2]/2);/*incorporated chr to decrease purchase value by 1 per 2 chr*/
+						gold -= plantHolder[selected].price;/*incorporated chr to decrease purchase value by 1 per 2 chr*/
 					}
 				}
 				if (clickCheck(xClick,yClick,sellBtn1) == true){ // check if they clicked the sell button
@@ -693,6 +708,7 @@ function onClick(e){
             if (clickCheck(xClick,yClick,backBtnSdc) == true){//back to incremental level
 			    cG = 0;
 				tab = 0;
+				
 			}
 			break;
 		case 2: //platformer
@@ -736,19 +752,20 @@ function growUp(plot){
 //SIDESCROLLER CODE BLOCK
 function playerMove(){ //basic movement stuff, just like in the platformer
 	if (leftMove == true && sdcPlayer.x > 0){
-		sdcPlayer.x -= sdcPlayer.hspeed;
+		sdcPlayer.x -= sdcPlayer.hspeed + Math.floor(stats[0]);
 	}if (rightMove == true && sdcPlayer.x + sdcPlayer.w < canvas.width){
-		sdcPlayer.x += sdcPlayer.hspeed;
+		sdcPlayer.x += sdcPlayer.hspeed + Math.floor(stats[0]);;
 	}if (backMove == true && sdcPlayer.floorY > stageHeight){
-		sdcPlayer.floorY -= sdcPlayer.vspeed;
-		sdcPlayer.y -= sdcPlayer.vspeed;
+		sdcPlayer.floorY -= sdcPlayer.vspeed + Math.floor(stats[0]);;
+		sdcPlayer.y -= sdcPlayer.vspeed + Math.floor(stats[0]);;
 	}if (forMove == true && sdcPlayer.y + sdcPlayer.h < canvas.height){
-		sdcPlayer.floorY += sdcPlayer.vspeed;
-		sdcPlayer.y += sdcPlayer.vspeed;
+		sdcPlayer.floorY += sdcPlayer.vspeed + Math.floor(stats[0]);;
+		sdcPlayer.y += sdcPlayer.vspeed + Math.floor(stats[0]);;
 	}
 }
 function jump1(){ //this is some awful jump code that makes the player spin in a fucking parabola
 	sdcPlayer.y -= sdcPlayer.jspeed - sdcPlayer.grav;
+	sdcPlayer.sprite = sdcPlayer.jSprite;
 	switch (sdcPlayer.jtop){
 		case false:
 			sdcPlayer.jspeed = 20;
@@ -761,26 +778,30 @@ function jump1(){ //this is some awful jump code that makes the player spin in a
 			if (sdcPlayer.y >= sdcPlayer.floorY){
 				sdcPlayer.jtop = false;
 				sdcPlayer.jump = false;
+				sdcPlayer.sprite = sdcPlayer.bSprite;
 			}
 			break;
 	}
 }
 function attack(){ //this spawns the player's attack
 	console.log (sdcPlayer.hitboxR);
+	sdcPlayer.sprite = sdcPlayer.aASprite;
 	sdcPlayer.hitboxC ++;
 	sdcPlayer.hitboxX = sdcPlayer.x+sdcPlayer.w;
 	sdcPlayer.hitboxY = sdcPlayer.y+(sdcPlayer.h/4);
 	if (sdcPlayer.hitboxR == true){
 		for (i=0; i < mArray.length; i++){ //this is checking collision with enemies and damaging them
-			if (!(sdcPlayer.hitboxY > mArray[i].y+64 ||
+			if (!(sdcPlayer.hitboxY > mArray[i].y+195 ||
 				  sdcPlayer.hitboxY+32 < mArray[i].y ||
-				  sdcPlayer.hitboxX > mArray[i].x+48 ||
+				  sdcPlayer.hitboxX > mArray[i].x+104 ||
 				  sdcPlayer.hitboxX+32 < mArray[i].x)){
 				if (mArray[i].isHit == false){
-					mArray[i].health -= sdcPlayer.dmg;
+					mArray[i].health -= sdcPlayer.dmg + Math.floor(stats[1]);
 					mArray[i].isHit = true; //is hit stops the enemy from taking damage on every frame of player attack, they only take damage once
-					if(mArray[i].health <= 0)
+					if(mArray[i].health <= 0){
+						gold += mArray[i].goldV + Math.floor(stats[2])
 						mArray.splice(i,1);
+					}
 
 				}
 			}
@@ -799,9 +820,11 @@ function attack(){ //this spawns the player's attack
 	}
 	if (sdcPlayer.hitboxC == 10){ //this stuff is timers for when the player can and can't attack
 		sdcPlayer.hitboxR = false;
+		
 	}
 	if (sdcPlayer.hitboxC >= 25){
 		sdcPlayer.attack = false;
+		sdcPlayer.sprite = sdcPlayer.bSprite;
 		sdcPlayer.hitboxC = 0;
 	}
 }
@@ -809,7 +832,7 @@ function spawn(){ //spawns enemies
 	for (i = 0; i < spawnMax; i++){ //spawnMax is the max number of enemies we can spawn, currently it's 7
 		switch (sArray[sAcount][i]){ //this checks the array storing our planned enemy compositions, sAcount stores the current difficulty/spawn wave, i is the enemy we're spawning
 			case 1:
-				mArray[i] =  new Enemy ("archer","../img/snake.png","../img/snakeBLT.png",5,4,5,50,10,true);//creates a new archer
+				mArray[i] =  new Enemy ("archer","../img/snake1.png","../img/snakeATK.png","../img/snakeBLT.png",5,4,5,50,10,true);//creates a new archer
 				mArray[i].x = 510;
 				mArray[i].y = i*70+230;
 
@@ -823,7 +846,7 @@ function spawn(){ //spawns enemies
 				mArray[i].rAtkY = mArray[i].y;//sets the x,y values for the archer projectile
 				break;
 			case 2:
-				mArray[i] = new Enemy ("soldier","../img/Skuller.png","../img/SkullerATK_Wpn.png",10,2,2,20,70,false);//creates a new soldier
+				mArray[i] = new Enemy ("soldier","../img/Skuller1L.png","../img/SkullerATKL.png","../img/SkullerATK_WpnL.png",10,2,2,20,70,false);//creates a new soldier
 				mArray[i].x = 510;
 				mArray[i].y = i*70+230;
 				if(mArray[i].y >= 400){
@@ -848,20 +871,36 @@ function spawn(){ //spawns enemies
 
 
 }
+
 function enemyAi() {
 	for (i = 0; i < mArray.length; i++)
 	{
+		if(mArray[i].name == "archer"){
 		mArray[i].rAtkX -= mArray[i].projSp;
 		mArray[i].bullDist += 1;
-		if(mArray[i].bullDist >= 150)
-		{
-			mArray[i].rAtkX = mArray[i].x;
-			mArray[i].bullDist = 0;
+		mArray[i].fCount ++;
+		console.log(mArray[i].fCount);
+		if(mArray[i].fCount == 5){
+			
+			if(mArray[i].fNum ==3)
+					mArray[i].fNum = 1; 
+			var hold = new Image();
+			hold.src = "../img/snake"+mArray[i].fNum+".png";
+			mArray[i].fNum++;
+			mArray[i].fCount = 0;
+			mArray[i].Sprite = hold;
 		}
+		if(mArray[i].bullDist >= 150)
+		{	mArray[i].Sprite = mArray[i].aASprite;
+			mArray[i].rAtkX = mArray[i].x;
+			mArray[i].bullDist = 0;			
+		}
+		if(mArray[i].bullDist == 10)
+			mArray[i].Sprite = mArray[i].bSprite;
 		if (sdcPlayer.isHit == false){
-			if (!(mArray[i].rAtkY > sdcPlayer.y+64 ||
+			if (!(mArray[i].rAtkY > sdcPlayer.y+230 ||
 					  mArray[i].rAtkY + 32 < sdcPlayer.y ||
-					  mArray[i].rAtkX > sdcPlayer.x+48 ||
+					  mArray[i].rAtkX > sdcPlayer.x +112||
 					  mArray[i].rAtkX + 32 < sdcPlayer.x)){
 				if (sdcPlayer.isHit == false){
 					sdcPlayer.isHit = true;
@@ -874,12 +913,10 @@ function enemyAi() {
 						sdcPlayer.health = sdcPlayer.healthMax;
 						cG = 0;
 					}
-					mArray[i].rAtkX = mArray[i].x;
-					mArray[i].bullDist = 0;
 				}
 			}
 		}//player takes damage
-
+		}
 		if(mArray[i].name == "soldier"){
 			
 			if(mArray[i].deltaMove < 100)
@@ -887,9 +924,9 @@ function enemyAi() {
 				mArray[i].mAtkX = mArray[i].x + mArray[i].side;//constantly traces the soldiers position for its attack
 				if(mArray[i].mAtk == true){
 					if (sdcPlayer.isHit == false){
-								if (!(mArray[i].mAtkY > sdcPlayer.y+64 ||
+								if (!(mArray[i].mAtkY > sdcPlayer.y+230 ||
 									  mArray[i].mAtkY + 32 < sdcPlayer.y ||
-									  mArray[i].mAtkX > sdcPlayer.x+48 ||
+									  mArray[i].mAtkX > sdcPlayer.x+112 ||
 									  mArray[i].mAtkX + 32 < sdcPlayer.x)){
 									if (sdcPlayer.isHit == false){
 										sdcPlayer.isHit = true;
@@ -906,9 +943,20 @@ function enemyAi() {
 								}
 							}
 				}//player takes damage
+				mArray[i].fCount++;
+					if(mArray[i].fCount == 10){
 				
+					if(mArray[i].fNum == 4)
+							mArray[i].fNum = 1; 
+					var hold = new Image();
+					hold.src = "../img/Skuller"+mArray[i].fNum+mArray[i].facing+".png";
+					mArray[i].fNum++;
+					mArray[i].fCount = 0;
+					mArray[i].Sprite = hold;
+				}
 				if(mArray[i].deltaMove == 10)
 				{
+					mArray[i].Sprite = mArray[i].bSprite;
 					mArray[i].mAtk = false;
 				}//stops the attack
 
@@ -920,15 +968,32 @@ function enemyAi() {
 			{
 				if(mArray[i].speed == 1){
 					mArray[i].side = -(2 * mArray[i].aW);
-					mArray[i].mAtk = true;					
+					mArray[i].mAtk = true;
+					var hold = new Image();
+					var hold1 = new Image();
+					hold.src = "../img/SkullerATKL.png";
+					mArray[i].Sprite = hold;
+					hold1.src = "../img/SkullerATK_WpnL.png";
+					mArray[i].Attack = hold1;
+					
 				}
 				if(mArray[i].speed == -1){
 					mArray[i].side = (3.5 * mArray[i].aW);
 					mArray[i].mAtk = true;
+					var hold = new Image();
+					var hold1 = new Image();
+					hold.src = "../img/SkullerATKR.png";
+					mArray[i].Sprite = hold;
+					hold1.src = "../img/SkullerATK_WpnR.png";
+					mArray[i].Attack = hold1;
 				}
 				
 				mArray[i].deltaMove = 0;
 				mArray[i].speed = -mArray[i].speed;
+				if(mArray[i].speed == -1)
+					mArray[i].facing = "R";
+				if(mArray[i].speed == 1)
+					mArray[i].facing = "L";
 			}//swaps the direction and makes an attack on the approrite side
 		}
 	}//handles the Ai for the enemies
@@ -1025,7 +1090,7 @@ function pltResult(){
 		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
 		console.log("Win");
 		window.alert("You found some Gold!");
-		gold += 100;
+		gold += 100 + Math.floor(stats[2]);//adds chr to gold gain
 		cG = 0;
 		pltRespawn();
 	}
@@ -1079,7 +1144,7 @@ function movePlayer()
 	if(pltPlayer.leftPressed){
 		faceRight = false;
 		map_vx = -8;
-		pltPlayer.V_X = -0.04;
+		pltPlayer.V_X = -0.04+Math.floor(stats[0]);//adds dex to movement speed
 		pltPlayer.Sprite.src = "../img/CharAnimL.png";
 		if(onGround){
 		footStep.play();
@@ -1089,7 +1154,7 @@ function movePlayer()
 	if(pltPlayer.rightPressed){
 		faceRight = true;
 		map_vx = 8;
-		pltPlayer.V_X = 0.04;
+		pltPlayer.V_X = 0.04+Math.floor(stats[0]);//adds dex to movement speed
 		pltPlayer.Sprite.src = "../img/CharAnimR.png";
 		if(onGround){
 		footStep.play();
@@ -1201,7 +1266,7 @@ function render(){
 			break;
 		case 1:
 			renderer.drawImage(backgroundSS,0,0);
-			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x,sdcPlayer.floorY+20);
+			renderer.drawImage(sdcPlayer.shadow,sdcPlayer.x+85,sdcPlayer.floorY+180);
 			renderer.drawImage(sdcPlayer.sprite,sdcPlayer.x,sdcPlayer.y);
 			for (i = 0; i < mArray.length; i++)
 			{
