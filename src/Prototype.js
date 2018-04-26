@@ -272,6 +272,8 @@ var backgroundSS = new Image;
 backgroundSS.src = "../img/backgroundSS.png";
 //===========================================================================================
 //PLATFORMER VARIABLES
+var goldCounter = 0;
+var pltCoin = new Audio("../wav/pickCoin.wav"); 
 var jump = new Audio("../wav/Jump.wav"); //sound effect while platplayer jumping
 var footStep = new Audio("../wav/Footsteps.wav"); //sound effect while platplayer walking
 var hurt = new Audio("../wav/Hurt.wav");//sound effect when play fall
@@ -289,28 +291,39 @@ var MoneyBg; // Object for Moneybag
 var SeedBg = new Object("../img/Seedbag.png"); // Object for Seedbag
 var Spike; // Object for Spike
 //var SpikeL = new Object ("../img/SpikeL.png", 0,0,50,50,0,0); //Object for Leftward Spike
-var map = [
+var map1 = [
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,2,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,0,0,0,0,3,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3],
-	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
-	[3,1,1,1,1,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,3],
+	[3,0,0,2,4,0,0,0,0,3,0,0,0,0,0,0,3,2,0,0,4,0,0,0,0,4,0,4,4,0,2,3],
+	[3,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,4,0,0,1,1,0,1,1,1,1,1,1,3],
+	[3,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,4,1,1,4,1,1,1,1,1,1,3],
 	
 ];
 var map2 = [
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,3,3,3,3,0,0],
-	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,0,0,0,0,3,3,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[3,0,0,0,0,0,3,3,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,4,0,0,0,0,0,0,0],
-	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
-	[3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,4,2,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,3,3,3,3,0,2,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,4,3,0,0,0,0,0,0,0,0,0,0,0,3,3],
+	[3,0,0,0,0,0,0,0,0,0,3,3,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,3,0,3],
+	[3,0,0,0,4,0,3,3,0,3,2,0,0,0,0,2,3,4,2,4,0,0,3,4,0,0,0,3,4,0,0,3],
+	[3,1,1,1,1,1,1,1,0,1,1,1,4,1,1,1,1,1,1,1,1,4,1,1,4,1,4,1,1,4,0,3],
+	[3,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,3],
+]
+var map3 = [
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,2],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,3,0,0,3,3,3,3,3,0,3,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,2,3,0,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,3,3,0,0,0,3,0,0,3,3,3,2,0,0,0,3],
+	[3,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,3,0,0,0,0,3,0,3,0,0],
+	[3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,4,2,4,3,3,2,4,0,0,0,3,3,4,4,0,0,0,3,4,0,0,0,3,3],
+	[3,1,1,1,0,0,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,1,0,2,3],
+	[3,1,1,1,4,4,1,1,1,1,1,1,1,1,4,4,4,1,1,1,1,1,1,4,1,1,1,1,1,1,3],	
 ]
 var ground = [];
 var currentX;
@@ -395,25 +408,8 @@ function startFunc(){
 	//SIDESCROLLER
 	//=======================================================================================
 	// Platformer
-	for ( var i = 0; i < map.length; i++){
-		ground[i] = [];
-		for (var j = 0; j < map[i].length; j++){
-				if(map[i][j] == 0){
-					ground[i][j] = null;
-				}else if (map[i][j] == 1 ){
-					console.log("x "+i+" y "+j);
-					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"ground"); // creating the platform
-				}else if (map[i][j] == 2){
-					ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64,"money");
-					MoneyBg = ground[i][j];
-				}else if (map[i][j] == 3){
-					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"wall");
-				}else if (map[i][j] == 4){
-					ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64,"spike");
-					Spike = ground[i][j];
-			}
-		}
-	}
+	randomMap();
+	doMap();
 	//=======================================================================================
 	uInt = setInterval(update, 33.34);
 }
@@ -534,6 +530,15 @@ function onKeyUp(e){
 function onClick(e){
 	var xClick = e.pageX - canvas.offsetLeft;
 	var yClick = e.pageY - canvas.offsetTop;
+	
+		if(cG == 2){
+			if (clickCheck(xClick,yClick,backBtnPlt) == true){ //back to incremental level
+			    cG = 0;
+				tab = 0;
+				resetMap();
+		}
+	}
+		
 	switch (cG){
 		case 0:
 		//menu selection
@@ -1030,13 +1035,7 @@ function enemyAi() {
 //PLATFORMER CODE BLOCK
 function movement(){
 	pltPlayer.gav = 10;
-	
-	
-	pltPlayer.X += pltPlayer.V_X;
-	pltPlayer.Y += pltPlayer.V_Y;
-	
-	
-	
+		
 	if (pltPlayer.V_Y < pltPlayer.gav)
 		pltPlayer.V_Y += pltPlayer.weight;
 	for ( var i = 0; i < map.length; i++){
@@ -1050,17 +1049,21 @@ function movement(){
 		}
 	}
 	animatePlayer();
-	//console.log("plyerX  "+pltPlayer.X);
-	currentX = (pltPlayer.X+40-map_vx)/64;
+	
+	
 	//console.log(currentX);
 	for (var i = 0; i < map.length; i++){
 		for( var j = 0; j< map[i].length; j++){
+			if(map[i][j] == 3)
+				checkCollisionBottom(ground[i][j]);
 			if(map[i][j] == 3 && faceRight == true)
 				checkCollisionLeft(ground[i][j]); 
 			else if(map[i][j] == 3 && faceRight == false)
 				checkCollisionRight(ground[i][j]);
 		}
 	}
+	pltPlayer.X += pltPlayer.V_X;
+	pltPlayer.Y += pltPlayer.V_Y;
 	//console.log(map_vx);
 	if(pltPlayer.V_X != 0){
 		for( var i = 0; i < map.length; i++){
@@ -1070,62 +1073,132 @@ function movement(){
 			}
 		}
 	}
-	
-	pltResult();
-}
-function pltResult(){	
-    if (Spike.Y == pltPlayer.Y + pltPlayer.H || Spike.Y <= pltPlayer.Y + pltPlayer.H )
-	{
-		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-		pltPlayer.Y = Spike.Y + Spike.H - pltPlayer.Y;
-		hurt.play();
-		console.log("Failed");
-		window.alert("You got wounded and lost some gold!")
-		gold = gold - 50;
-		cG = 0;
-		pltRespawn();
+	for ( var i = 0; i < map.length; i++){
+		for (var j = 0; j < map[i].length; j++){
+			pltResult(ground[i][j]);
+		}
 	}
-	if (pltPlayer.X + pltPlayer.W >= MoneyBg.X + 30 && pltPlayer.Y + pltPlayer.H >= MoneyBg.Y + 30)
+}
+// MAP
+
+function randomMap(){
+	var x = Math.floor((Math.random()* 3) + 1 );
+	if(x == 1)
+		map = map1;
+	if(x == 2)
+		map = map2;
+	if(x == 3)
+		map = map3;
+}	
+function doMap(){
+	for ( var i = 0; i < map.length; i++){
+		ground[i] = [];
+		for (var j = 0; j < map[i].length; j++){
+				if(map[i][j] == 0){
+					ground[i][j] = new Block("../img/Blank.png", j*64,i*64,64,64,"blank");
+				}else if (map[i][j] == 1 )
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"ground"); // creating the platform
+				else if (map[i][j] == 2){
+					ground[i][j] = new Block("../img/Moneybag.png", j*64,i*64,64,64,"money");
+				}else if (map[i][j] == 3)
+					ground[i][j] = new Block("../img/temple_ground.png",j*64,i*64,64,64,"wall");
+				else if (map[i][j] == 4)
+					ground[i][j] = new Block ("../img/Spike.png", j*64,i*64,64,64,"spike");
+				else if (map[i][j] == 5)
+					ground[i][j] = new Block("../img/Blank.png", j*64,i*64,64,64,"blank");
+		}
+	}
+}
+
+function resetMap(){
+	goldCounter = 0;
+	randomMap();
+	doMap();
+}
+
+// PLAYER STUFF
+
+function pltResult(ground){
+	if (ground.Y <= pltPlayer.Y + 40 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 40 >= pltPlayer.X && ground.type == "spike")
+		{
+			pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+			pltPlayer.Y = ground.Y + ground.H - ground.Y;
+			hurt.play();
+			console.log("Failed");
+			window.alert("You got wounded and lost some gold!")
+			gold = gold - 50;
+			cG = 0;
+			pltRespawn();
+			resetMap();
+	}
+	if (ground.Y <= pltPlayer.Y + 50 && ground.Y + 60 >= pltPlayer.Y && ground.X <= pltPlayer.X + pltPlayer.W && ground.X + 30 >= pltPlayer.X && ground.type == "money")
 	{
-		pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
-		console.log("Win");
-		window.alert("You found some Gold!");
-		gold += 100 + Math.floor(stats[2]);//adds chr to gold gain
-		cG = 0;
-		pltRespawn();
+		pltCoin.play();
+		goldCounter++;
+		ground.type = "blank"
+		if(goldCounter >= 3){
+			pltPlayer.leftPressed = pltPlayer.rightPressed = pltPlayer.upPressed = false;
+			goldCounter = 0;
+			console.log("Win");
+			randomMap();
+			window.alert("You found some Gold!");
+			gold += 100 * goldCounter;
+			cG = 0;
+			pltRespawn();
+			resetMap();
+		}	
 	}
 }
 function pltRespawn(){
 	for( var i = 0; i < map.length; i++){
 		for( var j = 0; j < map[i].length; j++){
-			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4)
+			if(map[i][j] == 1 || map[i][j] == 2 || map[i][j] == 3|| map[i][j] == 4){
 				ground[i][j].X = j*64;
+				goldCouner = 0;
 		}
 	}
-	
 	pltPlayer.X = 64;
 	pltPlayer.Y = 300;
 	pltPlayer.V_X = 0;
+	}
 }
 function checkCollisionRight(ground){
 	if(pltPlayer.collision(ground)){
-		if(pltPlayer.X + pltPlayer.W > ground.X && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H)  {
-			console.log("left"+ ground);
-			pltPlayer.X = ground.X + ground.W - 25;
+		if(pltPlayer.X < ground.X + ground.W + 36 && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H && faceRight == false) {
+			console.log("right");
+			pltPlayer.X = ground.X + ground.W - 22;
 			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
 	}
 }
-function checkCollisionLeft(ground){
+
+/*function checkCollisionGroundLeft(ground){
 	if(pltPlayer.collision(ground)){
-		if(pltPlayer.X + 25 < ground.X + ground.W  && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H) {
-			console.log("right");
-			pltPlayer.X = ground.X - 45;
-			pltPlayer.V_X = 0;		
+		if(pltPlayer.X + pltPlayer.W > ground.X)
+		{
+			pltPlayer.X = ground.X + ground.W - 25;
+			pltPlayer.V_X = 0;
 			map_vx = 0;
 		}
 	}
+}*/
+
+function checkCollisionLeft(ground){
+	if(pltPlayer.collision(ground)){
+		if(pltPlayer.X + pltPlayer.W > ground.X - 10 && pltPlayer.Y + pltPlayer.H > ground.Y && pltPlayer.Y < ground.Y+ground.H && faceRight == true)  {
+			console.log("left"+ ground);
+			pltPlayer.X = ground.X - 42;
+			pltPlayer.V_X = 0;
+			map_vx = 0;
+		}
+	}
+}
+
+function checkCollisionBottom(ground){
+		if(pltPlayer.Y == ground.Y+ground.H && pltPlayer.X + 25 < ground.X + ground.W && pltPlayer.X + pltPlayer.W > ground.X)
+			console.log("hitting bottom");
+			//pltPlayer.V_Y = 0;
 }
 
 function animatePlayer()
@@ -1290,25 +1363,27 @@ function render(){
 			break;
 			break;
 		case 2:
-			renderer.drawImage(pltBG, 0 ,0);
+		renderer.drawImage(pltBG, 0 ,0);
 			renderer.drawImage(pltPlayer.Sprite,
 							   pltPlayer.SIZE*playerSprite, 0, pltPlayer.SIZE, 64,
 							   pltPlayer.X, pltPlayer.Y, pltPlayer.SIZE, pltPlayer.SIZE);
 			for ( var i = 0; i < map.length; i++){
 				for (var j = 0; j < map[i].length; j++){
-					if (map[i][j] == 1)
-						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);	
+					/*if (map[i][j] == 1)
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);	
 					else if (map[i][j] == 2)
-						renderer.drawImage(MoneyBg.Sprite, MoneyBg.X, MoneyBg.Y);
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
 					else if (map[i][j] == 3)
-						renderer.drawImage(ground[i][j].Sprite,ground[i][j].X, ground[i][j].Y);
-					else if (map[i][j] == 4)
-						renderer.drawImage(Spike.Sprite, Spike.X, Spike.Y);
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
+					else if (map[i][j] == 4)*/
+						renderer.drawImage(ground[i][j].Sprite, ground[i][j].X, ground[i][j].Y);
 					
 				}
 			}
 			break;
+		break;	
 	}
+	
 	for (i = 0; i < buttonRender.length; i++){ //checks and renders every button
 		if (buttonRender[i].cG == cG){ //is the button in this gamestate?
 			if (buttonRender[i].tab == tab){ //is the button in this tab?
