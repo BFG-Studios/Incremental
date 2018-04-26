@@ -70,9 +70,9 @@ function Plant(name,gt,id,img,stat,price,sell,seed,plant,boost){
 var potato = new Plant("Potato",40,0,"../img/potato.png",0,5,25,5,0,1);
 var tomato = new Plant("Tomato",40,1,"../img/tomato.png",1,5,25,5,0,1);
 var carrot = new Plant("Carrot",40,2,"../img/carrot.png",2,5,25,5,0,1); //all plants have names now in the class
-var p2 = new Plant("Test1",40,3,"../img/potato.png",0,5,25,5,0,1);
-var t2 = new Plant("Test2",40,4,"../img/tomato.png",1,5,25,5,0,1);
-var c2 = new Plant("Test3",40,5,"../img/carrot.png",2,5,25,5,0,1); //plants for testing
+var p2 = new Plant("Test1",160,3,"../img/potato.png",0,5,25,5,0,1);
+var t2 = new Plant("Test2",160,4,"../img/tomato.png",1,5,25,5,0,1);
+var c2 = new Plant("Test3",160,5,"../img/carrot.png",2,5,25,5,0,1); //plants for testing
 
 var plantNull = plantHolder.length + 1; //variable for selected to store a nonexsistant plant (for when player selects nothing)
 //============================================
